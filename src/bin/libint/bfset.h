@@ -699,13 +699,9 @@ namespace libint2 {
     }
 
     /// Implementation of IncableBFSet::inc().
-    void inc(unsigned int dir, unsigned int c = 1u) override {
-      assert(false);
-    }
+    void inc(unsigned int dir, unsigned int c = 1u) override = delete;
     /// Implementation of IncableBFSet::dec().
-    void dec(unsigned int dir, unsigned int c = 1u) override {
-      assert(false);
-    }
+    void dec(unsigned int dir, unsigned int c = 1u) override = delete;
     /// Implements IncableBFSet::norm()
     unsigned int norm() const override { return qn_[0]; }
     /// Implements Hashable<LIBINT2_UINT_LEAST64>::key()
