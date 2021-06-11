@@ -35,7 +35,7 @@ void ImplicitDimensions::set_default_dims(
 }
 
 std::shared_ptr<ImplicitDimensions> ImplicitDimensions::default_dims() {
-  if (default_dims_ == 0)
+  if (default_dims_ == nullptr)
     throw std::logic_error(
         "ImplicitDimensions::default_dims() -- set_default_dims() has not been "
         "called yet");
@@ -69,7 +69,7 @@ ImplicitDimensions::ImplicitDimensions(int high, int low, int vec)
 void ImplicitDimensions::init_() {
   std::shared_ptr<CTimeEntity<int> > cptr =
       std::dynamic_pointer_cast<CTimeEntity<int>, Entity>(high_);
-  if (cptr != 0) {
+  if (cptr != nullptr) {
     high_is_static_ = true;
     ostringstream oss;
     oss << cptr->value();
@@ -81,7 +81,7 @@ void ImplicitDimensions::init_() {
     high_label_ = dptr->label();
   }
   cptr = std::dynamic_pointer_cast<CTimeEntity<int>, Entity>(low_);
-  if (cptr != 0) {
+  if (cptr != nullptr) {
     low_is_static_ = true;
     ostringstream oss;
     oss << cptr->value();
@@ -93,7 +93,7 @@ void ImplicitDimensions::init_() {
     low_label_ = dptr->label();
   }
   cptr = std::dynamic_pointer_cast<CTimeEntity<int>, Entity>(vecdim_);
-  if (cptr != 0) {
+  if (cptr != nullptr) {
     vecdim_is_static_ = true;
     ostringstream oss;
     oss << cptr->value();
