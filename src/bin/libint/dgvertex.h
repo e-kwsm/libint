@@ -188,7 +188,7 @@ class DGVertex : public Hashable<KeyTypes::InstanceID, ComputeKey> {
   */
   void refer_this_to(const std::shared_ptr<DGVertex>& V);
   /// refers to another vertex?
-  bool refers_to_another() const { return referred_vertex_ != 0; }
+  bool refers_to_another() const { return referred_vertex_ != nullptr; }
   /// returns the code symbol. can throw SymbolNotSet
   const std::string& symbol() const;
   /// sets the code symbol

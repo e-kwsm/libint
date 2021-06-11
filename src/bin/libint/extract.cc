@@ -52,9 +52,9 @@ void ExtractExternSymbols::operator()(const VertexPtr& v) {
       std::shared_ptr<DGArcRR> arcrr;
       if (v->size() == 1 && v->num_exit_arcs() == 1 &&
           ((arcrr = std::dynamic_pointer_cast<DGArcRR, DGArc>(
-                *(v->first_exit_arc()))) != 0
+                *(v->first_exit_arc()))) != nullptr
                ? std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
-                                           RecurrenceRelation>(arcrr->rr()) != 0
+                                           RecurrenceRelation>(arcrr->rr()) != nullptr
                : false) &&
           (*(v->first_exit_arc()))->dest()->precomputed()) {
         return;
@@ -83,7 +83,7 @@ void ExtractRR::operator()(const VertexPtr& v) {
     std::shared_ptr<DGArc> arc = *(v->first_exit_arc());
     std::shared_ptr<DGArcRR> arc_rr =
         std::dynamic_pointer_cast<DGArcRR, DGArc>(arc);
-    if (arc_rr != 0) {
+    if (arc_rr != nullptr) {
       std::shared_ptr<RecurrenceRelation> rr = arc_rr->rr();
       std::shared_ptr<IntegralSet_to_Integrals_base> iset_to_i =
           std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
@@ -91,7 +91,7 @@ void ExtractRR::operator()(const VertexPtr& v) {
       std::shared_ptr<Uncontract_Integral_base> unc_i =
           std::dynamic_pointer_cast<Uncontract_Integral_base,
                                     RecurrenceRelation>(rr);
-      if (iset_to_i == 0 && unc_i == 0) {
+      if (iset_to_i == nullptr && unc_i == nullptr) {
         const std::shared_ptr<RRStack>& rrstack = RRStack::Instance();
         // RRStack must be guaranteed to have this rr
         const RRStack::value_type rrstackvalue = rrstack->find(rr);
