@@ -123,7 +123,7 @@ void DirectedGraph::add_new_vertex(const std::shared_ptr<DGVertex>& vertex) {
 #endif
 
   char label[80];
-  snprintf(label, 80, "vertex%d", num_vertices());
+  sprintf(label, "vertex%d", num_vertices());
   vertex->set_graph_label(label);
   vertex->dg(this);
 
@@ -142,6 +142,7 @@ const std::shared_ptr<DGVertex>& DirectedGraph::vertex_is_on(
   static std::shared_ptr<DGVertex> null_ptr;
 #if USE_ASSOCCONTAINER_BASED_DIRECTEDGRAPH
   typedef vertices::const_iterator citer;
+  typedef vertices::value_type value_type;
   key_type vkey = key(*vertex);
   // find the first elemnt with this key and iterate until vertex is found or
   // key changes
@@ -192,7 +193,7 @@ struct __reset_dgvertex {
     v->unregister();
   }
 };
-struct __reset_shared_ptr {
+struct __reset_safeptr {
   void operator()(std::shared_ptr<DGVertex>& v) { v.reset(); }
 };
 }  // namespace
@@ -262,6 +263,7 @@ void DirectedGraph::traverse() {
   prepare_to_traverse();
 
   // Start at the targets which don't have parents
+  typedef vertices::const_iterator citer;
   typedef vertices::iterator iter;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
@@ -351,7 +353,7 @@ void DirectedGraph::debug_print_traversal(std::ostream& os) const {
   do {
     current_vertex->print(os);
     current_vertex = current_vertex->postcalc();
-  } while (current_vertex != 0);
+  } while (current_vertex != nullptr);
 }
 
 namespace {
@@ -399,7 +401,7 @@ void DirectedGraph::print_to_dot(bool symbols, std::ostream& os) const {
 
   // Print traversal order using dotted lines
   std::shared_ptr<DGVertex> current_vertex = first_to_compute_;
-  if (current_vertex != 0) {
+  if (current_vertex != nullptr) {
     do {
       std::shared_ptr<DGVertex> next = current_vertex->postcalc();
       if (current_vertex && next) {
@@ -407,7 +409,7 @@ void DirectedGraph::print_to_dot(bool symbols, std::ostream& os) const {
            << next->graph_label() << " [ style = dotted constraint = false ]";
       }
       current_vertex = next;
-    } while (current_vertex != 0);
+    } while (current_vertex != nullptr);
   }
 
   os << endl << "}" << endl;
@@ -418,7 +420,7 @@ void DirectedGraph::reset() {
   __reset_dgvertex rv;
   foreach (rv)
     ;
-  __reset_shared_ptr rptr;
+  __reset_safeptr rptr;
   foreach (rptr)
     ;
 
@@ -433,7 +435,8 @@ void DirectedGraph::reset() {
 /// exit arcs)
 void DirectedGraph::apply(const std::shared_ptr<Strategy>& strategy,
                           const std::shared_ptr<Tactic>& tactic) {
-  const std::shared_ptr<DirectedGraph> this_ptr = shared_from_this();
+  const std::shared_ptr<DirectedGraph> this_ptr = SafePtr_from_this();
+  typedef vertices::const_iterator citer;
   typedef vertices::iterator iter;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
@@ -443,7 +446,7 @@ void DirectedGraph::apply(const std::shared_ptr<Strategy>& strategy,
 
     std::shared_ptr<RecurrenceRelation> rr0 =
         strategy->optimal_rr(this_ptr, (vptr), tactic);
-    if (rr0 == 0) continue;
+    if (rr0 == nullptr) continue;
 
     // add children to the graph
     std::shared_ptr<DGVertex> target = rr0->rr_target();
@@ -472,8 +475,8 @@ void DirectedGraph::apply_to(const std::shared_ptr<DGVertex>& vertex,
                           (vertex->num_exit_arcs() == 0);
   if (!not_yet_computed) return;
   std::shared_ptr<RecurrenceRelation> rr0 =
-      strategy->optimal_rr(shared_from_this(), vertex, tactic);
-  if (rr0 == 0) return;
+      strategy->optimal_rr(SafePtr_from_this(), vertex, tactic);
+  if (rr0 == nullptr) return;
 
   std::shared_ptr<DGVertex> target = rr0->rr_target();
   const int num_children = rr0->num_children();
@@ -509,14 +512,15 @@ void DirectedGraph::optimize_rr_out(
 
 // Replace recurrence relations with expressions
 void DirectedGraph::replace_rr_with_expr() {
+  typedef vertices::const_iterator citer;
   typedef vertices::iterator iter;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
     if ((vptr)->num_exit_arcs()) {
       std::shared_ptr<DGArc> arc0 = *((vptr)->first_exit_arc());
       std::shared_ptr<DGArcRR> arc0_cast =
-          std::dynamic_pointer_cast<DGArcRR, DGArc>(arc0);
-      if (arc0_cast == 0) continue;
+          dynamic_pointer_cast<DGArcRR, DGArc>(arc0);
+      if (arc0_cast == nullptr) continue;
       std::shared_ptr<RecurrenceRelation> rr = arc0_cast->rr();
 
       // Optimize if the recurrence relation is simple and the target and
@@ -540,7 +544,7 @@ void DirectedGraph::replace_rr_with_expr() {
         // and instead insert the numerical expression
         std::shared_ptr<RecurrenceRelation::ExprType> rr_expr = rr->rr_expr();
         std::shared_ptr<DGVertex> expr_vertex =
-            std::static_pointer_cast<RecurrenceRelation::ExprType, DGVertex>(
+            static_pointer_cast<RecurrenceRelation::ExprType, DGVertex>(
                 rr_expr);
         expr_vertex = insert_expr_at((vptr), rr_expr);
         std::shared_ptr<DGArc> arc(new DGArcDirect((vptr), expr_vertex));
@@ -559,14 +563,14 @@ void DirectedGraph::replace_rr_with_expr() {
 //
 std::shared_ptr<DGVertex> DirectedGraph::insert_expr_at(
     const std::shared_ptr<DGVertex>& where,
-    const std::shared_ptr<RecurrenceRelation::ExprType>& expr) {
+    const SafePtr<RecurrenceRelation::ExprType>& expr) {
 #if DEBUG
   cout << "insert_expr_at: " << expr->description() << endl;
 #endif
 
   typedef RecurrenceRelation::ExprType ExprType;
   std::shared_ptr<DGVertex> expr_vertex =
-      std::static_pointer_cast<DGVertex, ExprType>(expr);
+      static_pointer_cast<DGVertex, ExprType>(expr);
 
   // If the expression is already on then return it
   if (expr->dg() == this) return expr_vertex;
@@ -580,7 +584,7 @@ std::shared_ptr<DGVertex> DirectedGraph::insert_expr_at(
 
   // See if left operand is also an operator
   const std::shared_ptr<ExprType> left_cast =
-      std::dynamic_pointer_cast<ExprType, DGVertex>(left_oper);
+      dynamic_pointer_cast<ExprType, DGVertex>(left_oper);
   // if yes -- add it to the graph recursively
   if (left_cast) {
     left_oper = insert_expr_at(expr_vertex, left_cast);
@@ -603,7 +607,7 @@ std::shared_ptr<DGVertex> DirectedGraph::insert_expr_at(
 
   // See if right operand is also an operator
   std::shared_ptr<ExprType> right_cast =
-      std::dynamic_pointer_cast<ExprType, DGVertex>(right_oper);
+      dynamic_pointer_cast<ExprType, DGVertex>(right_oper);
   // if yes -- add it to the graph recursively
   if (right_cast) {
     right_oper = insert_expr_at(expr_vertex, right_cast);
@@ -627,7 +631,7 @@ std::shared_ptr<DGVertex> DirectedGraph::insert_expr_at(
   if (need_to_clone) {
     std::shared_ptr<ExprType> expr_new(
         new ExprType(expr, left_oper, right_oper));
-    expr_vertex = std::static_pointer_cast<DGVertex, ExprType>(expr_new);
+    expr_vertex = static_pointer_cast<DGVertex, ExprType>(expr_new);
 #if DEBUG
     int nchildren = expr->num_exit_arcs();
     cout << "insert_expr_at: cloned AlgebraicOperator with "
@@ -686,12 +690,12 @@ void DirectedGraph::remove_trivial_arithmetics() {
       Scalar(1.0);
   const std::shared_ptr<CTimeEntity<double> > const_zero_point_zero =
       Scalar(0.0);
+  typedef vertices::const_iterator citer;
   typedef vertices::iterator iter;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
     std::shared_ptr<AlgebraicOperator<DGVertex> > oper_cast =
-        std::dynamic_pointer_cast<AlgebraicOperator<DGVertex>, DGVertex>(
-            (vptr));
+        dynamic_pointer_cast<AlgebraicOperator<DGVertex>, DGVertex>((vptr));
     if (oper_cast) {
       // std::cout << "cast " << vptr->description() << " to " <<
       // oper_cast->description() << std::endl;
@@ -798,6 +802,7 @@ inline std::string to_vector_symbol(const std::shared_ptr<DGVertex>& v) {
 //
 void DirectedGraph::handle_trivial_nodes(
     const std::shared_ptr<CodeContext>& context) {
+  typedef vertices::const_iterator citer;
   typedef vertices::iterator iter;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
@@ -809,12 +814,12 @@ void DirectedGraph::handle_trivial_nodes(
     // 1?
     if ((vptr)->size() == 1) {
       std::shared_ptr<DGArcRR> arc_cast =
-          std::dynamic_pointer_cast<DGArcRR, DGArc>(arc);
+          dynamic_pointer_cast<DGArcRR, DGArc>(arc);
       if (arc_cast) {
         std::shared_ptr<RecurrenceRelation> rr = arc_cast->rr();
         std::shared_ptr<IntegralSet_to_Integrals_base> rr_cast =
-            std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
-                                      RecurrenceRelation>(rr);
+            dynamic_pointer_cast<IntegralSet_to_Integrals_base,
+                                 RecurrenceRelation>(rr);
         if (rr_cast) {
           std::shared_ptr<DGVertex> child = arc->dest();
 
@@ -847,7 +852,7 @@ void DirectedGraph::handle_trivial_nodes(
     // Is the exit arc DGArcDirect?
     {
       std::shared_ptr<DGArcDirect> arc_cast =
-          std::dynamic_pointer_cast<DGArcDirect, DGArc>(arc);
+          dynamic_pointer_cast<DGArcDirect, DGArc>(arc);
       if (arc_cast) {
         // remove the vertex, if possible
         // if this is a target -- cannot remove
@@ -864,7 +869,7 @@ void DirectedGraph::handle_trivial_nodes(
 // v2 and remove v1 from the graph alltogether. return true if successful, false
 // otherwise
 bool DirectedGraph::remove_vertex_at(const std::shared_ptr<DGVertex>& v1,
-                                     const std::shared_ptr<DGVertex>& v2) {
+                                     const SafePtr<DGVertex>& v2) {
 #if DEBUG
   cout << "remove_vertex_at: replacing " << v1->description() << " with "
        << v2->description() << endl;
@@ -881,8 +886,8 @@ bool DirectedGraph::remove_vertex_at(const std::shared_ptr<DGVertex>& v1,
     // See if this is a direct arc -- otherwise cannot do this
     std::shared_ptr<DGArc> arc = (*a);
     std::shared_ptr<DGArcDirect> arc_cast =
-        std::dynamic_pointer_cast<DGArcDirect, DGArc>(arc);
-    if (arc_cast == 0) return false;
+        dynamic_pointer_cast<DGArcDirect, DGArc>(arc);
+    if (arc_cast == nullptr) return false;
     v1_entry.push_back(*a);
 #if DEBUG
     std::cout << "remove_vertex_at: examined v1 entry arc: from "
@@ -899,8 +904,8 @@ bool DirectedGraph::remove_vertex_at(const std::shared_ptr<DGVertex>& v1,
   // See if this is a direct arc -- otherwise cannot do this
   std::shared_ptr<DGArc> arc = *(v1->first_exit_arc());
   std::shared_ptr<DGArcDirect> arc_cast =
-      std::dynamic_pointer_cast<DGArcDirect, DGArc>(arc);
-  if (arc_cast == 0) return false;
+      dynamic_pointer_cast<DGArcDirect, DGArc>(arc);
+  if (arc_cast == nullptr) return false;
 
     //
     // OK, now do work!
@@ -966,6 +971,7 @@ bool DirectedGraph::remove_vertex_at(const std::shared_ptr<DGVertex>& v1,
 }
 
 void DirectedGraph::remove_disconnected_vertices() {
+  typedef vertices::const_iterator citer;
   typedef vertices::iterator iter;
   for (iter v = stack_.begin(); v != stack_.end();) {
     const ver_ptr& vptr = vertex_ptr(*v);
@@ -995,7 +1001,7 @@ void DirectedGraph::remove_disconnected_vertices() {
 // because it's also used elsewhere
 namespace libint2 {
 std::string declare_function(const std::shared_ptr<CodeContext>& context,
-                             const std::shared_ptr<ImplicitDimensions>& dims,
+                             const SafePtr<ImplicitDimensions>& dims,
                              const std::shared_ptr<CodeSymbols>& args,
                              const std::string& tlabel,
                              const std::string& function_descr,
@@ -1045,7 +1051,7 @@ std::shared_ptr<MemBlockSet> to_memoryblks(Container& vertices) {
     const DirectedGraph::ver_ptr& vptr = vertex_ptr(*v);
     result->push_back(MemBlock((vptr)->address(), (vptr)->size(), false,
                                std::shared_ptr<MemBlock>(),
-                               std::shared_ptr<MemBlock>()));
+                               SafePtr<MemBlock>()));
   }
   return result;
 }
@@ -1056,9 +1062,9 @@ std::shared_ptr<MemBlockSet> to_memoryblks(Container& vertices) {
 //
 void DirectedGraph::generate_code(
     const std::shared_ptr<CodeContext>& context,
-    const std::shared_ptr<MemoryManager>& memman,
+    const SafePtr<MemoryManager>& memman,
     const std::shared_ptr<ImplicitDimensions>& dims,
-    const std::shared_ptr<CodeSymbols>& args, const std::string& label,
+    const SafePtr<CodeSymbols>& args, const std::string& label,
     std::ostream& decl, std::ostream& def) {
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
   const std::string tlabel = taskmgr.current().label();
@@ -1161,12 +1167,12 @@ void DirectedGraph::generate_code(
       std::shared_ptr<Entity> bvecdim;
       if (!dims->vecdim_is_static()) {
         std::shared_ptr<RTimeEntity<EntityTypes::Int> > vecdim =
-            std::dynamic_pointer_cast<RTimeEntity<EntityTypes::Int>, Entity>(
+            dynamic_pointer_cast<RTimeEntity<EntityTypes::Int>, Entity>(
                 dims->vecdim());
         bvecdim = vecdim * bdim;
       } else {
         std::shared_ptr<CTimeEntity<int> > vecdim =
-            std::dynamic_pointer_cast<CTimeEntity<int>, Entity>(dims->vecdim());
+            dynamic_pointer_cast<CTimeEntity<int>, Entity>(dims->vecdim());
         bvecdim = vecdim * bdim;
       }
       def << "_libint2_static_api_bzero_short_(" << registry()->stack_name()
@@ -1234,7 +1240,9 @@ void DirectedGraph::allocate_mem(
 
   struct TargetAllocator {
     typedef DirectedGraph::targets::const_iterator target_citer;
+    typedef DirectedGraph::targets::iterator target_iter;
     typedef DirectedGraph::size sz;
+    typedef DirectedGraph::address address;
 
     const DirectedGraph::targets& targets_;
     const std::shared_ptr<MemoryManager>& memman_;
@@ -1380,21 +1388,22 @@ void DirectedGraph::allocate_mem(
     need_to_allocate &=
         (vertex->size() > min_size_to_alloc || vertex->is_a_target() ||
          (vertex->size() == vertex->num_exit_arcs() &&
-          ((arcrr = std::dynamic_pointer_cast<DGArcRR, DGArc>(
-                *(vertex->first_exit_arc()))) != 0
-               ? std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
-                                           RecurrenceRelation>(arcrr->rr()) != 0
+          ((arcrr = dynamic_pointer_cast<DGArcRR, DGArc>(
+                *(vertex->first_exit_arc()))) != nullptr
+               ? dynamic_pointer_cast<IntegralSet_to_Integrals_base,
+                                      RecurrenceRelation>(arcrr->rr()) !=
+                     nullptr
                : false) &&
           !(*(vertex->first_exit_arc()))->dest()->precomputed()));
 
     // if this is a member of unrolled integral set whose address or symbol is
     // set, no need to allocate
     if (need_to_allocate && vertex->num_entry_arcs() != 0) {
-      arcrr = std::dynamic_pointer_cast<DGArcRR, DGArc>(
-          *(vertex->first_entry_arc()));
+      arcrr =
+          dynamic_pointer_cast<DGArcRR, DGArc>(*(vertex->first_entry_arc()));
       if (arcrr) {
-        if (std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
-                                      RecurrenceRelation>(arcrr->rr()) != 0) {
+        if (dynamic_pointer_cast<IntegralSet_to_Integrals_base,
+                                 RecurrenceRelation>(arcrr->rr()) != nullptr) {
           if (arcrr->orig()->symbol_set() || arcrr->orig()->address_set())
             need_to_allocate = false;
         }
@@ -1424,12 +1433,11 @@ void DirectedGraph::allocate_mem(
       }
     }
     vertex = vertex->postcalc();
-  } while (vertex != 0);
+  } while (vertex != nullptr);
 }
 
-void DirectedGraph::assign_symbols(
-    const std::shared_ptr<CodeContext>& context,
-    const std::shared_ptr<ImplicitDimensions>& dims) {
+void DirectedGraph::assign_symbols(const std::shared_ptr<CodeContext>& context,
+                                   const SafePtr<ImplicitDimensions>& dims) {
   std::ostringstream os;
   const std::string null_str("");
   const std::string stack_name = registry()->stack_name();
@@ -1442,6 +1450,7 @@ void DirectedGraph::assign_symbols(
   std::string veclen = dims->vecdim_label();
 
   // First, set symbols for all vertices which have address assigned
+  typedef vertices::const_iterator citer;
   typedef vertices::iterator iter;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
@@ -1462,14 +1471,13 @@ void DirectedGraph::assign_symbols(
     if ((vptr)->num_exit_arcs() == 0) continue;
     if (vptr->refers_to_another()) continue;
     std::shared_ptr<DGArc> arc = *((vptr)->first_exit_arc());
-    std::shared_ptr<DGArcRR> arc_rr =
-        std::dynamic_pointer_cast<DGArcRR, DGArc>(arc);
-    if (arc_rr == 0) continue;
+    std::shared_ptr<DGArcRR> arc_rr = dynamic_pointer_cast<DGArcRR, DGArc>(arc);
+    if (arc_rr == nullptr) continue;
     std::shared_ptr<RecurrenceRelation> rr = arc_rr->rr();
     std::shared_ptr<IntegralSet_to_Integrals_base> iset_to_i =
-        std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
-                                  RecurrenceRelation>(rr);
-    if (iset_to_i == 0) {
+        dynamic_pointer_cast<IntegralSet_to_Integrals_base, RecurrenceRelation>(
+            rr);
+    if (iset_to_i == nullptr) {
       continue;
     } else {
       typedef DGVertex::ArcSetType::const_iterator aciter;
@@ -1522,7 +1530,7 @@ void DirectedGraph::assign_symbols(
     {
       typedef CTimeEntity<double> cdouble;
       std::shared_ptr<cdouble> ptr_cast =
-          std::dynamic_pointer_cast<cdouble, DGVertex>((vptr));
+          dynamic_pointer_cast<cdouble, DGVertex>((vptr));
       if (ptr_cast) {
         (vptr)->set_symbol(ptr_cast->label());
         continue;
@@ -1543,7 +1551,7 @@ void DirectedGraph::assign_symbols(
     {
       typedef RTimeEntity<double> cdouble;
       std::shared_ptr<cdouble> ptr_cast =
-          std::dynamic_pointer_cast<cdouble, DGVertex>((vptr));
+          dynamic_pointer_cast<cdouble, DGVertex>((vptr));
       if (ptr_cast) {
         (vptr)->set_symbol(ptr_cast->label());
         continue;
@@ -1556,7 +1564,7 @@ void DirectedGraph::assign_symbols(
       {  // basic integral
         typedef IntegralSet<IncableBFSet> intset;
         std::shared_ptr<intset> ptr_cast =
-            std::dynamic_pointer_cast<intset, DGVertex>((vptr));
+            dynamic_pointer_cast<intset, DGVertex>((vptr));
         if (ptr_cast) {
           (vptr)->set_symbol(context->unique_name<EntityTypes::FP>());
           continue;
@@ -1569,6 +1577,7 @@ void DirectedGraph::assign_symbols(
 
   // finally, process all operators (start with most recently added vertices
   // since those are much more likely to be on the bottom of the graph).
+  typedef vertices::const_reverse_iterator criter;
   typedef vertices::reverse_iterator riter;
   for (riter v = stack_.rbegin(); v != stack_.rend(); ++v) {
     ver_ptr& vptr = vertex_ptr(*v);
@@ -1582,18 +1591,17 @@ void DirectedGraph::assign_symbols(
 }
 
 void DirectedGraph::assign_oper_symbol(
-    const std::shared_ptr<CodeContext>& context,
-    std::shared_ptr<DGVertex>& vertex) {
+    const std::shared_ptr<CodeContext>& context, SafePtr<DGVertex>& vertex) {
   // do nothing if the vertex has a symbol or is not an operator
   if (vertex->symbol_set()) return;
 
   {
     typedef AlgebraicOperator<DGVertex> oper;
     std::shared_ptr<oper> ptr_cast =
-        std::dynamic_pointer_cast<oper, DGVertex>(vertex);
+        dynamic_pointer_cast<oper, DGVertex>(vertex);
     if (ptr_cast) {
       // is it in a subtree?
-      const bool on_a_subtree = (vertex->subtree() != 0);
+      const bool on_a_subtree = (vertex->subtree() != nullptr);
 
       // If no -- it will be an automatic variable
       if (!on_a_subtree)
@@ -1685,7 +1693,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
       targetblks = std::shared_ptr<MemBlockSet>(new MemBlockSet);
       targetblks->push_back(MemBlock(0, iregistry()->size_of_target_accum(),
                                      false, std::shared_ptr<MemBlock>(),
-                                     std::shared_ptr<MemBlock>()));
+                                     SafePtr<MemBlock>()));
     }
   }
 
@@ -1709,12 +1717,12 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
       std::shared_ptr<Entity> bvecdim;
       if (!vecdim_is_static) {
         std::shared_ptr<RTimeEntity<EntityTypes::Int> > vecdim =
-            std::dynamic_pointer_cast<RTimeEntity<EntityTypes::Int>, Entity>(
+            dynamic_pointer_cast<RTimeEntity<EntityTypes::Int>, Entity>(
                 dims->vecdim());
         bvecdim = vecdim * bdim;
       } else {
         std::shared_ptr<CTimeEntity<int> > vecdim =
-            std::dynamic_pointer_cast<CTimeEntity<int>, Entity>(dims->vecdim());
+            dynamic_pointer_cast<CTimeEntity<int>, Entity>(dims->vecdim());
         bvecdim = vecdim * bdim;
       }
 
@@ -1723,10 +1731,10 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
       ForLoop loop(context,loopvar,bvecdim,ctimeconst_zero);
       os << loop.open();
       {
-        ostringstream oss;
-        oss << registry()->stack_name() << "[" << loopvar << "]";
-        const std::string zero("0");
-        os << context->assign(oss.str(),zero);
+	ostringstream oss;
+	oss << registry()->stack_name() << "[" << loopvar << "]";
+	const std::string zero("0");
+	os << context->assign(oss.str(),zero);
       }
       os << loop.close();
 #endif
@@ -1742,13 +1750,12 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
   std::string varname("hsi");
   std::shared_ptr<ForLoop> hsi_loop(
       new ForLoop(context, varname, dims->high(),
-                  std::shared_ptr<Entity>(new CTimeEntity<int>(0))));
+                  SafePtr<Entity>(new CTimeEntity<int>(0))));
   os << hsi_loop->open();
 
   varname = "lsi";
-  std::shared_ptr<ForLoop> lsi_loop(
-      new ForLoop(context, varname, dims->low(),
-                  std::shared_ptr<Entity>(new CTimeEntity<int>(0))));
+  std::shared_ptr<ForLoop> lsi_loop(new ForLoop(
+      context, varname, dims->low(), SafePtr<Entity>(new CTimeEntity<int>(0))));
   os << lsi_loop->open();
 
   // the vector loop is created outside of the body of the function if
@@ -1771,17 +1778,16 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
   if (create_outer_vector_loop) {
     std::shared_ptr<ForLoop> tmp_vi_loop(
         new ForLoop(context, varname, dims->vecdim(),
-                    std::shared_ptr<Entity>(new CTimeEntity<int>(0))));
+                    SafePtr<Entity>(new CTimeEntity<int>(0))));
     outer_vloop = tmp_vi_loop;
   } else {
     std::shared_ptr<Entity> unit_dim(new CTimeEntity<int>(1));
-    std::shared_ptr<ForLoop> tmp_vi_loop(
-        new ForLoop(context, varname, unit_dim,
-                    std::shared_ptr<Entity>(new CTimeEntity<int>(0))));
+    std::shared_ptr<ForLoop> tmp_vi_loop(new ForLoop(
+        context, varname, unit_dim, SafePtr<Entity>(new CTimeEntity<int>(0))));
     outer_vloop = tmp_vi_loop;
     std::shared_ptr<ForLoop> tmp2_vi_loop(
         new ForLoop(context, varname, dims->vecdim(),
-                    std::shared_ptr<Entity>(new CTimeEntity<int>(0))));
+                    SafePtr<Entity>(new CTimeEntity<int>(0))));
     line_vloop = tmp2_vi_loop;
     // note that both loops use same variable name -- standard C++ scoping rules
     // allow it -- but the outer loop will become a declaration of a constant
@@ -1818,7 +1824,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
       {
         typedef AlgebraicOperator<DGVertex> oper_type;
         std::shared_ptr<oper_type> oper_ptr =
-            std::dynamic_pointer_cast<oper_type, DGVertex>(current_vertex);
+            dynamic_pointer_cast<oper_type, DGVertex>(current_vertex);
         if (oper_ptr) {
           // If this is an Integral in a target IntegralSet AND
           // can accumulate targets directly -- use '+=' instead of '='
@@ -1861,7 +1867,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
           {
             if (oper_ptr->type() == algebra::OperatorTypes::Times &&
                 oper_ptr->num_entry_arcs() == 1) {
-              parent_oper_ptr = std::dynamic_pointer_cast<oper_type, DGVertex>(
+              parent_oper_ptr = dynamic_pointer_cast<oper_type, DGVertex>(
                   (*(oper_ptr->first_entry_arc()))->orig());
               if (parent_oper_ptr != 0) {
                 auto parent_oper_type = parent_oper_ptr->type();
@@ -2011,7 +2017,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
       if (current_vertex->num_exit_arcs() == 1) {
         typedef DGArcDirect arc_type;
         std::shared_ptr<arc_type> arc_ptr =
-            std::dynamic_pointer_cast<arc_type, DGArc>(
+            dynamic_pointer_cast<arc_type, DGArc>(
                 *(current_vertex->first_exit_arc()));
         if (arc_ptr) {
 #if CHECK_SAFETY
@@ -2071,7 +2077,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
         // current_vertex->description() << std::endl;
         typedef DGArcRR arc_type;
         std::shared_ptr<arc_type> arc_ptr =
-            std::dynamic_pointer_cast<arc_type, DGArc>(
+            dynamic_pointer_cast<arc_type, DGArc>(
                 *(current_vertex->first_exit_arc()));
         if (arc_ptr) {
           std::shared_ptr<RecurrenceRelation> rr = arc_ptr->rr();
@@ -2095,7 +2101,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
     current_vertex->schedule();
     current_vertex = current_vertex->postcalc();
 
-  } while (current_vertex != 0);
+  } while (current_vertex != nullptr);
 
   os << outer_vloop->close();
   os << lsi_loop->close();
@@ -2111,7 +2117,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
 #if 0
     unsigned int vecdim_rank;
     if (vecdim_is_static) {
-      std::shared_ptr<CTimeEntity<int> > cptr = std::dynamic_pointer_cast<CTimeEntity<int> ,Entity >(dims->vecdim());
+      std::shared_ptr<CTimeEntity<int> > cptr = dynamic_pointer_cast<CTimeEntity<int> ,Entity >(dims->vecdim());
       vecdim_rank = cptr->value();
     }
     const std::string times_vecdim("*" + dims->vecdim_label());
@@ -2129,12 +2135,12 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
       std::shared_ptr<Entity> bvecdim;
       if (!vecdim_is_static) {
         std::shared_ptr<RTimeEntity<EntityTypes::Int> > vecdim =
-            std::dynamic_pointer_cast<RTimeEntity<EntityTypes::Int>, Entity>(
+            dynamic_pointer_cast<RTimeEntity<EntityTypes::Int>, Entity>(
                 dims->vecdim());
         bvecdim = vecdim * bdim;
       } else {
         std::shared_ptr<CTimeEntity<int> > vecdim =
-            std::dynamic_pointer_cast<CTimeEntity<int>, Entity>(dims->vecdim());
+            dynamic_pointer_cast<CTimeEntity<int>, Entity>(dims->vecdim());
         bvecdim = vecdim * bdim;
       }
 
@@ -2150,12 +2156,12 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
 #if 0
       std::shared_ptr<Entity> loopmax;
       if (vecdim_is_static) {
-const int loopmax_value = s*vecdim_rank;
-loopmax = std::shared_ptr<Entity>(new CTimeEntity<int>(loopmax_value));
+	const int loopmax_value = s*vecdim_rank;
+	loopmax = std::shared_ptr<Entity>(new CTimeEntity<int>(loopmax_value));
       }
       else {
-ostringstream oss;  oss << s << times_vecdim;
-loopmax = std::shared_ptr<Entity>(new RTimeEntity<EntityTypes::Int>(oss.str()));
+	ostringstream oss;  oss << s << times_vecdim;
+	loopmax = std::shared_ptr<Entity>(new RTimeEntity<EntityTypes::Int>(oss.str()));
       }
 
       std::string loopvar("i");
@@ -2163,15 +2169,15 @@ loopmax = std::shared_ptr<Entity>(new RTimeEntity<EntityTypes::Int>(oss.str()));
       os << loop.open();
       std::string acctarget;
       {
-ostringstream oss;
-oss << stack_name << "[" << target_accums_[curr_target] << times_vecdim << "+" << loopvar << "]";
-acctarget = oss.str();
+	ostringstream oss;
+	oss << stack_name << "[" << target_accums_[curr_target] << times_vecdim << "+" << loopvar << "]";
+	acctarget = oss.str();
       }
       std::string target;
       {
-ostringstream oss;
-oss << stack_name << "[" << (tptr)->address() << times_vecdim << "+" << loopvar << "]";
-target = oss.str();
+	ostringstream oss;
+	oss << stack_name << "[" << (tptr)->address() << times_vecdim << "+" << loopvar << "]";
+	target = oss.str();
       }
       os << context->accumulate(acctarget,target);
       os << loop.close();
@@ -2228,6 +2234,7 @@ target = oss.str();
 
 void DirectedGraph::update_func_names() {
   // Loop over all vertices
+  typedef vertices::const_iterator citer;
   typedef vertices::iterator iter;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
@@ -2236,8 +2243,8 @@ void DirectedGraph::update_func_names() {
       // if it must be computed using a RR
       std::shared_ptr<DGArc> arc = *((vptr)->first_exit_arc());
       std::shared_ptr<DGArcRR> arcrr =
-          std::dynamic_pointer_cast<DGArcRR, DGArc>(arc);
-      if (arcrr != 0) {
+          dynamic_pointer_cast<DGArcRR, DGArc>(arc);
+      if (arcrr != nullptr) {
         std::shared_ptr<RecurrenceRelation> rr = arcrr->rr();
         // and the RR is complex (i.e. likely to result in a function call)
         if (!rr->is_simple()) {
@@ -2256,16 +2263,16 @@ bool DirectedGraph::cannot_enclose_in_outer_vloop() const {
     if (nchildren > 0) {
       arc_ptr aptr = *(current_vertex->first_exit_arc());
       std::shared_ptr<DGArcRR> aptr_cast =
-          std::dynamic_pointer_cast<DGArcRR, arc>(aptr);
+          dynamic_pointer_cast<DGArcRR, arc>(aptr);
       // if this is a RR
-      if (aptr_cast != 0) {
+      if (aptr_cast != nullptr) {
         // and a non-trivial one
         std::shared_ptr<RecurrenceRelation> rr = aptr_cast->rr();
         if (!rr->is_simple()) {
           // if this is an Uncontract_Integral call, return false
           std::shared_ptr<Uncontract_Integral_base> rr_ucb_ptr =
-              std::dynamic_pointer_cast<Uncontract_Integral_base,
-                                        RecurrenceRelation>(rr);
+              dynamic_pointer_cast<Uncontract_Integral_base,
+                                   RecurrenceRelation>(rr);
           if (rr_ucb_ptr)
             return false;
           else
@@ -2274,7 +2281,7 @@ bool DirectedGraph::cannot_enclose_in_outer_vloop() const {
       }
     }
     current_vertex = current_vertex->postcalc();
-  } while (current_vertex != 0);
+  } while (current_vertex != nullptr);
 
   return false;
 }
@@ -2284,6 +2291,7 @@ void DirectedGraph::find_subtrees() {
   if (!registry()->condense_expr()) return;
 
   // Find subtrees by starting from the targets and moving down ...
+  typedef vertices::const_iterator citer;
   typedef vertices::iterator iter;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
@@ -2306,7 +2314,7 @@ void DirectedGraph::find_subtrees_from(const std::shared_ptr<DGVertex>& v) {
       if (v->num_exit_arcs() > 0) {
         std::shared_ptr<DGArc> arc = *(v->first_exit_arc());
         std::shared_ptr<DGArcRR> arc_rr =
-            std::dynamic_pointer_cast<DGArcRR, DGArc>(arc);
+            dynamic_pointer_cast<DGArcRR, DGArc>(arc);
         if (arc_rr) useless_subtree = true;
       }
     }
@@ -2442,12 +2450,12 @@ void PrerequisitesExtractor::operator()(const std::shared_ptr<DGVertex>& v) {
          i != v->entry_arcs().end() && !member_of_shellset; ++i) {
       const std::shared_ptr<DGArc>& arc = *i;
       std::shared_ptr<DGArcRR> arc_cast =
-          std::dynamic_pointer_cast<DGArcRR, DGArc>(arc);
+          dynamic_pointer_cast<DGArcRR, DGArc>(arc);
       if (arc_cast) {
         std::shared_ptr<RecurrenceRelation> rr = arc_cast->rr();
         std::shared_ptr<IntegralSet_to_Integrals_base> rr_cast =
-            std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
-                                      RecurrenceRelation>(rr);
+            dynamic_pointer_cast<IntegralSet_to_Integrals_base,
+                                 RecurrenceRelation>(rr);
         if (rr_cast) {
           member_of_shellset = true;
           parent_shellset = rr->rr_target();

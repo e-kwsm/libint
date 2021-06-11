@@ -77,7 +77,7 @@ class DGVertex : public Hashable<KeyTypes::InstanceID, ComputeKey> {
   DGVertex(ClassID tid);
   /// Sets typeid to tid
   DGVertex(ClassID tid, const std::vector<std::shared_ptr<DGArc> >& parents,
-           const std::vector<std::shared_ptr<DGArc> >& children);
+           const std::vector<SafePtr<DGArc> >& children);
   /// This is a copy constructor
   DGVertex(const DGVertex& v);
   virtual ~DGVertex();
@@ -101,7 +101,7 @@ class DGVertex : public Hashable<KeyTypes::InstanceID, ComputeKey> {
    * del_exit_arc().
    */
   void replace_exit_arc(const std::shared_ptr<DGArc>& A,
-                        const std::shared_ptr<DGArc>& B);
+                        const SafePtr<DGArc>& B);
   /** this function detaches the vertex from other vertices. It cannot safely
      remove entry arcs, so the user must previously delete or replace them (see
      documentation for del_exit_arc()). can throw CannotPerformOperation.
@@ -127,8 +127,7 @@ class DGVertex : public Hashable<KeyTypes::InstanceID, ComputeKey> {
   /// returns children::end()
   ArcSetType::const_iterator plast_exit_arc() const { return children_.end(); }
   /// return arc connecting this to v, otherwise null pointer
-  const std::shared_ptr<DGArc>& exit_arc(
-      const std::shared_ptr<DGVertex>& v) const;
+  const std::shared_ptr<DGArc>& exit_arc(const SafePtr<DGVertex>& v) const;
 
   /// computes key
   virtual KeyReturnType key() const = 0;
@@ -188,7 +187,7 @@ class DGVertex : public Hashable<KeyTypes::InstanceID, ComputeKey> {
   */
   void refer_this_to(const std::shared_ptr<DGVertex>& V);
   /// refers to another vertex?
-  bool refers_to_another() const { return referred_vertex_ != 0; }
+  bool refers_to_another() const { return referred_vertex_ != nullptr; }
   /// returns the code symbol. can throw SymbolNotSet
   const std::string& symbol() const;
   /// sets the code symbol

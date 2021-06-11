@@ -110,7 +110,7 @@ class CR_DerivGauss
      (unique) label has m=0. */
   std::string generate_label() const override {
     typedef typename TargetType::AuxIndexType mType;
-    static std::shared_ptr<mType> aux0(new mType(0u));
+    static std::shared_ptr<mType> aux0(new mType(nullptr));
     std::ostringstream os;
     os << descr() << "P" << part << to_string(where)
        << genintegralset_label(target_->bra(), target_->ket(), aux0,
@@ -125,9 +125,8 @@ class CR_DerivGauss
   /// Implementation of RecurrenceRelation::generic_header()
   std::string generic_header() const override;
   /// Implementation of RecurrenceRelation::generic_instance()
-  std::string generic_instance(
-      const std::shared_ptr<CodeContext>& context,
-      const std::shared_ptr<CodeSymbols>& args) const override;
+  std::string generic_instance(const std::shared_ptr<CodeContext>& context,
+                               const SafePtr<CodeSymbols>& args) const override;
 #endif
 };
 
@@ -330,7 +329,7 @@ template <class IntType, int part, FunctionPosition where, int trans_inv_part,
 std::string
 CR_DerivGauss<IntType, part, where, trans_inv_part, trans_inv_where>::
     generic_instance(const std::shared_ptr<CodeContext>& context,
-                     const std::shared_ptr<CodeSymbols>& args) const {
+                     const SafePtr<CodeSymbols>& args) const {
   std::ostringstream oss;
 
   oss << "using namespace libint2;" << std::endl;

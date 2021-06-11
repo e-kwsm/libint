@@ -35,7 +35,7 @@ void ImplicitDimensions::set_default_dims(
 }
 
 std::shared_ptr<ImplicitDimensions> ImplicitDimensions::default_dims() {
-  if (default_dims_ == 0)
+  if (default_dims_ == nullptr)
     throw std::logic_error(
         "ImplicitDimensions::default_dims() -- set_default_dims() has not been "
         "called yet");
@@ -68,8 +68,8 @@ ImplicitDimensions::ImplicitDimensions(int high, int low, int vec)
 
 void ImplicitDimensions::init_() {
   std::shared_ptr<CTimeEntity<int> > cptr =
-      std::dynamic_pointer_cast<CTimeEntity<int>, Entity>(high_);
-  if (cptr != 0) {
+      dynamic_pointer_cast<CTimeEntity<int>, Entity>(high_);
+  if (cptr != nullptr) {
     high_is_static_ = true;
     ostringstream oss;
     oss << cptr->value();
@@ -77,11 +77,11 @@ void ImplicitDimensions::init_() {
   } else {
     high_is_static_ = false;
     std::shared_ptr<DGVertex> dptr =
-        std::dynamic_pointer_cast<DGVertex, Entity>(high_);
+        dynamic_pointer_cast<DGVertex, Entity>(high_);
     high_label_ = dptr->label();
   }
-  cptr = std::dynamic_pointer_cast<CTimeEntity<int>, Entity>(low_);
-  if (cptr != 0) {
+  cptr = dynamic_pointer_cast<CTimeEntity<int>, Entity>(low_);
+  if (cptr != nullptr) {
     low_is_static_ = true;
     ostringstream oss;
     oss << cptr->value();
@@ -89,11 +89,11 @@ void ImplicitDimensions::init_() {
   } else {
     low_is_static_ = false;
     std::shared_ptr<DGVertex> dptr =
-        std::dynamic_pointer_cast<DGVertex, Entity>(low_);
+        dynamic_pointer_cast<DGVertex, Entity>(low_);
     low_label_ = dptr->label();
   }
-  cptr = std::dynamic_pointer_cast<CTimeEntity<int>, Entity>(vecdim_);
-  if (cptr != 0) {
+  cptr = dynamic_pointer_cast<CTimeEntity<int>, Entity>(vecdim_);
+  if (cptr != nullptr) {
     vecdim_is_static_ = true;
     ostringstream oss;
     oss << cptr->value();
@@ -101,7 +101,7 @@ void ImplicitDimensions::init_() {
   } else {
     vecdim_is_static_ = false;
     std::shared_ptr<DGVertex> dptr =
-        std::dynamic_pointer_cast<DGVertex, Entity>(vecdim_);
+        dynamic_pointer_cast<DGVertex, Entity>(vecdim_);
     vecdim_label_ = dptr->label();
   }
 }

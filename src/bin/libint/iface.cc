@@ -28,6 +28,7 @@ using namespace std;
 using namespace libint2;
 
 namespace {
+const char mh_name[] = "libint2.h";
 const char th_name[] = "libint2_types.h";
 const char ph_name[] = "libint2_params.h";
 const char ih_name[] = "libint2_iface.h";
@@ -247,7 +248,6 @@ Libint2Iface::~Libint2Iface() {
 
   // For each task, generate the evaluator type
   th_ << "#include <libint2/util/vector.h>" << std::endl;
-  th_ << "#include <libint2/util/intrinsic_types.h>" << std::endl;
   th_ << "#include <libint2/util/intrinsic_operations.h>" << std::endl;
   th_ << "#include <libint2/util/timer.h>"
       << std::endl;  // in case LIBINT2_PROFILE is on
@@ -346,7 +346,7 @@ Libint2Iface::~Libint2Iface() {
       const std::string& tlabel = t->label();
 
       li_ << li_decls_[i] << ctext_->open_block();
-      li_ << "if (buf != 0) inteval->stack = "
+      li_ << "if (buf != nullptr) inteval->stack = "
              "reinterpret_cast<LIBINT2_REALTYPE*>(buf);"
           << std::endl
           << "else " << std::endl;
@@ -400,8 +400,8 @@ Libint2Iface::~Libint2Iface() {
       li_ << lc_decls_[i] << ctext_->open_block();
 
       li_ << "free(inteval->stack);\n";
-      li_ << ctext_->assign("inteval->stack", "0");
-      li_ << ctext_->assign("inteval->vstack", "0");
+      li_ << ctext_->assign("inteval->stack", "nullptr");
+      li_ << ctext_->assign("inteval->vstack", "nullptr");
       if (cparams_->count_flops()) {
         // free the counter and set the pointer to zero
         li_ << "delete inteval->nflops;" << endl;

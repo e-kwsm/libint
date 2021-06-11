@@ -96,22 +96,21 @@ void BuildTest(const std::vector<std::shared_ptr<Integral> >& targets,
    files + set-level recurrence relations code)
  */
 template <class Integral, bool GenAllCode>
-void __BuildTest(
-    const std::vector<std::shared_ptr<Integral> >& targets,
-    const std::shared_ptr<CompilationParameters>& cparams,
-    unsigned int size_to_unroll, std::ostream& os = std::cout,
-    const std::shared_ptr<Tactic>& tactic =
-        std::shared_ptr<Tactic>(new FirstChoiceTactic<DummyRandomizePolicy>),
-    const std::shared_ptr<MemoryManager>& memman =
-        std::shared_ptr<MemoryManager>(new WorstFitMemoryManager),
-    const std::string& complabel = "general_integral");
+void __BuildTest(const std::vector<std::shared_ptr<Integral> >& targets,
+                 const SafePtr<CompilationParameters>& cparams,
+                 unsigned int size_to_unroll, std::ostream& os = std::cout,
+                 const std::shared_ptr<Tactic>& tactic = SafePtr<Tactic>(
+                     new FirstChoiceTactic<DummyRandomizePolicy>),
+                 const std::shared_ptr<MemoryManager>& memman =
+                     SafePtr<MemoryManager>(new WorstFitMemoryManager),
+                 const std::string& complabel = "general_integral");
 
 template <class Integral, bool GenAllCode>
 void __BuildTest(const std::vector<std::shared_ptr<Integral> >& targets,
-                 const std::shared_ptr<CompilationParameters>& cparams,
+                 const SafePtr<CompilationParameters>& cparams,
                  unsigned int size_to_unroll, std::ostream& os,
                  const std::shared_ptr<Tactic>& tactic,
-                 const std::shared_ptr<MemoryManager>& memman,
+                 const SafePtr<MemoryManager>& memman,
                  const std::string& complabel) {
   const std::string prefix("");
   const std::string label = cparams->api_prefix() + complabel;
@@ -171,8 +170,8 @@ void __BuildTest(const std::vector<std::shared_ptr<Integral> >& targets,
   for (unsigned int t = 0; t < targets.size(); ++t) {
     const std::shared_ptr<Integral>& target = targets[t];
     std::shared_ptr<DGVertex> target_ptr =
-        std::dynamic_pointer_cast<DGVertex, Integral>(target);
-    assert(target_ptr != 0);
+        dynamic_pointer_cast<DGVertex, Integral>(target);
+    assert(target_ptr != nullptr);
     dg_xxxx->append_target(target_ptr);
   }
 
@@ -409,7 +408,7 @@ void BuildTest(const std::vector<std::shared_ptr<Integral> >& targets,
                                  typename Integral::AuxIndexType>
         genint_11_11_t;
     std::shared_ptr<genint_11_11_t> cast_ptr =
-        std::dynamic_pointer_cast<genint_11_11_t>(targets.front());
+        dynamic_pointer_cast<genint_11_11_t>(targets.front());
     if (cast_ptr) {
       const unsigned int la = cast_ptr->bra(0, 0).norm();
       const unsigned int lb = cast_ptr->ket(0, 0).norm();
