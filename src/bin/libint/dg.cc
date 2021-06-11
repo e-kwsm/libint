@@ -351,7 +351,7 @@ void DirectedGraph::debug_print_traversal(std::ostream& os) const {
   do {
     current_vertex->print(os);
     current_vertex = current_vertex->postcalc();
-  } while (current_vertex != 0);
+  } while (current_vertex != nullptr);
 }
 
 namespace {
@@ -399,7 +399,7 @@ void DirectedGraph::print_to_dot(bool symbols, std::ostream& os) const {
 
   // Print traversal order using dotted lines
   std::shared_ptr<DGVertex> current_vertex = first_to_compute_;
-  if (current_vertex != 0) {
+  if (current_vertex != nullptr) {
     do {
       std::shared_ptr<DGVertex> next = current_vertex->postcalc();
       if (current_vertex && next) {
@@ -407,7 +407,7 @@ void DirectedGraph::print_to_dot(bool symbols, std::ostream& os) const {
            << next->graph_label() << " [ style = dotted constraint = false ]";
       }
       current_vertex = next;
-    } while (current_vertex != 0);
+    } while (current_vertex != nullptr);
   }
 
   os << endl << "}" << endl;
@@ -443,7 +443,7 @@ void DirectedGraph::apply(const std::shared_ptr<Strategy>& strategy,
 
     std::shared_ptr<RecurrenceRelation> rr0 =
         strategy->optimal_rr(this_ptr, (vptr), tactic);
-    if (rr0 == 0) continue;
+    if (rr0 == nullptr) continue;
 
     // add children to the graph
     std::shared_ptr<DGVertex> target = rr0->rr_target();
@@ -473,7 +473,7 @@ void DirectedGraph::apply_to(const std::shared_ptr<DGVertex>& vertex,
   if (!not_yet_computed) return;
   std::shared_ptr<RecurrenceRelation> rr0 =
       strategy->optimal_rr(shared_from_this(), vertex, tactic);
-  if (rr0 == 0) return;
+  if (rr0 == nullptr) return;
 
   std::shared_ptr<DGVertex> target = rr0->rr_target();
   const int num_children = rr0->num_children();
@@ -516,7 +516,7 @@ void DirectedGraph::replace_rr_with_expr() {
       std::shared_ptr<DGArc> arc0 = *((vptr)->first_exit_arc());
       std::shared_ptr<DGArcRR> arc0_cast =
           std::dynamic_pointer_cast<DGArcRR, DGArc>(arc0);
-      if (arc0_cast == 0) continue;
+      if (arc0_cast == nullptr) continue;
       std::shared_ptr<RecurrenceRelation> rr = arc0_cast->rr();
 
       // Optimize if the recurrence relation is simple and the target and
@@ -882,7 +882,7 @@ bool DirectedGraph::remove_vertex_at(const std::shared_ptr<DGVertex>& v1,
     std::shared_ptr<DGArc> arc = (*a);
     std::shared_ptr<DGArcDirect> arc_cast =
         std::dynamic_pointer_cast<DGArcDirect, DGArc>(arc);
-    if (arc_cast == 0) return false;
+    if (arc_cast == nullptr) return false;
     v1_entry.push_back(*a);
 #if DEBUG
     std::cout << "remove_vertex_at: examined v1 entry arc: from "
@@ -900,7 +900,7 @@ bool DirectedGraph::remove_vertex_at(const std::shared_ptr<DGVertex>& v1,
   std::shared_ptr<DGArc> arc = *(v1->first_exit_arc());
   std::shared_ptr<DGArcDirect> arc_cast =
       std::dynamic_pointer_cast<DGArcDirect, DGArc>(arc);
-  if (arc_cast == 0) return false;
+  if (arc_cast == nullptr) return false;
 
     //
     // OK, now do work!
@@ -1381,9 +1381,9 @@ void DirectedGraph::allocate_mem(
         (vertex->size() > min_size_to_alloc || vertex->is_a_target() ||
          (vertex->size() == vertex->num_exit_arcs() &&
           ((arcrr = std::dynamic_pointer_cast<DGArcRR, DGArc>(
-                *(vertex->first_exit_arc()))) != 0
+                *(vertex->first_exit_arc()))) != nullptr
                ? std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
-                                           RecurrenceRelation>(arcrr->rr()) != 0
+                                           RecurrenceRelation>(arcrr->rr()) != nullptr
                : false) &&
           !(*(vertex->first_exit_arc()))->dest()->precomputed()));
 
@@ -1394,7 +1394,7 @@ void DirectedGraph::allocate_mem(
           *(vertex->first_entry_arc()));
       if (arcrr) {
         if (std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
-                                      RecurrenceRelation>(arcrr->rr()) != 0) {
+                                      RecurrenceRelation>(arcrr->rr()) != nullptr) {
           if (arcrr->orig()->symbol_set() || arcrr->orig()->address_set())
             need_to_allocate = false;
         }
@@ -1424,7 +1424,7 @@ void DirectedGraph::allocate_mem(
       }
     }
     vertex = vertex->postcalc();
-  } while (vertex != 0);
+  } while (vertex != nullptr);
 }
 
 void DirectedGraph::assign_symbols(
@@ -1464,12 +1464,12 @@ void DirectedGraph::assign_symbols(
     std::shared_ptr<DGArc> arc = *((vptr)->first_exit_arc());
     std::shared_ptr<DGArcRR> arc_rr =
         std::dynamic_pointer_cast<DGArcRR, DGArc>(arc);
-    if (arc_rr == 0) continue;
+    if (arc_rr == nullptr) continue;
     std::shared_ptr<RecurrenceRelation> rr = arc_rr->rr();
     std::shared_ptr<IntegralSet_to_Integrals_base> iset_to_i =
         std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
                                   RecurrenceRelation>(rr);
-    if (iset_to_i == 0) {
+    if (iset_to_i == nullptr) {
       continue;
     } else {
       typedef DGVertex::ArcSetType::const_iterator aciter;
@@ -1593,7 +1593,7 @@ void DirectedGraph::assign_oper_symbol(
         std::dynamic_pointer_cast<oper, DGVertex>(vertex);
     if (ptr_cast) {
       // is it in a subtree?
-      const bool on_a_subtree = (vertex->subtree() != 0);
+      const bool on_a_subtree = (vertex->subtree() != nullptr);
 
       // If no -- it will be an automatic variable
       if (!on_a_subtree)
@@ -2095,7 +2095,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
     current_vertex->schedule();
     current_vertex = current_vertex->postcalc();
 
-  } while (current_vertex != 0);
+  } while (current_vertex != nullptr);
 
   os << outer_vloop->close();
   os << lsi_loop->close();
@@ -2237,7 +2237,7 @@ void DirectedGraph::update_func_names() {
       std::shared_ptr<DGArc> arc = *((vptr)->first_exit_arc());
       std::shared_ptr<DGArcRR> arcrr =
           std::dynamic_pointer_cast<DGArcRR, DGArc>(arc);
-      if (arcrr != 0) {
+      if (arcrr != nullptr) {
         std::shared_ptr<RecurrenceRelation> rr = arcrr->rr();
         // and the RR is complex (i.e. likely to result in a function call)
         if (!rr->is_simple()) {
@@ -2258,7 +2258,7 @@ bool DirectedGraph::cannot_enclose_in_outer_vloop() const {
       std::shared_ptr<DGArcRR> aptr_cast =
           std::dynamic_pointer_cast<DGArcRR, arc>(aptr);
       // if this is a RR
-      if (aptr_cast != 0) {
+      if (aptr_cast != nullptr) {
         // and a non-trivial one
         std::shared_ptr<RecurrenceRelation> rr = aptr_cast->rr();
         if (!rr->is_simple()) {
@@ -2274,7 +2274,7 @@ bool DirectedGraph::cannot_enclose_in_outer_vloop() const {
       }
     }
     current_vertex = current_vertex->postcalc();
-  } while (current_vertex != 0);
+  } while (current_vertex != nullptr);
 
   return false;
 }

@@ -387,7 +387,7 @@ class apply_strategy_transform {
     const bool rr_is_directional = RRType::directional();
     for (int xyz = (rr_is_directional ? 2 : 0); xyz >= 0; xyz--) {
       std::shared_ptr<RRType> rr_ptr = RRType::Instance(integral, xyz);
-      if (rr_ptr != 0)
+      if (rr_ptr != nullptr)
         rrstack.push_back(
             std::static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
     }
@@ -408,7 +408,7 @@ class apply_strategy_transform {
       std::shared_ptr<RRType> rr_ptr = RRType::Instance(integral, xyz);
       // TODO: can I use the knowledge of Tactic behavior to skip some
       // iteration?
-      if (rr_ptr != 0)
+      if (rr_ptr != nullptr)
         rrstack.push_back(
             std::static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
     }
@@ -486,7 +486,7 @@ struct match_first_inttype_transform {
                     const std::shared_ptr<Tactic>& tactic,
                     std::shared_ptr<RecurrenceRelation>& rr) {
     std::shared_ptr<T> tptr = std::dynamic_pointer_cast<T, DGVertex>(integral);
-    if (tptr != 0) {
+    if (tptr != nullptr) {
 #if 0
         std::cout << "Visiting integral " << integral->label() << ", its type is " << class_name<T>() << std::endl;
 #endif
@@ -533,7 +533,7 @@ struct match_first_inttype_transform {
           typedef Uncontract_Integral<T> UncI;
           std::shared_ptr<UncI> x(new UncI(tptr));
           rr = std::static_pointer_cast<RecurrenceRelation, UncI>(x);
-          if (rr != 0) {
+          if (rr != nullptr) {
             if (rr->num_children() != 0) {
 #if DEBUG
               std::cout << "Uncontracted " << tptr->label() << std::endl;

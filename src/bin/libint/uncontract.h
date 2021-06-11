@@ -203,11 +203,11 @@ struct DecontractedIntegralSet {
     // Is this DGArcRR?
     const std::shared_ptr<DGArcRR> arcrr =
         std::dynamic_pointer_cast<DGArcRR, DGArc>(arc0);
-    if (arcrr == 0) return false;
+    if (arcrr == nullptr) return false;
     const std::shared_ptr<Uncontract_Integral_base> uib_ptr =
         std::dynamic_pointer_cast<Uncontract_Integral_base, RecurrenceRelation>(
             arcrr->rr());
-    return uib_ptr != 0;
+    return uib_ptr != nullptr;
   }
 };
 

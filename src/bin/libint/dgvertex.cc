@@ -32,9 +32,9 @@ using namespace libint2;
 DGVertex::DGVertex(ClassID tid)
     : typeid_(tid),
       instid_(),
-      dg_(0),
+      dg_(nullptr),
       graph_label_(),
-      referred_vertex_(0),
+      referred_vertex_(nullptr),
       refs_(),
       symbol_(),
       address_(MemoryManager::InvalidAddress),
@@ -275,7 +275,7 @@ const std::shared_ptr<DGArc>& DGVertex::exit_arc(
 }
 
 void DGVertex::reset() {
-  dg_ = 0;
+  dg_ = nullptr;
   subtree_ = std::shared_ptr<DRTree>();
 
   typedef ArcSetType::const_iterator citer;
@@ -295,7 +295,7 @@ void DGVertex::reset() {
   reset_symbol();
   address_ = MemoryManager::InvalidAddress;
   need_to_compute_ = true;
-  referred_vertex_ = 0;
+  referred_vertex_ = nullptr;
   refs_.resize(0);
 }
 
@@ -311,7 +311,7 @@ void DGVertex::set_graph_label(const std::string& label) {
 }
 
 void DGVertex::refer_this_to(const std::shared_ptr<DGVertex>& V) {
-  if (referred_vertex_ != 0) {
+  if (referred_vertex_ != nullptr) {
     if (referred_vertex_->equiv(V))
       return;
     else
@@ -435,7 +435,7 @@ void DGVertex::print(std::ostream& os) const {
   std::string prefix("DGVertex::print: ");
   os << prefix << "label = " << label() << endl;
   os << prefix << "this = " << this << endl;
-  if (referred_vertex_ != 0) {
+  if (referred_vertex_ != nullptr) {
     os << prefix << "refers_to = " << referred_vertex_ << endl;
   } else {
     os << prefix << "precomputed = " << precomputed() << endl;
@@ -469,7 +469,7 @@ bool UnrolledIntegralSet::operator()(const std::shared_ptr<DGVertex>& V) {
   // Is this DGArcRR?
   const std::shared_ptr<DGArcRR> arcrr =
       std::dynamic_pointer_cast<DGArcRR, DGArc>(arc0);
-  if (arcrr == 0) return false;
+  if (arcrr == nullptr) return false;
   // Is this DGArcRR<IntegralSet_to_Integral>? If invariant_type() is false,
   // then yes
   return !arcrr->rr()->invariant_type();

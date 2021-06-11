@@ -51,7 +51,7 @@ struct DefaultPurgingPolicy {
 
     try {
       const DGVertex* dgv_ptr = dynamic_cast<const DGVertex*>(ref);
-      if (dgv_ptr->dg() == 0) result = true;
+      if (dgv_ptr->dg() == nullptr) result = true;
     } catch (...) {
     }
 

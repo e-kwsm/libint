@@ -346,7 +346,7 @@ Libint2Iface::~Libint2Iface() {
       const std::string& tlabel = t->label();
 
       li_ << li_decls_[i] << ctext_->open_block();
-      li_ << "if (buf != 0) inteval->stack = "
+      li_ << "if (buf != nullptr) inteval->stack = "
              "reinterpret_cast<LIBINT2_REALTYPE*>(buf);"
           << std::endl
           << "else " << std::endl;
@@ -400,8 +400,8 @@ Libint2Iface::~Libint2Iface() {
       li_ << lc_decls_[i] << ctext_->open_block();
 
       li_ << "free(inteval->stack);\n";
-      li_ << ctext_->assign("inteval->stack", "0");
-      li_ << ctext_->assign("inteval->vstack", "0");
+      li_ << ctext_->assign("inteval->stack", "nullptr");
+      li_ << ctext_->assign("inteval->vstack", "nullptr");
       if (cparams_->count_flops()) {
         // free the counter and set the pointer to zero
         li_ << "delete inteval->nflops;" << endl;

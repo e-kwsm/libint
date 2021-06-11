@@ -110,7 +110,7 @@ class CR_DerivGauss
      (unique) label has m=0. */
   std::string generate_label() const override {
     typedef typename TargetType::AuxIndexType mType;
-    static std::shared_ptr<mType> aux0(new mType(0u));
+    static std::shared_ptr<mType> aux0(new mType(nullptr));
     std::ostringstream os;
     os << descr() << "P" << part << to_string(where)
        << genintegralset_label(target_->bra(), target_->ket(), aux0,

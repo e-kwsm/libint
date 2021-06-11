@@ -172,7 +172,7 @@ void __BuildTest(const std::vector<std::shared_ptr<Integral> >& targets,
     const std::shared_ptr<Integral>& target = targets[t];
     std::shared_ptr<DGVertex> target_ptr =
         std::dynamic_pointer_cast<DGVertex, Integral>(target);
-    assert(target_ptr != 0);
+    assert(target_ptr != nullptr);
     dg_xxxx->append_target(target_ptr);
   }
 

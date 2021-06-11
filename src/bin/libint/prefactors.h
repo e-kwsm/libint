@@ -164,7 +164,7 @@ struct RTimeSingletons {
   typedef SingletonStack<RTimeEntity<T>, typename RTimeEntity<T>::key_type>
       ManagerType;
   static std::shared_ptr<ManagerType>& Manager() {
-    if (manager_ == 0) {
+    if (manager_ == nullptr) {
       manager_ =
           std::shared_ptr<ManagerType>(new ManagerType(&RTimeEntity<T>::key));
     }
@@ -181,7 +181,7 @@ template <typename T>
 struct CTimeSingletons {
   typedef SingletonStack<CTimeEntity<T>, T> ManagerType;
   static std::shared_ptr<ManagerType>& Manager() {
-    if (manager_ == 0) {
+    if (manager_ == nullptr) {
       manager_ =
           std::shared_ptr<ManagerType>(new ManagerType(&CTimeEntity<T>::value));
     }
