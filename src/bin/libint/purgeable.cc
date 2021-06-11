@@ -25,11 +25,11 @@
 using namespace libint2;
 
 PurgeableStacks*
-PurgeableStacks::instance_ = 0;
+PurgeableStacks::instance_ = nullptr;
 
 PurgeableStacks*
 PurgeableStacks::Instance() {
-  if (instance_ == 0)
+  if (instance_ == nullptr)
     instance_ = new PurgeableStacks;
   return instance_;
 }

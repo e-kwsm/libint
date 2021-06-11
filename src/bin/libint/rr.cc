@@ -306,7 +306,7 @@ RecurrenceRelation::description() const
 void
 RecurrenceRelation::add_expr(const SafePtr<ExprType>& expr, int minus)
 {
-  if (expr_ == 0) {
+  if (expr_ == nullptr) {
     if (minus != -1) {
       expr_ = expr;
     }

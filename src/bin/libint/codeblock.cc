@@ -44,28 +44,28 @@ ForLoop::init_()
   SafePtr< RTimeEntity<EntityTypes::Int> > lt_rptr = dynamic_pointer_cast<RTimeEntity<EntityTypes::Int>,Entity>(less_than_);
   SafePtr< RTimeEntity<EntityTypes::Int> > sa_rptr = dynamic_pointer_cast<RTimeEntity<EntityTypes::Int>,Entity>(start_at_);
   
-  if (lt_cptr != 0) {
+  if (lt_cptr != nullptr) {
     ostringstream oss;
     oss << lt_cptr->value();
     lt_expr_ = oss.str();
   }
-  else if (lt_rptr != 0) {
+  else if (lt_rptr != nullptr) {
     lt_expr_ = ctext->label_to_name(lt_rptr->label());
   }
   else
     throw std::logic_error("ForLoop::open -- less_than does not have one of desired types");
-  if (sa_cptr != 0) {
+  if (sa_cptr != nullptr) {
     ostringstream oss;
     oss << sa_cptr->value();
     sa_expr_ = oss.str();
   }
-  else if (sa_rptr != 0) {
+  else if (sa_rptr != nullptr) {
     sa_expr_ = ctext->label_to_name(sa_rptr->label());
   }
   else
     throw std::logic_error("ForLoop::open -- less_than does not have one of desired types");
   
-  if (lt_cptr !=0 && sa_cptr !=0 &&
+  if (lt_cptr != nullptr && sa_cptr != nullptr &&
       lt_cptr->value() == sa_cptr->value()+1 )
     dummy_loop_ = true;
   else

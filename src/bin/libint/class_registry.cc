@@ -28,7 +28,7 @@ ClassRegistry::ClassRegistry() :
 }
 
 ClassRegistry*
-ClassRegistry::registry_ = 0;
+ClassRegistry::registry_ = nullptr;
 
 ClassRegistry&
 ClassRegistry::Instance()

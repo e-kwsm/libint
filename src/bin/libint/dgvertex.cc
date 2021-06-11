@@ -29,7 +29,7 @@ using namespace libint2;
 #define LOCAL_DEBUG 0
 
 DGVertex::DGVertex(ClassID tid) :
-  typeid_(tid), instid_(), dg_(0), graph_label_(), referred_vertex_(0),
+  typeid_(tid), instid_(), dg_(nullptr), graph_label_(), referred_vertex_(nullptr),
   refs_(), symbol_(), address_(MemoryManager::InvalidAddress), need_to_compute_(true),
 #if CHECK_SAFETY
   declared_(false),
@@ -273,7 +273,7 @@ DGVertex::exit_arc(const SafePtr<DGVertex>& v) const
 void
 DGVertex::reset()
 {
-  dg_ = 0;
+  dg_ = nullptr;
   subtree_ = SafePtr<DRTree>();
 
   typedef ArcSetType::const_iterator citer;
@@ -293,7 +293,7 @@ DGVertex::reset()
   reset_symbol();
   address_ = MemoryManager::InvalidAddress;
   need_to_compute_ = true;
-  referred_vertex_ = 0;
+  referred_vertex_ = nullptr;
   refs_.resize(0);
 }
 
@@ -315,7 +315,7 @@ DGVertex::set_graph_label(const std::string& label)
 void
 DGVertex::refer_this_to(const SafePtr<DGVertex>& V)
 {
-  if (referred_vertex_ != 0) {
+  if (referred_vertex_ != nullptr) {
     if (referred_vertex_->equiv(V))
       return;
     else
@@ -460,7 +460,7 @@ DGVertex::print(std::ostream& os) const
   std::string prefix("DGVertex::print: ");
   os << prefix << "label = " << label() << endl;
   os << prefix << "this = " << this << endl;
-  if (referred_vertex_ != 0) {
+  if (referred_vertex_ != nullptr) {
     os << prefix << "refers_to = " << referred_vertex_ << endl;
   }
   else {
@@ -499,7 +499,7 @@ UnrolledIntegralSet::operator()(const SafePtr<DGVertex>& V)
   const SafePtr<DGArc> arc0 = *(V->first_exit_arc());
   // Is this DGArcRR?
   const SafePtr<DGArcRR> arcrr = dynamic_pointer_cast<DGArcRR,DGArc>(arc0);
-  if (arcrr == 0) return false;
+  if (arcrr == nullptr) return false;
   // Is this DGArcRR<IntegralSet_to_Integral>? If invariant_type() is false, then yes
   return !arcrr->rr()->invariant_type();
 }

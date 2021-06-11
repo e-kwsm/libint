@@ -51,8 +51,8 @@ ExtractExternSymbols::operator()(const VertexPtr& v)
     {
       SafePtr<DGArcRR> arcrr;
       if (v->size() == 1 && v->num_exit_arcs() == 1 &&
-          ( (arcrr = dynamic_pointer_cast<DGArcRR,DGArc>(*(v->first_exit_arc()))) != 0 ?
-              dynamic_pointer_cast<IntegralSet_to_Integrals_base,RecurrenceRelation>(arcrr->rr()) != 0 :
+          ( (arcrr = dynamic_pointer_cast<DGArcRR,DGArc>(*(v->first_exit_arc()))) != nullptr ?
+              dynamic_pointer_cast<IntegralSet_to_Integrals_base,RecurrenceRelation>(arcrr->rr()) != nullptr :
               false ) &&
           (*(v->first_exit_arc()))->dest()->precomputed()
          ) {
@@ -86,11 +86,11 @@ ExtractRR::operator()(const VertexPtr& v)
   if (v->num_exit_arcs() != 0) {
     SafePtr<DGArc> arc = *(v->first_exit_arc());
     SafePtr<DGArcRR> arc_rr = dynamic_pointer_cast<DGArcRR,DGArc>(arc);
-    if (arc_rr != 0) {
+    if (arc_rr != nullptr) {
       SafePtr<RecurrenceRelation> rr = arc_rr->rr();
       SafePtr<IntegralSet_to_Integrals_base> iset_to_i = dynamic_pointer_cast<IntegralSet_to_Integrals_base,RecurrenceRelation>(rr);
       SafePtr<Uncontract_Integral_base> unc_i = dynamic_pointer_cast<Uncontract_Integral_base,RecurrenceRelation>(rr);
-      if (iset_to_i == 0 && unc_i == 0) {
+      if (iset_to_i == nullptr && unc_i == nullptr) {
         const SafePtr<RRStack>& rrstack = RRStack::Instance();
         // RRStack must be guaranteed to have this rr
         const RRStack::value_type rrstackvalue = rrstack->find(rr);

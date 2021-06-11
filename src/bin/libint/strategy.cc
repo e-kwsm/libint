@@ -416,7 +416,7 @@ namespace libint2 {
         const bool rr_is_directional = RRType::directional();
         for (int xyz = (rr_is_directional ? 2 : 0); xyz >= 0; xyz--) {
           SafePtr<RRType> rr_ptr = RRType::Instance(integral, xyz);
-          if (rr_ptr != 0)
+          if (rr_ptr != nullptr)
             rrstack.push_back(static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
         }
         return false;
@@ -435,7 +435,7 @@ namespace libint2 {
         for (int xyz = 2; xyz >= 0; xyz--) {
           SafePtr<RRType> rr_ptr = RRType::Instance(integral, xyz);
           // TODO: can I use the knowledge of Tactic behavior to skip some iteration?
-          if (rr_ptr != 0)
+          if (rr_ptr != nullptr)
             rrstack.push_back(static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
         }
         return false;
@@ -513,7 +513,7 @@ namespace libint2 {
                       const SafePtr<Tactic>& tactic,
                       SafePtr<RecurrenceRelation>& rr) {
       SafePtr<T> tptr = dynamic_pointer_cast<T,DGVertex>(integral);
-      if (tptr != 0) {
+      if (tptr != nullptr) {
 #if 0
         std::cout << "Visiting integral " << integral->label() << ", its type is " << class_name<T>() << std::endl;
 #endif
@@ -558,7 +558,7 @@ namespace libint2 {
             typedef Uncontract_Integral<T> UncI;
             SafePtr<UncI> x(new UncI(tptr));
             rr = static_pointer_cast<RecurrenceRelation,UncI>(x);
-            if (rr != 0) {
+            if (rr != nullptr) {
               if (rr->num_children() != 0) {
 #if DEBUG
                 std::cout << "Uncontracted " << tptr->label() << std::endl;

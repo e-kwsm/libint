@@ -364,7 +364,7 @@ DirectedGraph::debug_print_traversal(std::ostream& os) const
   do {
     current_vertex->print(os);
     current_vertex = current_vertex->postcalc();
-  } while (current_vertex != 0);
+  } while (current_vertex != nullptr);
 }
 
 namespace {
@@ -415,7 +415,7 @@ DirectedGraph::print_to_dot(bool symbols, std::ostream& os) const
 
   // Print traversal order using dotted lines
   SafePtr<DGVertex> current_vertex = first_to_compute_;
-  if (current_vertex != 0) {
+  if (current_vertex != nullptr) {
     do {
       SafePtr<DGVertex> next = current_vertex->postcalc();
       if (current_vertex && next) {
@@ -423,7 +423,7 @@ DirectedGraph::print_to_dot(bool symbols, std::ostream& os) const
            << next->graph_label() << " [ style = dotted constraint = false ]";
       }
       current_vertex = next;
-    } while (current_vertex != 0);
+    } while (current_vertex != nullptr);
   }
 
   os << endl << "}" << endl;
@@ -460,7 +460,7 @@ DirectedGraph::apply(const SafePtr<Strategy>& strategy,
       continue;
 
     SafePtr<RecurrenceRelation> rr0 = strategy->optimal_rr(this_ptr,(vptr),tactic);
-    if (rr0 == 0)
+    if (rr0 == nullptr)
       continue;
 
     // add children to the graph
@@ -492,7 +492,7 @@ DirectedGraph::apply_to(const SafePtr<DGVertex>& vertex,
   if (!not_yet_computed)
     return;
   SafePtr<RecurrenceRelation> rr0 = strategy->optimal_rr(SafePtr_from_this(),vertex,tactic);
-  if (rr0 == 0)
+  if (rr0 == nullptr)
     return;
 
   SafePtr<DGVertex> target = rr0->rr_target();
@@ -540,7 +540,7 @@ DirectedGraph::replace_rr_with_expr()
     if ((vptr)->num_exit_arcs()) {
       SafePtr<DGArc> arc0 = *((vptr)->first_exit_arc());
       SafePtr<DGArcRR> arc0_cast = dynamic_pointer_cast<DGArcRR,DGArc>(arc0);
-      if (arc0_cast == 0)
+      if (arc0_cast == nullptr)
         continue;
       SafePtr<RecurrenceRelation> rr = arc0_cast->rr();
 
@@ -886,7 +886,7 @@ DirectedGraph::remove_vertex_at(const SafePtr<DGVertex>& v1, const SafePtr<DGVer
     // See if this is a direct arc -- otherwise cannot do this
     SafePtr<DGArc> arc = (*a);
     SafePtr<DGArcDirect> arc_cast = dynamic_pointer_cast<DGArcDirect,DGArc>(arc);
-    if (arc_cast == 0)
+    if (arc_cast == nullptr)
       return false;
     v1_entry.push_back(*a);
 #if DEBUG
@@ -901,7 +901,7 @@ DirectedGraph::remove_vertex_at(const SafePtr<DGVertex>& v1, const SafePtr<DGVer
   // See if this is a direct arc -- otherwise cannot do this
   SafePtr<DGArc> arc = *(v1->first_exit_arc());
   SafePtr<DGArcDirect> arc_cast = dynamic_pointer_cast<DGArcDirect,DGArc>(arc);
-  if (arc_cast == 0)
+  if (arc_cast == nullptr)
     return false;
 
   //
@@ -1363,8 +1363,8 @@ unsigned int min_size_to_alloc)
     need_to_allocate &= ( vertex->size() > min_size_to_alloc ||
                           vertex->is_a_target() ||
                           (vertex->size() == vertex->num_exit_arcs() &&
-                              ( (arcrr = dynamic_pointer_cast<DGArcRR,DGArc>(*(vertex->first_exit_arc()))) != 0 ?
-                                  dynamic_pointer_cast<IntegralSet_to_Integrals_base,RecurrenceRelation>(arcrr->rr()) != 0 :
+                              ( (arcrr = dynamic_pointer_cast<DGArcRR,DGArc>(*(vertex->first_exit_arc()))) != nullptr ?
+                                  dynamic_pointer_cast<IntegralSet_to_Integrals_base,RecurrenceRelation>(arcrr->rr()) != nullptr :
                                   false ) &&
                                   !(*(vertex->first_exit_arc()))->dest()->precomputed()
                           )
@@ -1374,7 +1374,7 @@ unsigned int min_size_to_alloc)
     if (need_to_allocate && vertex->num_entry_arcs() != 0) {
       arcrr = dynamic_pointer_cast<DGArcRR,DGArc>(*(vertex->first_entry_arc()));
       if (arcrr) {
-        if (dynamic_pointer_cast<IntegralSet_to_Integrals_base,RecurrenceRelation>(arcrr->rr()) != 0) {
+        if (dynamic_pointer_cast<IntegralSet_to_Integrals_base,RecurrenceRelation>(arcrr->rr()) != nullptr) {
           if (arcrr->orig()->symbol_set() || arcrr->orig()->address_set())
             need_to_allocate = false;
         }
@@ -1402,7 +1402,7 @@ unsigned int min_size_to_alloc)
       }
     }
     vertex = vertex->postcalc();
-  }while (vertex != 0);
+  } while (vertex != nullptr);
 }
 
 void
@@ -1440,11 +1440,11 @@ DirectedGraph::assign_symbols(const SafePtr<CodeContext>& context, const SafePtr
       continue;
     SafePtr<DGArc> arc = *((vptr)->first_exit_arc());
     SafePtr<DGArcRR> arc_rr = dynamic_pointer_cast<DGArcRR,DGArc>(arc);
-    if (arc_rr == 0)
+    if (arc_rr == nullptr)
       continue;
     SafePtr<RecurrenceRelation> rr = arc_rr->rr();
     SafePtr<IntegralSet_to_Integrals_base> iset_to_i = dynamic_pointer_cast<IntegralSet_to_Integrals_base,RecurrenceRelation>(rr);
-    if (iset_to_i == 0) {
+    if (iset_to_i == nullptr) {
       continue;
     }
     else {
@@ -1563,7 +1563,7 @@ DirectedGraph::assign_oper_symbol(const SafePtr<CodeContext>& context, SafePtr<D
     SafePtr<oper> ptr_cast = dynamic_pointer_cast<oper,DGVertex>(vertex);
     if (ptr_cast) {
       // is it in a subtree?
-      const bool on_a_subtree = (vertex->subtree() != 0);
+      const bool on_a_subtree = (vertex->subtree() != nullptr);
 
       // If no -- it will be an automatic variable
       if (!on_a_subtree)
@@ -2055,7 +2055,7 @@ DirectedGraph::print_def(const SafePtr<CodeContext>& context, std::ostream& os,
     current_vertex->schedule();
     current_vertex = current_vertex->postcalc();
 
-  } while (current_vertex != 0);
+  } while (current_vertex != nullptr);
 
   os << outer_vloop->close();
   os << lsi_loop->close();
@@ -2189,7 +2189,7 @@ DirectedGraph::update_func_names()
       // if it must be computed using a RR
       SafePtr<DGArc> arc = *((vptr)->first_exit_arc());
       SafePtr<DGArcRR> arcrr = dynamic_pointer_cast<DGArcRR,DGArc>(arc);
-      if (arcrr != 0) {
+      if (arcrr != nullptr) {
         SafePtr<RecurrenceRelation> rr = arcrr->rr();
         // and the RR is complex (i.e. likely to result in a function call)
         if (!rr->is_simple()) {
@@ -2211,7 +2211,7 @@ DirectedGraph::cannot_enclose_in_outer_vloop() const
       arc_ptr aptr = *(current_vertex->first_exit_arc());
       SafePtr<DGArcRR> aptr_cast = dynamic_pointer_cast<DGArcRR,arc>(aptr);
       // if this is a RR
-      if (aptr_cast != 0) {
+      if (aptr_cast != nullptr) {
         // and a non-trivial one
         SafePtr<RecurrenceRelation> rr = aptr_cast->rr();
         if (!rr->is_simple()) {
@@ -2225,7 +2225,7 @@ DirectedGraph::cannot_enclose_in_outer_vloop() const
       }
     }
     current_vertex = current_vertex->postcalc();
-  } while (current_vertex != 0);
+  } while (current_vertex != nullptr);
 
   return false;
 }
