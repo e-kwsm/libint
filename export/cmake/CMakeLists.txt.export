@@ -108,11 +108,12 @@ if (REQUIRE_CXX_API AND NOT ${LIBINT_HAS_CXX_API})
   message(FATAL_ERROR "C++ API cannot be built without Eigen3; configure (via CMake) and install Eigen3 and add the install prefix to CMAKE_PREFIX_PATH, or add -DREQUIRE_CXX_API=OFF to the CMake command line if the C++ API is not required")
 endif()
 
-find_package(Boost 1.29)
+find_package(Boost 1.57)
+set(CXX_STANDARD 11)
+set(CXX_STANDARD_REQUIRED YES)
 if (Boost_FOUND)
     cmake_push_check_state()
 
-    list(APPEND CMAKE_REQUIRED_FLAGS "-std=c++11")
     list(APPEND CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR})
 
     check_cxx_source_compiles("
