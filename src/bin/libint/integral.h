@@ -95,7 +95,7 @@ template <class Oper, class BFS, class BraSetType, class KetSetType,
 class GenIntegralSet
     : public IntegralSet<BFS>,
       public DGVertex,
-      public std::enable_shared_from_this<
+      public Enablestd::shared_ptrFromThis<
           GenIntegralSet<Oper, BFS, BraSetType, KetSetType, AuxQuanta> > {
  public:
   typedef GenIntegralSet this_type;
@@ -135,7 +135,7 @@ class GenIntegralSet
 
   /// GenIntegralSet objects can be handled through the base pointer -- hence
   /// the destructor is virtual
-  virtual ~GenIntegralSet();
+  ~GenIntegralSet() override;
 
   /// Returns a pointer to a unique instance, a la Singleton
   static const std::shared_ptr<GenIntegralSet> Instance(
@@ -315,7 +315,7 @@ GenIntegralSet<Op, BFS, BraSetType, KetSetType, AuxQuanta>::GenIntegralSet(
       bra_(bra),
       ket_(ket),
       O_(std::shared_ptr<Op>(new Op(oper))),
-      aux_(std::shared_ptr<AuxQuanta>(new AuxQuanta(aux))),
+      aux_(SafePtr<AuxQuanta>(new AuxQuanta(aux))),
       size_(0),
       label_() {
   if (Op::Properties::np != bra.num_part())
@@ -451,8 +451,8 @@ template <class Op, class BFS, class BraSetType, class KetSetType,
           class AuxQuanta>
 void GenIntegralSet<Op, BFS, BraSetType, KetSetType, AuxQuanta>::unregister()
     const {
-  singl_manager_.remove(std::const_pointer_cast<this_type, const this_type>(
-      std::enable_shared_from_this<this_type>::shared_from_this()));
+  singl_manager_.remove(const_pointer_cast<this_type, const this_type>(
+      Enablestd::shared_ptrFromThis<this_type>::SafePtr_from_this()));
 }
 
 template <class Op, class BFS, class BraSetType, class KetSetType,
@@ -469,8 +469,8 @@ unsigned int GenIntegralSet<Op, BFS, BraSetType, KetSetType, AuxQuanta>::size()
 #else
   // compute size
   std::shared_ptr<this_type> this_ptr =
-      std::const_pointer_cast<this_type, const this_type>(
-          std::enable_shared_from_this<GenIntegralSet>::shared_from_this());
+      const_pointer_cast<this_type, const this_type>(
+          EnableSafePtrFromThis<GenIntegralSet>::SafePtr_from_this());
   std::shared_ptr<SubIteratorBase<this_type> > siter(
       new SubIteratorBase<this_type>(this_ptr));
   size_ = siter->num_iter();
@@ -493,7 +493,7 @@ void GenIntegralSet<Op, BFS, BraSetType, KetSetType, AuxQuanta>::set_size(
 template <class BraSetType, class KetSetType, class AuxQuanta, class Op>
 std::string genintegralset_label(const BraSetType& bra, const KetSetType& ket,
                                  const std::shared_ptr<AuxQuanta>& aux,
-                                 const std::shared_ptr<Op>& O) {
+                                 const SafePtr<Op>& O) {
   std::ostringstream os;
   os << "< ";
   for (unsigned int p = 0; p < Op::Properties::np; p++) {
