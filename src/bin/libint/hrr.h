@@ -74,7 +74,7 @@ class HRR : public RecurrenceRelation {
    */
   static std::shared_ptr<ThisType> Instance(const std::shared_ptr<TargetType>&,
                                             unsigned int dir = 0);
-  virtual ~HRR();
+  ~HRR() override;
 
   /// overrides RecurrenceRelation::braket_direction()
   BraketDirection braket_direction() const override {

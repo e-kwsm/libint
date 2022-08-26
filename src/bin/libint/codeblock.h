@@ -50,7 +50,7 @@ class ForLoop : public CodeBlock {
   ForLoop(const std::shared_ptr<CodeContext>& context, std::string& varname,
           const std::shared_ptr<Entity>& less_than,
           const std::shared_ptr<Entity>& start_at);
-  virtual ~ForLoop();
+  ~ForLoop() override;
 
   /// Implementation of CodeBlock::open()
   std::string open() override;

@@ -67,10 +67,10 @@ class ITR_11_TwoPRep_11 : public RecurrenceRelation {
   */
   static std::shared_ptr<ThisType> Instance(const std::shared_ptr<TargetType>&,
                                             unsigned int dir = 0);
-  virtual ~ITR_11_TwoPRep_11() { assert(part == 0 || part == 1); }
+  ~ITR_11_TwoPRep_11() override { assert(part == 0 || part == 1); }
 
   /// overrides RecurrenceRelation::partindex_direction()
-  int partindex_direction() const {
+  int partindex_direction() const override {
     return part == 0 ? +1   // transfer from 0 to 1
                      : -1;  // transfer from 1 to 0
   }
