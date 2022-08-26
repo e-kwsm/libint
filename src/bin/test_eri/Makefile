@@ -43,7 +43,7 @@ CXXTEST2SRC = $(TEST2).cc
 CXXTEST2OBJ = $(CXXTEST2SRC:%.cc=%.o)
 
 $(ERICOMP): $(CXXERICOMPOBJ) $(LIBINTDIR)/buildtest.o $(LIBINT)
-	cd ../libint; $(MAKE) $(LIBINT)
+	$(MAKE) -C ../libint $(LIBINT)
 	$(CXX) -o $@ $^ $(SYSLIBS) $(CXXFLAGS) $(LDFLAGS)
 
 ifeq ($(CXX_COMPATIBLE_WITH_CXXGEN),yes)

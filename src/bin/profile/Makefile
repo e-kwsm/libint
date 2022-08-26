@@ -31,7 +31,7 @@ $(COMP1OBJ): CXXFLAGS := -pg $(CXXFLAGS)
 $(COMP1): LDFLAGS := -pg $(LDFLAGS)
 
 $(COMP1): $(COMP1OBJ) $(LIBINTDIR)/buildtest.o $(LIBINT)
-	cd ../libint; $(MAKE) $(LIBINT)
+	$(MAKE) -C ../libint $(LIBINT)
 	$(LD) -o $@ $^ $(SYSLIBS) $(CXXFLAGS) $(LDFLAGS)
 
 $(COMP1OBJ):: $(LIBINTDIR)/buildtest.h
