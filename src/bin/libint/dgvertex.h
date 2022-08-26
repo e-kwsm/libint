@@ -80,7 +80,7 @@ class DGVertex : public Hashable<KeyTypes::InstanceID, ComputeKey> {
            const std::vector<std::shared_ptr<DGArc> >& children);
   /// This is a copy constructor
   DGVertex(const DGVertex& v);
-  virtual ~DGVertex();
+  ~DGVertex() override;
 
   /// make_a_target() marks this vertex as a target
   void make_a_target();
@@ -131,7 +131,7 @@ class DGVertex : public Hashable<KeyTypes::InstanceID, ComputeKey> {
       const std::shared_ptr<DGVertex>& v) const;
 
   /// computes key
-  virtual KeyReturnType key() const = 0;
+  KeyReturnType key() const override = 0;
   /** equiv(const DGVertex* aVertex) returns true if this vertex is
       equivalent to *aVertex.
   */

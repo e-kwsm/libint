@@ -229,7 +229,7 @@ class CTimeEntity : public Entity, public DGVertex {
 #endif
   }
 
-  virtual ~CTimeEntity() {
+  ~CTimeEntity() override {
 #if DEBUG
     std::cout << "Deallocated CTimeEntity id = " << this->id()
               << " value = " << value() << std::endl;

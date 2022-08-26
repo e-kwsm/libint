@@ -211,7 +211,7 @@ class CppCodeContext : public CodeContext,
  public:
   CppCodeContext(const std::shared_ptr<CompilationParameters>& cparams,
                  bool vectorize = false);
-  virtual ~CppCodeContext();
+  ~CppCodeContext() override;
 
   /// Implementation of CodeContext::code_prefix()
   std::string code_prefix() const override;
