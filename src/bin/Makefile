@@ -26,55 +26,55 @@ export::
 install::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) install; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 install_inc::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) install_inc; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 install_target::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) install_target; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 uninstall::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) uninstall; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 clean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) clean; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 oclean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) oclean; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 distclean::
 	for dir in $(ALLSUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) distclean; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 	-rm -rf MakeVars
 
 targetclean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) targetclean; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 realclean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) realclean; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
