@@ -42,7 +42,7 @@ namespace libint2 {
 */
 class BFSet : public ConstructablePolymorphically {
  public:
-  virtual ~BFSet() {}
+  ~BFSet() override {}
   virtual unsigned int num_bf() const = 0;
   virtual std::string label() const = 0;
 
@@ -61,7 +61,7 @@ class BFSet : public ConstructablePolymorphically {
 */
 class IncableBFSet : public BFSet {
  public:
-  virtual ~IncableBFSet() {}
+  ~IncableBFSet() override {}
 
   /// Add c quanta along xyz.
   virtual void inc(unsigned int xyz, unsigned int c = 1u) = 0;

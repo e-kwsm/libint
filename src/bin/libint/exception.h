@@ -64,7 +64,7 @@ class CannotAddArc : public std::logic_error {
 class CannotPerformOperation : public std::logic_error {
  public:
   CannotPerformOperation(const std::string& msg) : logic_error(msg) {}
-  virtual ~CannotPerformOperation() noexcept {}
+  virtual ~CannotPerformOperation() noexcept override {}
 };
 
 /// This exception used to indicate that some property is not set
