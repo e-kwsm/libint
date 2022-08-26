@@ -26,9 +26,9 @@
 #include <hashable.h>
 #include <polyconstr.h>
 #include <smart_ptr.h>
+#include <stdarray.h>
 #include <util_types.h>
 
-#include <array>
 #include <cassert>
 #include <iostream>
 #include <numeric>
@@ -38,11 +38,11 @@
 namespace libint2 {
 
 /** Set of basis functions. Sets must be constructable using
-    std::shared_ptr<BFSet> or std::shared_ptr<ConstructablePolymorphically>.
+    std::shared_ptr<BFSet> or SafePtr<ConstructablePolymorphically>.
 */
 class BFSet : public ConstructablePolymorphically {
  public:
-  virtual ~BFSet() {}
+  ~BFSet() override {}
   virtual unsigned int num_bf() const = 0;
   virtual std::string label() const = 0;
 
@@ -52,7 +52,7 @@ class BFSet : public ConstructablePolymorphically {
 
 /** Set of basis functions with incrementable/decrementable quantum numbers.
     Sets must be constructable using std::shared_ptr<BFSet> or
-   std::shared_ptr<ConstructablePolymorphically>.
+   SafePtr<ConstructablePolymorphically>.
 
     Call to dec() may invalidate the object. No further
     modification of such object's state is possible.
@@ -61,7 +61,7 @@ class BFSet : public ConstructablePolymorphically {
 */
 class IncableBFSet : public BFSet {
  public:
-  virtual ~IncableBFSet() {}
+  ~IncableBFSet() override {}
 
   /// Add c quanta along xyz.
   virtual void inc(unsigned int xyz, unsigned int c = 1u) = 0;
