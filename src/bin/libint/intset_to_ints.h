@@ -55,11 +55,11 @@ class IntegralSet_to_Integrals : public RecurrenceRelation,
   typedef RecurrenceRelation::ExprType ExprType;
 
   IntegralSet_to_Integrals(const std::shared_ptr<I>&);
-  virtual ~IntegralSet_to_Integrals() {}
+  ~IntegralSet_to_Integrals() override {}
 
   /// Return an instance if applicable, or a null pointer otherwise
   static std::shared_ptr<IntegralSet_to_Integrals<I>> Instance(
-      const std::shared_ptr<TargetType>& Tint, unsigned int dir) {
+      const SafePtr<TargetType>& Tint, unsigned int dir) {
     assert(dir == 0);
     // attempt to construct
     std::shared_ptr<IntegralSet_to_Integrals<I>> this_ptr(
@@ -78,11 +78,11 @@ class IntegralSet_to_Integrals : public RecurrenceRelation,
   std::shared_ptr<ChildType> child(unsigned int i) const;
   /// Implementation of RecurrenceRelation's target()
   std::shared_ptr<DGVertex> rr_target() const override {
-    return std::static_pointer_cast<DGVertex, TargetType>(target());
+    return static_pointer_cast<DGVertex, TargetType>(target());
   }
   /// Implementation of RecurrenceRelation's child()
   std::shared_ptr<DGVertex> rr_child(unsigned int i) const override {
-    return std::static_pointer_cast<DGVertex, ChildType>(child(i));
+    return static_pointer_cast<DGVertex, ChildType>(child(i));
   }
   /// Implementation of RecurrenceRelation::is_simple()
   bool is_simple() const override { return true; }
