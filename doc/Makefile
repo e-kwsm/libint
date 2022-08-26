@@ -11,7 +11,7 @@ SUBDIRS = classdoc progman
 default::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(JOBS)) || exit 1; \
+	    $(MAKE) -C $${dir} $(JOBS); \
 	  done
 
 ifndef DODEPEND
@@ -21,67 +21,67 @@ endif
 install::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) install) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 install_target::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) install_target) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 install-pdf:: pdf
-	(cd progman && make install-pdf) || exit 1
+	$(MAKE) -C progman install
 
 install-ps:: ps
-	(cd progman && make install-ps) || exit 1
+	$(MAKE) -C progman install
 
 install-dvi:: dvi
-	(cd progman && make install-dvi) || exit 1
+	$(MAKE) -C progman install
 
 install-html:: html
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) install-html) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 pdf::
-	(cd progman && make pdf) || exit 1
+	$(MAKE) -C progman $@
 
 ps::
-	(cd progman && make ps) || exit 1
+	$(MAKE) -C progman $@
 
 dvi::
-	(cd progman && make dvi) || exit 1
+	$(MAKE) -C progman $@
 
 html::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) html) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 clean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) clean) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 distclean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) distclean) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 	-rm -f MakeRules MakeVars
 
 targetclean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) targetclean) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
 	  done
 
 realclean::
 	for dir in $(SUBDIRS); \
           do \
-            (cd $${dir} && $(MAKE) $(DODEPENDOPT) realclean) || exit 1; \
+            $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
           done
 
