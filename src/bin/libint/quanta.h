@@ -32,8 +32,7 @@ namespace libint2 {
 
 /** QuantumSet is the base class for all (sets of) quantum numbers.
     QuantumSet's must be constructable using
-    std::shared_ptr<QuantumSet> or
-   std::shared_ptr<ConstructablePolymorphically>.
+    std::shared_ptr<QuantumSet> or SafePtr<ConstructablePolymorphically>.
 */
 class QuantumSet : public ConstructablePolymorphically,
                    public Hashable<LIBINT2_UINT_LEAST64, ComputeKey> {
@@ -42,7 +41,7 @@ class QuantumSet : public ConstructablePolymorphically,
   /// Quantum numbers lie in range [0,max_quantum_number)
   static const LIBINT2_UINT_LEAST64 max_quantum_number = 100;
 
-  virtual ~QuantumSet() {}
+  ~QuantumSet() override {}
   virtual std::string label() const = 0;
 
   /// Number of quantum numbers in the set
@@ -128,7 +127,7 @@ QuantumNumbers<T, N>::QuantumNumbers(
 template <typename T, unsigned int N>
 QuantumNumbers<T, N>::QuantumNumbers(const std::shared_ptr<QuantumSet>& sptr) {
   const std::shared_ptr<QuantumNumbers<T, N> > sptr_cast =
-      std::dynamic_pointer_cast<QuantumNumbers, QuantumSet>(sptr);
+      dynamic_pointer_cast<QuantumNumbers, QuantumSet>(sptr);
 #if CHECK_SAFETY
   if (sptr_cast == 0)
     throw std::runtime_error(
@@ -144,8 +143,7 @@ template <typename T, unsigned int N>
 QuantumNumbers<T, N>::QuantumNumbers(
     const std::shared_ptr<ConstructablePolymorphically>& sptr) {
   const std::shared_ptr<QuantumNumbers<T, N> > sptr_cast =
-      std::dynamic_pointer_cast<QuantumNumbers, ConstructablePolymorphically>(
-          sptr);
+      dynamic_pointer_cast<QuantumNumbers, ConstructablePolymorphically>(sptr);
 #if CHECK_SAFETY
   if (sptr_cast == 0)
     throw std::runtime_error(
@@ -205,7 +203,7 @@ class QuantumNumbersA : public QuantumSet {
   QuantumNumbersA(const std::shared_ptr<QuantumNumbersA>&);
   QuantumNumbersA(const std::shared_ptr<QuantumSet>&);
   QuantumNumbersA(const std::shared_ptr<ConstructablePolymorphically>&);
-  ~QuantumNumbersA();
+  ~QuantumNumbersA() override;
 
   bool operator==(const QuantumNumbersA&) const;
   std::string label() const override;
@@ -281,7 +279,7 @@ template <typename T, unsigned int N>
 QuantumNumbersA<T, N>::QuantumNumbersA(
     const std::shared_ptr<QuantumSet>& sptr) {
   const std::shared_ptr<QuantumNumbersA<T, N> > sptr_cast =
-      std::dynamic_pointer_cast<QuantumNumbersA, QuantumSet>(sptr);
+      dynamic_pointer_cast<QuantumNumbersA, QuantumSet>(sptr);
 #if CHECK_SAFETY
   if (sptr_cast == 0)
     throw std::runtime_error(
@@ -298,8 +296,7 @@ template <typename T, unsigned int N>
 QuantumNumbersA<T, N>::QuantumNumbersA(
     const std::shared_ptr<ConstructablePolymorphically>& sptr) {
   const std::shared_ptr<QuantumNumbersA<T, N> > sptr_cast =
-      std::dynamic_pointer_cast<QuantumNumbersA, ConstructablePolymorphically>(
-          sptr);
+      dynamic_pointer_cast<QuantumNumbersA, ConstructablePolymorphically>(sptr);
 #if CHECK_SAFETY
   if (sptr_cast == 0)
     throw std::runtime_error(

@@ -74,7 +74,7 @@ class RRStackBase : public SingletonStack<RR, std::string> {
     return rrstack_;
   }
 
-  virtual ~RRStackBase() {}
+  ~RRStackBase() override {}
 
   /// adds content of rrs to this stack
   void add(const std::shared_ptr<RRStackBase<RR> >& rrs) {
@@ -94,7 +94,7 @@ std::shared_ptr<RRStackBase<RR> > RRStackBase<RR>::rrstack_;
    RecurrenceRelation describes all recurrence relations
 */
 class RecurrenceRelation
-    : public std::enable_shared_from_this<RecurrenceRelation> {
+    : public Enablestd::shared_ptrFromThis<RecurrenceRelation> {
  public:
   typedef RecurrenceRelation this_type;
 
@@ -201,10 +201,10 @@ class RecurrenceRelation
     if (TrivialBFSet<typename RR::BasisFunctionType>::result) return false;
     std::shared_ptr<RRStackBase<RecurrenceRelation> > rrstack =
         RRStackBase<RecurrenceRelation>::Instance();
-    std::shared_ptr<RR> this_ptr = std::const_pointer_cast<RR, const RR>(
-        std::static_pointer_cast<const RR, const RecurrenceRelation>(
-            std::enable_shared_from_this<
-                RecurrenceRelation>::shared_from_this()));
+    std::shared_ptr<RR> this_ptr = const_pointer_cast<RR, const RR>(
+        static_pointer_cast<const RR, const RecurrenceRelation>(
+            Enablestd::shared_ptrFromThis<
+                RecurrenceRelation>::SafePtr_from_this()));
     rrstack->find(this_ptr);
 #if DEBUG || DEBUG_CONSTRUCTION
     std::cout << "register_with_rrstack: registered " << this_ptr->label()
@@ -218,14 +218,14 @@ class RecurrenceRelation
    * sets of integrals using the RR
    */
   std::shared_ptr<DirectedGraph> generate_graph_(
-      const std::shared_ptr<DirectedGraph>& dg);
+      const SafePtr<DirectedGraph>& dg);
   /** assigns "target" symbol to the target vertex and "src<i>" to the i-th
      child vertex. Also appends these symbols to S. */
   void assign_symbols_(std::shared_ptr<CodeSymbols>& S);
   /** given an ImplicitDimension for the computation, adapt it for this
      recurrence relation. Default version does not do anything. */
   virtual std::shared_ptr<ImplicitDimensions> adapt_dims_(
-      const std::shared_ptr<ImplicitDimensions>& dims) const;
+      const SafePtr<ImplicitDimensions>& dims) const;
 
   /// does this recurrent relation have a generic equivalent? Default is no.
   virtual bool has_generic(
@@ -236,30 +236,30 @@ class RecurrenceRelation
   /// code
   virtual std::string generic_instance(
       const std::shared_ptr<CodeContext>& context,
-      const std::shared_ptr<CodeSymbols>& args) const;
+      const SafePtr<CodeSymbols>& args) const;
 };
 
 namespace algebra {
 /// these operators are extremely useful to write compact expressions
 std::shared_ptr<RecurrenceRelation::ExprType> operator+(
-    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B);
+    const SafePtr<DGVertex>& A, const std::shared_ptr<DGVertex>& B);
 std::shared_ptr<RecurrenceRelation::ExprType> operator-(
-    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B);
+    const SafePtr<DGVertex>& A, const std::shared_ptr<DGVertex>& B);
 std::shared_ptr<RecurrenceRelation::ExprType> operator*(
-    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B);
+    const SafePtr<DGVertex>& A, const std::shared_ptr<DGVertex>& B);
 std::shared_ptr<RecurrenceRelation::ExprType> operator/(
-    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B);
+    const SafePtr<DGVertex>& A, const std::shared_ptr<DGVertex>& B);
 const std::shared_ptr<RecurrenceRelation::ExprType>& operator+=(
-    std::shared_ptr<RecurrenceRelation::ExprType>& A,
+    SafePtr<RecurrenceRelation::ExprType>& A,
     const std::shared_ptr<DGVertex>& B);
 const std::shared_ptr<RecurrenceRelation::ExprType>& operator-=(
-    std::shared_ptr<RecurrenceRelation::ExprType>& A,
+    SafePtr<RecurrenceRelation::ExprType>& A,
     const std::shared_ptr<DGVertex>& B);
 const std::shared_ptr<RecurrenceRelation::ExprType>& operator*=(
-    std::shared_ptr<RecurrenceRelation::ExprType>& A,
+    SafePtr<RecurrenceRelation::ExprType>& A,
     const std::shared_ptr<DGVertex>& B);
 const std::shared_ptr<RecurrenceRelation::ExprType>& operator/=(
-    std::shared_ptr<RecurrenceRelation::ExprType>& A,
+    SafePtr<RecurrenceRelation::ExprType>& A,
     const std::shared_ptr<DGVertex>& B);
 
 class Entity;
@@ -269,17 +269,15 @@ template <class T>
 class CTimeEntity;
 // seems to confound Intel compiler on Linux?
 // std::shared_ptr<RecurrenceRelation::ExprType> operator*(const
-// std::shared_ptr<Entity>& A,
+// SafePtr<Entity>& A,
 //                                                const
 //                                                std::shared_ptr<DGVertex>& B);
 template <typename T>
 std::shared_ptr<RecurrenceRelation::ExprType> operator*(
-    const std::shared_ptr<RTimeEntity<T> >& A,
-    const std::shared_ptr<DGVertex>& B);
+    const SafePtr<RTimeEntity<T> >& A, const std::shared_ptr<DGVertex>& B);
 template <typename T>
 std::shared_ptr<RecurrenceRelation::ExprType> operator*(
-    const std::shared_ptr<CTimeEntity<T> >& A,
-    const std::shared_ptr<DGVertex>& B);
+    const SafePtr<CTimeEntity<T> >& A, const std::shared_ptr<DGVertex>& B);
 };  // namespace algebra
 
 // Instantiate the RRStack

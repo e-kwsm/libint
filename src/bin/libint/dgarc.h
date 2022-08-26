@@ -37,8 +37,7 @@ class DGArc {
   std::shared_ptr<DGVertex> dest_;  // Where this Arc leads to
 
  public:
-  DGArc(const std::shared_ptr<DGVertex>& orig,
-        const std::shared_ptr<DGVertex>& dest);
+  DGArc(const std::shared_ptr<DGVertex>& orig, const SafePtr<DGVertex>& dest);
   virtual ~DGArc() {}
 
   std::shared_ptr<DGVertex> orig() const { return orig_; }
@@ -53,9 +52,9 @@ class DGArc {
 class DGArcDirect : public DGArc {
  public:
   DGArcDirect(const std::shared_ptr<DGVertex>& orig,
-              const std::shared_ptr<DGVertex>& dest)
+              const SafePtr<DGVertex>& dest)
       : DGArc(orig, dest) {}
-  virtual ~DGArcDirect() {}
+  ~DGArcDirect() override {}
 
   /// Overload of DGArc::print()
   void print(std::ostream& os) const override {
@@ -67,14 +66,13 @@ class DGArcDirect : public DGArc {
     Each arc connects vertex orig_ to vertex dest_. */
 class DGArcRR : public DGArc {
  public:
-  virtual ~DGArcRR() {}
+  ~DGArcRR() override {}
 
   /// rr() returns pointer to the RecurrenceRelation describing the arc
   virtual std::shared_ptr<RecurrenceRelation> rr() const = 0;
 
  protected:
-  DGArcRR(const std::shared_ptr<DGVertex>& orig,
-          const std::shared_ptr<DGVertex>& dest);
+  DGArcRR(const std::shared_ptr<DGVertex>& orig, const SafePtr<DGVertex>& dest);
 };
 
 /** Class DGArcRel describes arcs in a directed graph which is
@@ -86,14 +84,13 @@ class DGArcRel : public DGArcRR {
   std::shared_ptr<ArcRel> rel_;  // Relationship described by the arc
 
  public:
-  DGArcRel(const std::shared_ptr<DGVertex>& orig,
-           const std::shared_ptr<DGVertex>& dest,
+  DGArcRel(const std::shared_ptr<DGVertex>& orig, const SafePtr<DGVertex>& dest,
            const std::shared_ptr<ArcRel>& rel);
   virtual ~DGArcRel();
 
   /// Implementation of DGArcRR::rr()
   std::shared_ptr<RecurrenceRelation> rr() const override {
-    return std::dynamic_pointer_cast<RecurrenceRelation, ArcRel>(rel_);
+    return dynamic_pointer_cast<RecurrenceRelation, ArcRel>(rel_);
   }
   /// Overload of DGArc::print()
   void print(std::ostream& os) const override {
@@ -104,7 +101,7 @@ class DGArcRel : public DGArcRR {
 
 template <class ArcRel>
 DGArcRel<ArcRel>::DGArcRel(const std::shared_ptr<DGVertex>& orig,
-                           const std::shared_ptr<DGVertex>& dest,
+                           const SafePtr<DGVertex>& dest,
                            const std::shared_ptr<ArcRel>& rel)
     : DGArcRR(orig, dest), rel_(rel){};
 
