@@ -135,7 +135,7 @@ class GenIntegralSet
 
   /// GenIntegralSet objects can be handled through the base pointer -- hence
   /// the destructor is virtual
-  virtual ~GenIntegralSet();
+  ~GenIntegralSet() override;
 
   /// Returns a pointer to a unique instance, a la Singleton
   static const std::shared_ptr<GenIntegralSet> Instance(

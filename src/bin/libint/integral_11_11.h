@@ -95,16 +95,16 @@ class GenIntegralSet_11_11
       const BraType& bra, const KetType& ket,
       const AuxIndexType& aux = AuxIndexType(),
       const OperType& oper = OperType());
-  ~GenIntegralSet_11_11();
+  ~GenIntegralSet_11_11() override;
 
   /// Comparison operator
   bool operator==(const this_type&) const;
 
   /// Reimplements DGVertex::unregister()
-  void unregister() const;
+  void unregister() const override;
 
   /// Implements GenIntegralSet::auto_unroll()
-  bool auto_unroll() const;
+  bool auto_unroll() const override;
 
  private:
   /// This constructor is also private and not implemented since all Integral's
@@ -116,7 +116,7 @@ class GenIntegralSet_11_11
   static SingletonManagerType singl_manager_;
 
   /// Implements DGVertex::this_precomputed()
-  bool this_precomputed() const;
+  bool this_precomputed() const override;
 };
 
 #if USE_INT_KEY_TO_HASH
