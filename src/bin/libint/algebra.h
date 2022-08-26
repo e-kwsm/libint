@@ -56,7 +56,7 @@ class AlgebraicOperator : public DGVertex {
         left_(left),
         right_(right),
         label_(algebra::OperatorSymbol[OT_]) {}
-  virtual ~AlgebraicOperator() {}
+  ~AlgebraicOperator() override {}
 
   /// Clone A but replace operands with left and right
   AlgebraicOperator(const std::shared_ptr<AlgebraicOperator>& A,
@@ -109,15 +109,14 @@ class AlgebraicOperator : public DGVertex {
 #if ALGEBRAICOPERATOR_USE_KEY_TO_COMPARE
 #if USE_INT_KEY_TO_COMPARE
       if (key() == a->key())
-        return *this ==
-               std::static_pointer_cast<AlgebraicOperator, DGVertex>(a);
+        return *this == static_pointer_cast<AlgebraicOperator, DGVertex>(a);
       else
         return false;
 #else
       return description() == a->description();
 #endif
 #else
-      return *this == std::static_pointer_cast<AlgebraicOperator, DGVertex>(a);
+      return *this == static_pointer_cast<AlgebraicOperator, DGVertex>(a);
 #endif
     } else
       return false;
@@ -125,7 +124,7 @@ class AlgebraicOperator : public DGVertex {
 
   /// laboriously compare 2 operators element by element
   bool operator==(const std::shared_ptr<AlgebraicOperator>& a) const {
-#if ALGEBRAICOPERATOR_USE_SHAREDPTR
+#if ALGEBRAICOPERATOR_USE_SAFEPTR
     // Find out why sometimes equivalent left_ and a->left_ have non-equivalent
     // pointers
     if (left_->equiv(a->left()) && left_ != a->left_) {
@@ -144,7 +143,7 @@ class AlgebraicOperator : public DGVertex {
     }
 #endif
     if (OT_ == a->OT_) {
-#if ALGEBRAICOPERATOR_USE_SHAREDPTR
+#if ALGEBRAICOPERATOR_USE_SAFEPTR
       if (left_ == a->left_ && right_ == a->right_)
 #else
       if (left_->equiv(a->left()) && right_->equiv(a->right()))
