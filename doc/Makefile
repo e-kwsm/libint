@@ -11,7 +11,7 @@ SUBDIRS = classdoc progman
 default::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(JOBS); \
+	    $(MAKE) -C $${dir} $(JOBS) || exit 1; \
 	  done
 
 ifndef DODEPEND
@@ -21,13 +21,13 @@ endif
 install::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@ || exit 1; \
 	  done
 
 install_target::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@ || exit 1; \
 	  done
 
 install-pdf:: pdf
@@ -42,7 +42,7 @@ install-dvi:: dvi
 install-html:: html
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@ || exit 1; \
 	  done
 
 pdf::
@@ -57,31 +57,31 @@ dvi::
 html::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@ || exit 1; \
 	  done
 
 clean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@ || exit 1; \
 	  done
 
 distclean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@ || exit 1; \
 	  done
 	-rm -f MakeRules MakeVars
 
 targetclean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) $@ || exit 1; \
 	  done
 
 realclean::
 	for dir in $(SUBDIRS); \
           do \
-            $(MAKE) -C $${dir} $(DODEPENDOPT) $@; \
+            $(MAKE) -C $${dir} $(DODEPENDOPT) $@ || exit 1; \
           done
 
