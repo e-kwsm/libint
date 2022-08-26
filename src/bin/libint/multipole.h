@@ -68,7 +68,7 @@ class CartesianMultipoleQuanta
     for (auto d = 0u; d != NDIM; ++d) n_[d] -= other.n_[d];
     return *this;
   }
-  ~CartesianMultipoleQuanta() = default;
+  ~CartesianMultipoleQuanta() override = default;
 
   /// returns the number of quanta along xyz
   unsigned int operator[](unsigned int xyz) const {

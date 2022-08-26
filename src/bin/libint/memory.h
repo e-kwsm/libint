@@ -172,11 +172,9 @@ class MemoryManager {
   /// Max amount of memory used
   Size max_memory_used_;
 
-  std::shared_ptr<MemBlock> merge_blocks(
-      const std::shared_ptr<MemBlock>& left,
-      const std::shared_ptr<MemBlock>& right);
-  std::shared_ptr<MemBlock> merge_to_superblock(
-      const std::shared_ptr<MemBlock>& blk);
+  std::shared_ptr<MemBlock> merge_blocks(const SafePtr<MemBlock>& left,
+                                         const SafePtr<MemBlock>& right);
+  std::shared_ptr<MemBlock> merge_to_superblock(const SafePtr<MemBlock>& blk);
   void update_max_memory();
 
  public:
@@ -202,8 +200,8 @@ class MemoryManager {
   /// Returns the superblock
   std::shared_ptr<MemBlock> superblock() const { return superblock_; }
   /// steals size memory from block blk and returns the new block
-  std::shared_ptr<MemBlock> steal_from_block(
-      const std::shared_ptr<MemBlock>& blk, const Size& size);
+  std::shared_ptr<MemBlock> steal_from_block(const SafePtr<MemBlock>& blk,
+                                             const Size& size);
   /// finds the block at Address a
   std::shared_ptr<MemBlock> find_block(const Address& a);
 };
@@ -216,7 +214,7 @@ class WorstFitMemoryManager : public MemoryManager {
  public:
   WorstFitMemoryManager(bool search_exact = true,
                         const Size& maxsize = ULONG_MAX);
-  virtual ~WorstFitMemoryManager();
+  ~WorstFitMemoryManager() override;
 
   /// Implementation of MemoryManager::alloc()
   Address alloc(const Size& size) override;
@@ -236,7 +234,7 @@ class BestFitMemoryManager : public MemoryManager {
  public:
   BestFitMemoryManager(bool search_exact = true, const Size& tight_fit = 0,
                        const Size& maxsize = ULONG_MAX);
-  virtual ~BestFitMemoryManager();
+  ~BestFitMemoryManager() override;
 
   /// Implementation of MemoryManager::alloc()
   Address alloc(const Size& size) override;
@@ -256,7 +254,7 @@ class FirstFitMemoryManager : public MemoryManager {
  public:
   FirstFitMemoryManager(bool search_exact = true,
                         const Size& maxsize = ULONG_MAX);
-  virtual ~FirstFitMemoryManager();
+  ~FirstFitMemoryManager() override;
 
   /// Implementation of MemoryManager::alloc()
   Address alloc(const Size& size) override;
@@ -275,7 +273,7 @@ class LastFitMemoryManager : public MemoryManager {
  public:
   LastFitMemoryManager(bool search_exact = true,
                        const Size& maxsize = ULONG_MAX);
-  virtual ~LastFitMemoryManager();
+  ~LastFitMemoryManager() override;
 
   /// Implementation of MemoryManager::alloc()
   Address alloc(const Size& size) override;
