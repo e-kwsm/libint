@@ -147,9 +147,9 @@ class CodeContext {
   /** returns a ForLoop object.
    */
   virtual std::shared_ptr<ForLoop> for_loop(
-      std::string& varname, const std::shared_ptr<Entity>& less_than,
+      std::string& varname, const SafePtr<Entity>& less_than,
       const std::shared_ptr<Entity>& start_at =
-          std::shared_ptr<Entity>(new CTimeEntity<int>(0))) const = 0;
+          SafePtr<Entity>(new CTimeEntity<int>(0))) const = 0;
 
   /// unique_name<T> returns a unique name for a variable of type T
   template <typename T>
@@ -207,11 +207,11 @@ class CodeContext {
    CppCodeContext is an implementation of CodeContext for C++
 */
 class CppCodeContext : public CodeContext,
-                       public std::enable_shared_from_this<CppCodeContext> {
+                       public Enablestd::shared_ptrFromThis<CppCodeContext> {
  public:
   CppCodeContext(const std::shared_ptr<CompilationParameters>& cparams,
                  bool vectorize = false);
-  virtual ~CppCodeContext();
+  ~CppCodeContext() override;
 
   /// Implementation of CodeContext::code_prefix()
   std::string code_prefix() const override;
@@ -291,7 +291,7 @@ class CppCodeContext : public CodeContext,
   std::string value_to_pointer(const std::string& val) const override;
   /// Implementation of CodeContext::for_loop()
   std::shared_ptr<ForLoop> for_loop(
-      std::string& varname, const std::shared_ptr<Entity>& less_than,
+      std::string& varname, const SafePtr<Entity>& less_than,
       const std::shared_ptr<Entity>& start_at) const override;
 
   /// Implementation of CodeContext::inteval_type_name()

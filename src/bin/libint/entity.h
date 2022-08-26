@@ -179,7 +179,7 @@ class RTimeEntity : public Entity, public DGVertex {
       return key() == a->key() && label() == a->label();
 #else
       std::shared_ptr<RTimeEntity> a_cast =
-          std::static_pointer_cast<RTimeEntity, DGVertex>(a);
+          static_pointer_cast<RTimeEntity, DGVertex>(a);
       return id() == a_cast->id();
 #endif
     } else
@@ -229,7 +229,7 @@ class CTimeEntity : public Entity, public DGVertex {
 #endif
   }
 
-  virtual ~CTimeEntity() {
+  ~CTimeEntity() override {
 #if DEBUG
     std::cout << "Deallocated CTimeEntity id = " << this->id()
               << " value = " << value() << std::endl;
@@ -246,7 +246,7 @@ class CTimeEntity : public Entity, public DGVertex {
       return key() == a->key();
 #else
       std::shared_ptr<CTimeEntity> a_cast =
-          std::static_pointer_cast<CTimeEntity, DGVertex>(a);
+          static_pointer_cast<CTimeEntity, DGVertex>(a);
       return id() == a_cast->id();
 #endif
     } else
@@ -293,15 +293,15 @@ class CTimeEntity : public Entity, public DGVertex {
 */
 //  template <typename T>
 //    std::shared_ptr<Entity>
-//    operator*(const std::shared_ptr<Entity>& A, const std::shared_ptr<
-//    CTimeEntity<T> >& B);
+//    operator*(const std::shared_ptr<Entity>& A, const SafePtr< CTimeEntity<T>
+//    >& B);
 
 /** Creates product A*B.
  */
 template <typename T, typename U>
 std::shared_ptr<CTimeEntity<typename ProductType<T, U>::result> > operator*(
     const std::shared_ptr<CTimeEntity<T> >& A,
-    const std::shared_ptr<CTimeEntity<U> >& B) {
+    const SafePtr<CTimeEntity<U> >& B) {
   typedef CTimeEntity<typename ProductType<T, U>::result> prodtype;
   return std::shared_ptr<prodtype>(new prodtype(A->value() * B->value()));
 }
@@ -311,7 +311,7 @@ std::shared_ptr<CTimeEntity<typename ProductType<T, U>::result> > operator*(
 template <typename T, typename U>
 std::shared_ptr<RTimeEntity<typename ProductType<T, U>::result> > operator*(
     const std::shared_ptr<RTimeEntity<T> >& A,
-    const std::shared_ptr<CTimeEntity<U> >& B) {
+    const SafePtr<CTimeEntity<U> >& B) {
   typedef RTimeEntity<typename ProductType<T, U>::result> prodtype;
   std::ostringstream oss;
   oss << A->id() << "*" << B->id();
@@ -327,7 +327,7 @@ std::shared_ptr<RTimeEntity<typename ProductType<T, U>::result> > operator*(
   */
   template <typename T, typename U>
     std::shared_ptr< RTimeEntity< typename ProductType<T,U>::result > >
-    operator*(const std::shared_ptr< CTimeEntity<U> >& B, const std::shared_ptr< RTimeEntity<T> >& A)
+    operator*(const std::shared_ptr< CTimeEntity<U> >& B, const SafePtr< RTimeEntity<T> >& A)
     {
       return A * B;
     }
