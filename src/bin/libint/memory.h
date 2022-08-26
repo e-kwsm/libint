@@ -216,7 +216,7 @@ class WorstFitMemoryManager : public MemoryManager {
  public:
   WorstFitMemoryManager(bool search_exact = true,
                         const Size& maxsize = ULONG_MAX);
-  virtual ~WorstFitMemoryManager();
+  ~WorstFitMemoryManager() override;
 
   /// Implementation of MemoryManager::alloc()
   Address alloc(const Size& size) override;
@@ -236,7 +236,7 @@ class BestFitMemoryManager : public MemoryManager {
  public:
   BestFitMemoryManager(bool search_exact = true, const Size& tight_fit = 0,
                        const Size& maxsize = ULONG_MAX);
-  virtual ~BestFitMemoryManager();
+  ~BestFitMemoryManager() override;
 
   /// Implementation of MemoryManager::alloc()
   Address alloc(const Size& size) override;
@@ -256,7 +256,7 @@ class FirstFitMemoryManager : public MemoryManager {
  public:
   FirstFitMemoryManager(bool search_exact = true,
                         const Size& maxsize = ULONG_MAX);
-  virtual ~FirstFitMemoryManager();
+  ~FirstFitMemoryManager() override;
 
   /// Implementation of MemoryManager::alloc()
   Address alloc(const Size& size) override;
@@ -275,7 +275,7 @@ class LastFitMemoryManager : public MemoryManager {
  public:
   LastFitMemoryManager(bool search_exact = true,
                        const Size& maxsize = ULONG_MAX);
-  virtual ~LastFitMemoryManager();
+  ~LastFitMemoryManager() override;
 
   /// Implementation of MemoryManager::alloc()
   Address alloc(const Size& size) override;
