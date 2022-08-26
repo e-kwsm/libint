@@ -79,7 +79,7 @@ class SubIteratorBase : public SubIterator {
   /// Return reference to ConstructablePolymorphically as object of this type
   typedef const ConstructablePolymorphically& cp_rettype;
   SubIteratorBase(const tref&);
-  virtual ~SubIteratorBase();
+  ~SubIteratorBase() override;
 
   /// Returns current element
   const iref& elem() const;
