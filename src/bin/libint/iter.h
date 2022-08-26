@@ -79,7 +79,7 @@ class SubIteratorBase : public SubIterator {
   /// Return reference to ConstructablePolymorphically as object of this type
   typedef const ConstructablePolymorphically& cp_rettype;
   SubIteratorBase(const tref&);
-  virtual ~SubIteratorBase();
+  ~SubIteratorBase() override;
 
   /// Returns current element
   const iref& elem() const;
@@ -123,7 +123,7 @@ class SubIteratorBase : public SubIterator {
   struct PElemImpl<X, true> {
     static cp_rettype pelem(const iref& elem) {
       std::shared_ptr<ConstructablePolymorphically> elem_cast =
-          std::dynamic_pointer_cast<ConstructablePolymorphically, X>(elem);
+          dynamic_pointer_cast<ConstructablePolymorphically, X>(elem);
       return *(elem_cast.get());
     }
   };
@@ -166,7 +166,8 @@ const typename SubIteratorBase<T, P>::iref& SubIteratorBase<T, P>::elem()
 template <class T, template <class> class P>
 typename SubIteratorBase<T, P>::cp_rettype SubIteratorBase<T, P>::pelem()
     const {
-  return PElemImpl<iter_type, detail::IsSharedPtr<iref>::value>::pelem(elem());
+  return PElemImpl<iter_type, detail::Isstd::shared_ptr<iref>::value>::pelem(
+      elem());
 }
 
 #if 0
@@ -174,7 +175,7 @@ typename SubIteratorBase<T, P>::cp_rettype SubIteratorBase<T, P>::pelem()
     const std::shared_ptr<ConstructablePolymorphically>
     SubIteratorBase<T,P>::pelem() const
     {
-      return std::dynamic_pointer_cast<ConstructablePolymorphically,iter_type>(elem());
+      return dynamic_pointer_cast<ConstructablePolymorphically,iter_type>(elem());
     }
 #endif
 
