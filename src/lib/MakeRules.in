@@ -64,23 +64,23 @@ uninstall::
 
 clean::
 	if test -f source; then \
-$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) clean; \
+$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) $@; \
 fi
 
 oclean::
 	if test -f source; then \
-$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) oclean; \
+$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) $@; \
 fi
 
 distclean::
 	if test -f source; then \
-$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) distclean; \
+$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) $@; \
 fi
 	$(MAKE) realclean
 
 targetclean::
 	if test -f source; then \
-$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) targetclean; \
+$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) $@; \
 fi
 
 realclean:: rm_libsrcdir
