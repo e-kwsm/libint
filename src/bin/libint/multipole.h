@@ -98,7 +98,7 @@ class CartesianMultipoleQuanta
   /// Return false if this object is invalid
   bool valid() const { return valid_; }
   /// Implements Hashable<unsigned>::key()
-  LIBINT2_UINT_LEAST64 key() const {
+  LIBINT2_UINT_LEAST64 key() const override {
     if (NDIM == 3u) {
       unsigned nxy = n_[1] + n_[2];
       unsigned l = nxy + n_[0];
@@ -248,7 +248,7 @@ class SphericalMultipoleQuanta
   const static unsigned max_key = (1 + max_qn) * (1 + max_qn);
 
   /// Implements Hashable<unsigned>::key()
-  LIBINT2_UINT_LEAST64 key() const {
+  LIBINT2_UINT_LEAST64 key() const override {
     assert(valid_);
     const auto result = l_ * l_ + (sign_ == Sign::plus ? (l_ + m_) : (l_ - m_));
     assert(result < max_key);

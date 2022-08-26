@@ -348,7 +348,7 @@ class QuantumNumbersA<T, 0> : public QuantumSet {
   QuantumNumbersA(const std::shared_ptr<QuantumNumbersA>&) {}
   QuantumNumbersA(const std::shared_ptr<QuantumSet>&) {}
   QuantumNumbersA(const std::shared_ptr<ConstructablePolymorphically>&) {}
-  ~QuantumNumbersA() {}
+  ~QuantumNumbersA() override {}
 
   bool operator==(const QuantumNumbersA&) const { return true; }
   std::string label() const override { return "{}"; }
