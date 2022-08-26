@@ -163,7 +163,7 @@ class RTimeEntity : public Entity, public DGVertex {
 #endif
   }
 
-  virtual ~RTimeEntity() {
+  ~RTimeEntity() override {
 #if DEBUG
     std::cout << "Deallocated RTimeEntity id = " << this->id() << std::endl;
 #endif

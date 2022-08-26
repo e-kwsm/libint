@@ -56,7 +56,7 @@ class AlgebraicOperator : public DGVertex {
         left_(left),
         right_(right),
         label_(algebra::OperatorSymbol[OT_]) {}
-  virtual ~AlgebraicOperator() {}
+  ~AlgebraicOperator() override {}
 
   /// Clone A but replace operands with left and right
   AlgebraicOperator(const std::shared_ptr<AlgebraicOperator>& A,
