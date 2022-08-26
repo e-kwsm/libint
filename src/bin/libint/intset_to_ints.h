@@ -55,7 +55,7 @@ class IntegralSet_to_Integrals : public RecurrenceRelation,
   typedef RecurrenceRelation::ExprType ExprType;
 
   IntegralSet_to_Integrals(const std::shared_ptr<I>&);
-  virtual ~IntegralSet_to_Integrals() {}
+  ~IntegralSet_to_Integrals() override {}
 
   /// Return an instance if applicable, or a null pointer otherwise
   static std::shared_ptr<IntegralSet_to_Integrals<I>> Instance(

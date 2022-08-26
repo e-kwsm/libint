@@ -59,7 +59,7 @@ class Uncontract_Integral : public RecurrenceRelation,
   typedef RecurrenceRelation::ExprType ExprType;
 
   Uncontract_Integral(const std::shared_ptr<I>&);
-  virtual ~Uncontract_Integral() {}
+  ~Uncontract_Integral() override {}
 
   /// Implementation of RecurrenceRelation::num_children()
   unsigned int num_children() const override { return children_.size(); }
