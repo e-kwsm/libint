@@ -55,7 +55,7 @@ class DGArcDirect : public DGArc {
   DGArcDirect(const std::shared_ptr<DGVertex>& orig,
               const std::shared_ptr<DGVertex>& dest)
       : DGArc(orig, dest) {}
-  virtual ~DGArcDirect() {}
+  ~DGArcDirect() override {}
 
   /// Overload of DGArc::print()
   void print(std::ostream& os) const override {
@@ -67,7 +67,7 @@ class DGArcDirect : public DGArc {
     Each arc connects vertex orig_ to vertex dest_. */
 class DGArcRR : public DGArc {
  public:
-  virtual ~DGArcRR() {}
+  ~DGArcRR() override {}
 
   /// rr() returns pointer to the RecurrenceRelation describing the arc
   virtual std::shared_ptr<RecurrenceRelation> rr() const = 0;

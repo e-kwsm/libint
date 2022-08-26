@@ -32,7 +32,7 @@ namespace libint2 {
 class DirectedGraph;
 class RecurrenceRelation;
 
-struct DummyRandomizePolicy;
+class DummyRandomizePolicy;
 class StdRandomizePolicy;
 
 /** Tactic is used to choose the optimal (in some sense) recurrence relation to
@@ -60,7 +60,7 @@ class FirstChoiceTactic : public Tactic {
   FirstChoiceTactic(const std::shared_ptr<RandomizePolicy>& rpolicy =
                         std::shared_ptr<RandomizePolicy>(new RandomizePolicy))
       : Tactic(), rpolicy_(rpolicy) {}
-  virtual ~FirstChoiceTactic() {}
+  ~FirstChoiceTactic() override {}
 
   RR optimal_rr(const rr_stack& stack) const {
     if (!stack.empty())
@@ -80,7 +80,7 @@ class FewestNewVerticesTactic : public Tactic {
  public:
   FewestNewVerticesTactic(const std::shared_ptr<DirectedGraph>& dg)
       : Tactic(), dg_(dg) {}
-  virtual ~FewestNewVerticesTactic() {}
+  ~FewestNewVerticesTactic() override {}
 
   RR optimal_rr(const rr_stack& stack) const;
 
@@ -95,7 +95,7 @@ class ZeroNewVerticesTactic : public Tactic {
  public:
   ZeroNewVerticesTactic(const std::shared_ptr<DirectedGraph>& dg)
       : Tactic(), dg_(dg) {}
-  virtual ~ZeroNewVerticesTactic() {}
+  ~ZeroNewVerticesTactic() override {}
 
   RR optimal_rr(const rr_stack& stack) const;
 
@@ -108,7 +108,7 @@ class ZeroNewVerticesTactic : public Tactic {
 class RandomChoiceTactic : public Tactic {
  public:
   RandomChoiceTactic();
-  virtual ~RandomChoiceTactic() {}
+  ~RandomChoiceTactic() override {}
 
   RR optimal_rr(const rr_stack& stack) const;
 };
@@ -118,7 +118,7 @@ class RandomChoiceTactic : public Tactic {
 class NullTactic : public Tactic {
  public:
   NullTactic() : Tactic() {}
-  virtual ~NullTactic() {}
+  ~NullTactic() override {}
 
   RR optimal_rr(const rr_stack& stack) const;
 };
@@ -134,9 +134,9 @@ class ParticleDirectionTactic : public Tactic {
    * higher particle indices.
    */
   ParticleDirectionTactic(bool increase) : Tactic(), increase_(increase) {}
-  virtual ~ParticleDirectionTactic() {}
+  ~ParticleDirectionTactic() override {}
 
-  RR optimal_rr(const rr_stack& stack) const;
+  RR optimal_rr(const rr_stack& stack) const override;
 
  private:
   bool increase_;
@@ -153,7 +153,7 @@ class TwoCenter_OS_Tactic : public Tactic {
    */
   TwoCenter_OS_Tactic(unsigned lbra0, unsigned lket0)
       : Tactic(), lbra0_(lbra0), lket0_(lket0) {}
-  virtual ~TwoCenter_OS_Tactic() {}
+  ~TwoCenter_OS_Tactic() override {}
 
   RR optimal_rr(const rr_stack& stack) const;
 
@@ -177,7 +177,7 @@ class FourCenter_OS_Tactic : public Tactic {
   FourCenter_OS_Tactic(unsigned lbra0, unsigned lket0, unsigned lbra1,
                        unsigned lket1)
       : Tactic(), lbra0_(lbra0), lket0_(lket0), lbra1_(lbra1), lket1_(lket1) {}
-  virtual ~FourCenter_OS_Tactic() {}
+  ~FourCenter_OS_Tactic() override {}
 
   RR optimal_rr(const rr_stack& stack) const;
 

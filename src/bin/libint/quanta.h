@@ -42,7 +42,7 @@ class QuantumSet : public ConstructablePolymorphically,
   /// Quantum numbers lie in range [0,max_quantum_number)
   static const LIBINT2_UINT_LEAST64 max_quantum_number = 100;
 
-  virtual ~QuantumSet() {}
+  ~QuantumSet() override {}
   virtual std::string label() const = 0;
 
   /// Number of quantum numbers in the set
@@ -205,7 +205,7 @@ class QuantumNumbersA : public QuantumSet {
   QuantumNumbersA(const std::shared_ptr<QuantumNumbersA>&);
   QuantumNumbersA(const std::shared_ptr<QuantumSet>&);
   QuantumNumbersA(const std::shared_ptr<ConstructablePolymorphically>&);
-  ~QuantumNumbersA();
+  ~QuantumNumbersA() override;
 
   bool operator==(const QuantumNumbersA&) const;
   std::string label() const override;

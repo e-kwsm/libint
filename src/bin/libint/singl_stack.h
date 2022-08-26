@@ -71,7 +71,7 @@ class SingletonStack : public PurgeableStack<T> {
     }
   }
 
-  virtual ~SingletonStack() {}
+  ~SingletonStack() override {}
 
   /** Returns the pointer to the unique instance of object obj.
         find() computes obj->*callback_(), searches it in hstack_,

@@ -77,7 +77,7 @@ class PurgeableStack : public AbstractPurgeableStack {
  protected:
   typedef Policy PurgingPolicy;
 
-  virtual ~PurgeableStack() {}
+  ~PurgeableStack() override {}
 };
 
 /// Collection of AbstractPurgeableStack objects

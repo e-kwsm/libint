@@ -74,7 +74,7 @@ class RRStackBase : public SingletonStack<RR, std::string> {
     return rrstack_;
   }
 
-  virtual ~RRStackBase() {}
+  ~RRStackBase() override {}
 
   /// adds content of rrs to this stack
   void add(const std::shared_ptr<RRStackBase<RR> >& rrs) {

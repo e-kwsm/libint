@@ -124,7 +124,7 @@ class OriginDerivative : public Hashable<LIBINT2_UINT_LEAST64, ReferToKey> {
     for (auto d = 0u; d != NDIM; ++d) d_[d] -= other.d_[d];
     return *this;
   }
-  ~OriginDerivative() {
+  ~OriginDerivative() override {
     static_assert(NDIM == 3u || NDIM == 1u,
                   "OriginDerivative with NDIM=1,3 are implemented");
   }
@@ -273,7 +273,7 @@ class CGShell : public IncableBFSet,
   CGShell();
   CGShell(unsigned int qn, bool pure_sh = false);
   CGShell(const CGShell&);
-  virtual ~CGShell();
+  ~CGShell() override;
   CGShell& operator=(const CGShell&);
 
   const OriginDerivative<3u>& deriv() const { return deriv_; }
@@ -365,7 +365,7 @@ class CGF : public IncableBFSet,
   CGF(unsigned int qn[3], bool pure_sh = false);
   CGF(const CGF&);
   explicit CGF(const ConstructablePolymorphically&);
-  virtual ~CGF();
+  virtual ~CGF() override;
   /// assignment
   CGF& operator=(const CGF&);
 
