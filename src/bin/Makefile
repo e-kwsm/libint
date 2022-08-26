@@ -11,7 +11,7 @@ ALLSUBDIRS = $(SUBDIRS) test_eri profile
 default::
 	for dir in $(SUBDIRS); \
 	  do \
-	    $(MAKE) -C $${dir} $(JOBS); \
+	    $(MAKE) -C $${dir} $(JOBS) || exit 1; \
 	  done
 
 all:: default
