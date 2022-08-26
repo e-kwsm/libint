@@ -72,9 +72,9 @@ class HRR : public RecurrenceRelation {
    For example, dir can be 0 (x), 1(y), or 2(z) if F is
    a Cartesian Gaussian.
    */
-  static std::shared_ptr<ThisType> Instance(const std::shared_ptr<TargetType>&,
+  static std::shared_ptr<ThisType> Instance(const SafePtr<TargetType>&,
                                             unsigned int dir = 0);
-  virtual ~HRR();
+  ~HRR() override;
 
   /// overrides RecurrenceRelation::braket_direction()
   BraketDirection braket_direction() const override {
@@ -102,11 +102,11 @@ class HRR : public RecurrenceRelation {
   std::shared_ptr<ChildType> child(unsigned int i) const;
   /// Implementation of RecurrenceRelation::target()
   std::shared_ptr<DGVertex> rr_target() const override {
-    return std::static_pointer_cast<DGVertex, TargetType>(target());
+    return static_pointer_cast<DGVertex, TargetType>(target());
   }
   /// Implementation of RecurrenceRelation::child()
   std::shared_ptr<DGVertex> rr_child(unsigned int i) const override {
-    return std::static_pointer_cast<DGVertex, ChildType>(child(i));
+    return static_pointer_cast<DGVertex, ChildType>(child(i));
   }
   /// Implementation of RecurrenceRelation::is_simple()
   bool is_simple() const override { return TrivialBFSet<BFSet>::result; }
@@ -135,7 +135,7 @@ class HRR : public RecurrenceRelation {
   std::string generate_label() const override;
   /// Reimplementation of RecurrenceRelation::adapt_dims_()
   std::shared_ptr<ImplicitDimensions> adapt_dims_(
-      const std::shared_ptr<ImplicitDimensions>& dims) const override;
+      const SafePtr<ImplicitDimensions>& dims) const override;
   /// Use instead of RecurrenceRelation::register_with_rrstack()
   bool register_with_rrstack() const;
   /** return true if the high dimension must be shown explicitly. For example,
@@ -391,10 +391,10 @@ bool HRR<IntType, F, part, loc_a, pos_a, loc_b, pos_b>::register_with_rrstack()
   // needs to be added to the stack
   if (!nonzero_quanta) {
     std::shared_ptr<RRStack> rrstack = RRStack::Instance();
-    std::shared_ptr<ThisType> this_ptr =
-        std::const_pointer_cast<ThisType, const ThisType>(
-            std::static_pointer_cast<const ThisType, const ParentType>(
-                std::enable_shared_from_this<ParentType>::shared_from_this()));
+    std::shared_ptr<ThisType> this_ptr = const_pointer_cast<ThisType,
+                                                            const ThisType>(
+        static_pointer_cast<const ThisType, const ParentType>(
+            Enablestd::shared_ptrFromThis<ParentType>::SafePtr_from_this()));
     rrstack->find(this_ptr);
     return true;
   }
@@ -433,6 +433,7 @@ bool HRR<IntType, F, part, loc_a, pos_a, loc_b, pos_b>::register_with_rrstack()
   // create a generic GenIntegralSet over a multiplicative operator
   typedef GenOper<GenMultSymmOper_Descr<IntType::OperatorType::Properties::np> >
       DummyOper;
+  typedef typename IBraType::bfs_type bfs_type;
   typedef EmptySet DummyQuanta;
   typedef GenIntegralSet<DummyOper, IncableBFSet, IBraType, IKetType,
                          DummyQuanta>
@@ -544,7 +545,7 @@ template <class IntType, class F, int part, FunctionPosition loc_a,
           unsigned int pos_a, FunctionPosition loc_b, unsigned int pos_b>
 std::string HRR<IntType, F, part, loc_a, pos_a, loc_b, pos_b>::spfunction_call(
     const std::shared_ptr<CodeContext>& context,
-    const std::shared_ptr<ImplicitDimensions>& dims) const {
+    const SafePtr<ImplicitDimensions>& dims) const {
   std::ostringstream os;
   os << context->label_to_name(
             label_to_funcname(context->cparams()->api_prefix() + label()))

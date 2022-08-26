@@ -257,7 +257,7 @@ class CGShell : public IncableBFSet,
   unsigned int qn_[1];
   OriginDerivative<3> deriv_;
   bool pure_sh_;  //< if true, assumed to contain solid harmonics with quantum
-                  // number qn_[0] only
+                  //number qn_[0] only
   /** if true, this is a unit shell (zero-exponent Gaussian) */
   bool unit_;
 
@@ -346,7 +346,7 @@ class CGF : public IncableBFSet,
   unsigned int qn_[3];
   OriginDerivative<3u> deriv_;
   bool pure_sh_;  //< if true, assumed to contain solid harmonics with quantum
-                  // number qn_[0] only
+                  //number qn_[0] only
   bool unit_;     //< if true, this is a unit Gaussian (exponent = 0)
 
   friend CGF operator+(const CGF& A, const CGF& B);
@@ -483,7 +483,7 @@ class CGF1d : public IncableBFSet,
     deriv_ = sptr_cast.deriv_;
     unit_ = sptr_cast.unit_;
   }
-  virtual ~CGF1d() {}
+  ~CGF1d() override {}
 
   /// assignment
   CGF1d& operator=(const CGF1d& source) {
@@ -666,7 +666,7 @@ class CGShell1d : public IncableBFSet,
         unit_(source.unit_) {
     qn_[0] = source.qn_[0];
   }
-  virtual ~CGShell1d() {}
+  ~CGShell1d() override {}
 
   /// assignment
   CGShell1d& operator=(const CGShell1d& source) {
