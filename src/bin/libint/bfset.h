@@ -483,7 +483,7 @@ class CGF1d : public IncableBFSet,
     deriv_ = sptr_cast.deriv_;
     unit_ = sptr_cast.unit_;
   }
-  virtual ~CGF1d() {}
+  ~CGF1d() override {}
 
   /// assignment
   CGF1d& operator=(const CGF1d& source) {
@@ -666,7 +666,7 @@ class CGShell1d : public IncableBFSet,
         unit_(source.unit_) {
     qn_[0] = source.qn_[0];
   }
-  virtual ~CGShell1d() {}
+  ~CGShell1d() override {}
 
   /// assignment
   CGShell1d& operator=(const CGShell1d& source) {
