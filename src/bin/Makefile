@@ -11,7 +11,7 @@ ALLSUBDIRS = $(SUBDIRS) test_eri profile
 default::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(JOBS)) || exit 1; \
+	    $(MAKE) -C $${dir} $(JOBS); \
 	  done
 
 all:: default
@@ -21,60 +21,60 @@ DODEPENDOPT = "DODEPEND=no"
 endif
 
 export::
-	(cd libint && $(MAKE) $(DODEPENDOPT)) || exit 1;
+	$(MAKE) -C libint $(DODEPENDOPT)
 
 install::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) install) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) install; \
 	  done
 
 install_inc::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) install_inc) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) install_inc; \
 	  done
 
 install_target::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) install_target) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) install_target; \
 	  done
 
 uninstall::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) uninstall) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) uninstall; \
 	  done
 
 clean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) clean) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) clean; \
 	  done
 
 oclean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) oclean) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) oclean; \
 	  done
 
 distclean::
 	for dir in $(ALLSUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) distclean) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) distclean; \
 	  done
 	-rm -rf MakeVars
 
 targetclean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) targetclean) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) targetclean; \
 	  done
 
 realclean::
 	for dir in $(SUBDIRS); \
 	  do \
-	    (cd $${dir} && $(MAKE) $(DODEPENDOPT) realclean) || exit 1; \
+	    $(MAKE) -C $${dir} $(DODEPENDOPT) realclean; \
 	  done
 

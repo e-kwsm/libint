@@ -16,7 +16,7 @@ export:: source
         done
 
 $(TOPDIR)/lib/$(TARGET): source
-	cd $(LIBSRCLINK); $(MAKE) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR)
+	$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR)
 
 install:: install_inc install_target install_pkgconfig install_cmake install_data
 
@@ -64,23 +64,23 @@ uninstall::
 
 clean::
 	if test -f source; then \
-cd $(LIBSRCLINK); $(MAKE) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) clean; \
+$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) clean; \
 fi
 
 oclean::
 	if test -f source; then \
-cd $(LIBSRCLINK); $(MAKE) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) oclean; \
+$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) oclean; \
 fi
 
 distclean::
 	if test -f source; then \
-cd $(LIBSRCLINK); $(MAKE) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) distclean; \
+$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) distclean; \
 fi
 	$(MAKE) realclean
 
 targetclean::
 	if test -f source; then \
-cd $(LIBSRCLINK); $(MAKE) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) targetclean; \
+$(MAKE) -C $(LIBSRCLINK) TO_TOPDIR=$(TO_TOPDIR) TOPDIR=$(TOPOBJDIR) SRCDIR=$(SRCDIR) targetclean; \
 fi
 
 realclean:: rm_libsrcdir
