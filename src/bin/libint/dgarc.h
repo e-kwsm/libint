@@ -89,7 +89,7 @@ class DGArcRel : public DGArcRR {
   DGArcRel(const std::shared_ptr<DGVertex>& orig,
            const std::shared_ptr<DGVertex>& dest,
            const std::shared_ptr<ArcRel>& rel);
-  virtual ~DGArcRel();
+  ~DGArcRel() override;
 
   /// Implementation of DGArcRR::rr()
   std::shared_ptr<RecurrenceRelation> rr() const override {
