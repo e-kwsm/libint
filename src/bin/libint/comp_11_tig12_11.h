@@ -122,6 +122,6 @@ CR_11_TiG12_11<F>::CR_11_TiG12_11(const std::shared_ptr<TargetType>& Tint,
   }
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
