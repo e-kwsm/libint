@@ -63,7 +63,7 @@ constexpr signed char parity(Int i) {
 template <typename Real>
 class SolidHarmonicsCoefficients {
  public:
-  typedef ::libint2::value_type real_t;
+  using real_t = ::libint2::value_type;
 
   SolidHarmonicsCoefficients() : l_(-1) {}
   SolidHarmonicsCoefficients(unsigned char l) : l_(l) {
