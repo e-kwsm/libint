@@ -970,6 +970,6 @@ class VRR_1_SMultipole_1
 
 };  // VRR_1_SMultipole_1
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

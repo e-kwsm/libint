@@ -115,7 +115,7 @@ inline KeyTypes::InstanceID KeyTypes::cast<unsigned long long>(
 /// this composite hashing key works for DGVertex
 typedef TypeAndInstance<KeyTypes::ClassID, KeyTypes::InstanceID> DGVertexKey;
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
 

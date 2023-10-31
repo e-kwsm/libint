@@ -339,6 +339,6 @@ class CppCodeContext : public CodeContext,
                                    const std::string& arg3, bool accum);
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
