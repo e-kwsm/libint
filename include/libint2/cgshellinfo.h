@@ -480,6 +480,6 @@ struct CGShellInfo {
 template <typename OrderingData>
 OrderingData CGShellInfo<OrderingData>::data_;
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif  // header guard
