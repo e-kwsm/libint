@@ -214,6 +214,6 @@ To sstream_convert(const To& from) {
   return from;
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif  // _libint2_include_numeric_h_
