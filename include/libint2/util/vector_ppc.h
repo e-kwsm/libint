@@ -168,8 +168,8 @@ inline VectorQPXDouble fma_minus(VectorQPXDouble a, VectorQPXDouble b,
 
 //@}
 
-};  // namespace simd
-};  // namespace libint2
+}  // namespace simd
+}  // namespace libint2
 
 namespace libint2 {
 
@@ -344,8 +344,8 @@ inline VectorFP2Double fma_minus(VectorFP2Double a, VectorFP2Double b,
 
 //@}
 
-};  // namespace simd
-};  // namespace libint2
+}  // namespace simd
+}  // namespace libint2
 
 namespace libint2 {
 
