@@ -18,13 +18,16 @@
  *
  */
 
+// clang-format off
+#include <master_ints_list.h>
+#include <master_rrs_list.h>
+// clang-format on
+
 #include <dg.h>
 #include <graph_registry.h>
 #include <integral_11_11.impl.h>
 #include <integral_1_1.impl.h>
 #include <intset_to_ints.h>
-#include <master_ints_list.h>
-#include <master_rrs_list.h>
 #include <rr.h>
 #include <singl_stack.h>
 #include <strategy.h>
@@ -382,7 +385,7 @@ class apply_strategy_transform {
       std::shared_ptr<RRType> rr_ptr = RRType::Instance(integral, xyz);
       if (rr_ptr != 0)
         rrstack.push_back(
-            static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
+            std::static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
     }
     return false;
   }
@@ -393,7 +396,7 @@ class apply_strategy_transform {
                          Tactic::rr_stack& rrstack) {
     // If given NullTactic -- skip
     std::shared_ptr<NullTactic> ntactic =
-        dynamic_pointer_cast<NullTactic, Tactic>(tactic);
+        std::dynamic_pointer_cast<NullTactic, Tactic>(tactic);
     if (ntactic) return false;
 
     // in CGF case collect all rrs on rrstack
@@ -403,7 +406,7 @@ class apply_strategy_transform {
       // iteration?
       if (rr_ptr != 0)
         rrstack.push_back(
-            static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
+            std::static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
     }
     return false;
   }
@@ -422,7 +425,7 @@ class apply_strategy {
  public:
   struct Impl {
     Impl(const std::shared_ptr<DirectedGraph>& dg,
-         const SafePtr<IntType>& integral,
+         const std::shared_ptr<IntType>& integral,
          const std::shared_ptr<Tactic>& tactic)
         : dg_(dg), integral_(integral), tactic_(tactic), done_(false) {}
 
@@ -478,7 +481,7 @@ struct match_first_inttype_transform {
                     const std::shared_ptr<DGVertex>& integral,
                     const std::shared_ptr<Tactic>& tactic,
                     std::shared_ptr<RecurrenceRelation>& rr) {
-    std::shared_ptr<T> tptr = dynamic_pointer_cast<T, DGVertex>(integral);
+    std::shared_ptr<T> tptr = std::dynamic_pointer_cast<T, DGVertex>(integral);
     if (tptr != 0) {
 #if 0
         std::cout << "Visiting integral " << integral->label() << ", its type is " << class_name<T>() << std::endl;
@@ -515,7 +518,7 @@ struct match_first_inttype_transform {
       if (can_unroll) {
         using ISet2I = IntegralSet_to_Integrals<T>;
         std::shared_ptr<ISet2I> x(new ISet2I(tptr));
-        rr = static_pointer_cast<RecurrenceRelation, ISet2I>(x);
+        rr = std::static_pointer_cast<RecurrenceRelation, ISet2I>(x);
 #if DEBUG
         std::cout << "Unrolled " << tptr->label() << std::endl;
 #endif
@@ -525,7 +528,7 @@ struct match_first_inttype_transform {
         if (can_uncontract) {
           using UncI = Uncontract_Integral<T>;
           std::shared_ptr<UncI> x(new UncI(tptr));
-          rr = static_pointer_cast<RecurrenceRelation, UncI>(x);
+          rr = std::static_pointer_cast<RecurrenceRelation, UncI>(x);
           if (rr != 0) {
             if (rr->num_children() != 0) {
 #if DEBUG
@@ -569,7 +572,7 @@ class match_first_inttype {
  public:
   struct Impl {
     Impl(const std::shared_ptr<DirectedGraph>& dg,
-         const SafePtr<DGVertex>& integral,
+         const std::shared_ptr<DGVertex>& integral,
          const std::shared_ptr<Tactic>& tactic)
         : dg_(dg),
           integral_(integral),
@@ -609,7 +612,8 @@ class match_first_inttype {
 
 std::shared_ptr<RecurrenceRelation> Strategy::optimal_rr(
     const std::shared_ptr<DirectedGraph>& graph,
-    const SafePtr<DGVertex>& integral, const std::shared_ptr<Tactic>& tactic) {
+    const std::shared_ptr<DGVertex>& integral,
+    const std::shared_ptr<Tactic>& tactic) {
 #if 0
   {
     std::cout << "Strategy::optimal_rr() -- integral:" << std::endl;

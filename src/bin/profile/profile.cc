@@ -38,7 +38,7 @@
 
 #ifndef SKIP_AXPY
 #include <mkl_cblas.h>
-typedef MKL_INT BLAS_INT;
+using BLAS_INT = MKL_INT;
 #endif
 
 #ifdef SKIP_ALL
@@ -122,7 +122,7 @@ void do_stg(int mmax, double T, double U, int nrepeats);
 
 template <typename Real, Real(Function)(Real)>
 struct BasicKernel {
-  typedef Real ResultType;
+  using ResultType = Real;
   BasicKernel(Real T, std::string label, double T_dec = 0.00001)
       : label_(label), T_(T), T_dec_(T_dec), sum_(0) {}
   std::string label() const { return label_; }
@@ -171,7 +171,7 @@ struct VectorOpKernel {
 
 template <typename Real>
 struct AXPYKernel : public VectorOpKernel<Real> {
-  typedef Real ResultType;
+  using ResultType = Real;
   AXPYKernel(size_t veclen, Real a, Real T, std::string label)
       : VectorOpKernel<Real>(veclen, 1, T, label), a_(a) {
     y_ = &VectorOpKernel<Real>::result_[0];
@@ -192,8 +192,8 @@ struct AXPYKernel : public VectorOpKernel<Real> {
 };
 
 struct DAXPYKernel : public VectorOpKernel<double> {
-  typedef double ResultType;
-  typedef double Real;
+  using ResultType = double;
+  using Real = double;
   DAXPYKernel(size_t veclen, Real a, Real T, std::string label)
       : VectorOpKernel<Real>(veclen, 1, T, label), a_(a) {
     y_ = &VectorOpKernel<Real>::result_[0];
@@ -212,7 +212,7 @@ struct DAXPYKernel : public VectorOpKernel<double> {
 
 template <typename Real>
 struct DOTKernel : public VectorOpKernel<Real> {
-  typedef Real ResultType;
+  using ResultType = Real;
   DOTKernel(size_t veclen, Real T, std::string label)
       : VectorOpKernel<Real>(veclen, 2, T, label), result_(0) {
     x1_ = VectorOpKernel<Real>::args_[0];
@@ -233,8 +233,8 @@ struct DOTKernel : public VectorOpKernel<Real> {
 };
 
 struct DDOTKernel : public VectorOpKernel<double> {
-  typedef double ResultType;
-  typedef double Real;
+  using ResultType = double;
+  using Real = double;
   DDOTKernel(size_t veclen, Real T, std::string label)
       : VectorOpKernel<Real>(veclen, 2, T, label), result_(0) {
     x1_ = VectorOpKernel<Real>::args_[0];
@@ -252,8 +252,8 @@ struct DDOTKernel : public VectorOpKernel<double> {
 };
 
 struct DGEMMKernel : public VectorOpKernel<double> {
-  typedef double ResultType;
-  typedef double Real;
+  using ResultType = double;
+  using Real = double;
   DGEMMKernel(size_t n, Real T, std::string label)
       : VectorOpKernel<Real>(n * n, 2, T, label), m_(n), n_(n), k_(n) {
     c_ = &VectorOpKernel<Real>::result_[0];
@@ -402,7 +402,7 @@ void profile(const Kernel& k, int nrepeats) {
   std::cout << "===================== " << k.label()
             << " ======================" << std::endl;
 
-  typedef typename Kernel::ResultType Real;
+  using Real = typename Kernel::ResultType;
 
   timer.clear();
   timer.start(0);
@@ -437,7 +437,7 @@ void do_chebyshev(int mmax, int nrepeats) {
   const double scale_unit32_to_T = T_max / std::numeric_limits<uint32_t>::max();
 
   if (InterpolationOrder != 7) abort();
-  typedef libint2::FmEval_Chebyshev7<> fmeval_t;
+  using fmeval_t = libint2::FmEval_Chebyshev7<>;
   fmeval_t fmeval_cheb(mmax);
   std::cout << "done initialization:" << std::endl;
   std::fill(Fm_array_sum, Fm_array_sum + mmax + 1, 0.0);

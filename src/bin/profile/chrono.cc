@@ -29,8 +29,8 @@
 #endif
 
 int main(int argc, char* argv[]) {
-  typedef std::chrono::high_resolution_clock clock_t;
-  typedef std::chrono::time_point<clock_t> time_point_t;
+  using clock_t = std::chrono::high_resolution_clock;
+  using time_point_t = std::chrono::time_point<clock_t>;
 
   std::cout << "WARNING: turn off turboboost for reliable profiling"
             << std::endl;
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     asm("nop");
   }
   auto tstop = clock_t::now();
-  typedef std::chrono::duration<double> dur_t;
+  using dur_t = std::chrono::duration<double>;
   const dur_t d0 = tstop - tstart;
   std::cout << "nop took " << std::setprecision(15)
             << d0.count() * 1e9 / nrepeats << " nanoseconds" << std::endl;
