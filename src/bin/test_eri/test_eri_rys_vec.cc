@@ -52,7 +52,7 @@ constexpr auto npts = am_tot / 2 + 1;
 
 #include "../../../../../libint_master/include/libint2/timer.h"
 
-typedef struct {
+struct Libint_t {
   double AB_x[LIBINT2_MAX_VECLEN];
   double AB_y[LIBINT2_MAX_VECLEN];
   double AB_z[LIBINT2_MAX_VECLEN];
@@ -85,7 +85,7 @@ typedef struct {
   mutable LIBINT2_UINT_LEAST64* nflops;
 #endif
   int contrdepth;
-} Libint_t;
+};
 #endif
 
 #include <VRR_GTG_1d_xx_xx_vec.h>
@@ -195,7 +195,7 @@ struct Tensor {
 };
 };  // namespace libint2
 
-typedef unsigned int uint;
+using uint = unsigned int;
 
 libint2::FmEval_Chebyshev7<double> fmeval_chebyshev(28);
 libint2::FmEval_Taylor<double, 7> fmeval_taylor(28, 1e-15);
@@ -253,7 +253,7 @@ int main(int argc, char** argv) {
   LIBINT2_REF_REALTYPE Dref[4];
   for (int i = 0; i < 4; ++i) Dref[i] = D[i];
 
-  typedef SubIteratorBase<CGShell> iter;
+  using iter = SubIteratorBase<CGShell>;
   std::shared_ptr<iter> sh0_iter(new iter(sh0));
   std::shared_ptr<iter> sh1_iter(new iter(sh1));
   std::shared_ptr<iter> sh2_iter(new iter(sh2));
@@ -402,7 +402,7 @@ int main(int argc, char** argv) {
   };
 
   // prepare to compute 2-dimensional ints
-  typedef LIBINT2_REALTYPE real_t;
+  using real_t = LIBINT2_REALTYPE;
   Tensor<VectorSIMD<double, npts> > gtg_x{1u, am[0] + 1, am[1] + 1, am[2] + 1,
                                           am[3] + 1};
   Tensor<VectorSIMD<double, npts> > gtg_y{1u, am[0] + 1, am[1] + 1, am[2] + 1,
