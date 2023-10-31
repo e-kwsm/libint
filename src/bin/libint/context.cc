@@ -126,7 +126,7 @@ std::string CodeContext::label_to_filename(const std::string& label) const {
 std::string CodeContext::replace_chars(const std::string& S,
                                        const std::string& From,
                                        const std::string& To) {
-  typedef std::string::size_type size_type;
+  using size_type = std::string::size_type;
 
   const unsigned int max_niter = 1000;
   unsigned int niter = 0;
