@@ -143,6 +143,6 @@ class TaskExternSymbols {
   RRmap rrmap_;
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif  // header guard

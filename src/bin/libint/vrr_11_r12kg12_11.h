@@ -674,6 +674,6 @@ std::string VRR_11_R12kG12_11<F, part, where>::generic_instance(
 }
 #endif  // #if !LIBINT_ENABLE_GENERIC_CODE
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

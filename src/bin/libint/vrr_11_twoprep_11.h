@@ -857,6 +857,6 @@ std::string VRR_11_TwoPRep_11<F, part, where>::generic_instance(
 }
 #endif  // #if !LIBINT_ENABLE_GENERIC_CODE
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
