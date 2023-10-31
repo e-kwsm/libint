@@ -129,6 +129,6 @@ class Libint2Iface {
 
   void generate_inteval_type(std::ostream& os);
 };
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

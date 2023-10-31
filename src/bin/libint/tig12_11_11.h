@@ -27,6 +27,6 @@ namespace libint2 {
 
 // these integrals are never precomputed
 
-};
+}
 
 #endif

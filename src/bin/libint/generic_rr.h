@@ -241,6 +241,6 @@ class ChildFactory {
   GenRR* rr_;
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

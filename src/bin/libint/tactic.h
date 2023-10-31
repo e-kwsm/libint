@@ -219,6 +219,6 @@ class StdRandomizePolicy {
   double scale_;
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

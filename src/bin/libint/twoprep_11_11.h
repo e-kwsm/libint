@@ -62,6 +62,6 @@ inline bool GenIntegralSet_11_11<CGShell, TwoPRep, mType>::auto_unroll() const {
     return false;
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

@@ -27,6 +27,6 @@ namespace libint2 {
 template <class F>
 unsigned int ConvertNumFlops(unsigned int nflops);
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

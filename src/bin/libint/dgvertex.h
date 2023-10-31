@@ -347,6 +347,6 @@ inline DGVertexKey key(const DGVertex& v) {
   return DGVertexKey(v.typeid_, v.instid_);
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

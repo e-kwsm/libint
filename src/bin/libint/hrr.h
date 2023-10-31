@@ -662,6 +662,6 @@ HRR<IntType, F, part, loc_a, pos_a, loc_b, pos_b>::adapt_dims_(
   return localdims;
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

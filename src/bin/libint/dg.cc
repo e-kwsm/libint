@@ -2501,4 +2501,4 @@ void VertexPrinter::operator()(const std::shared_ptr<DGVertex>& v) {
 #endif
 }
 
-};  // namespace libint2
+}  // namespace libint2
