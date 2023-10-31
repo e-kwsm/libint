@@ -110,7 +110,7 @@ Libint2Iface::Libint2Iface(
 
   // print out declarations for the array of pointers to evaluator functions
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
-  typedef LibraryTaskManager::TasksCIter tciter;
+  using tciter = LibraryTaskManager::TasksCIter;
   for (tciter t = taskmgr.first(); t != taskmgr.plast(); ++t) {
     const std::string& tlabel = t->label();
     const unsigned int nbf = cparams_->num_bf(tlabel);
@@ -206,7 +206,7 @@ Libint2Iface::Libint2Iface(
 Libint2Iface::~Libint2Iface() {
   // For each task, print out defines for stack dimensions
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
-  typedef LibraryTaskManager::TasksCIter tciter;
+  using tciter = LibraryTaskManager::TasksCIter;
   for (tciter t = taskmgr.first(); t != taskmgr.plast(); ++t) {
     std::shared_ptr<TaskParameters> tparams = t->params();
     const std::string& tlabel = t->label();
@@ -481,7 +481,7 @@ void Libint2Iface::generate_inteval_type(std::ostream& os) {
   // If need to generate single type for all tasks, take a union of all symbols
   // else process each task separately
   //
-  typedef LibraryTaskManager::TasksCIter tciter;
+  using tciter = LibraryTaskManager::TasksCIter;
   const tciter tend =
       cparams_->single_evaltype() ? taskmgr.first() + 1 : taskmgr.plast();
   for (tciter t = taskmgr.first(); t != tend; ++t) {
@@ -493,7 +493,7 @@ void Libint2Iface::generate_inteval_type(std::ostream& os) {
     //
     // Declare external symbols
     //
-    typedef TaskExternSymbols::SymbolList SymbolList;
+    using SymbolList = TaskExternSymbols::SymbolList;
     std::string tlabel;
     SymbolList symbols;
     if (cparams_->single_evaltype()) {

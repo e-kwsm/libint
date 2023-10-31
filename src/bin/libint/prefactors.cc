@@ -27,7 +27,7 @@ using namespace libint2;
 
 Prefactors::Prefactors()
     : rho(new rdouble("rho")), one_o_2alphasum(new rdouble("oo2ze")) {
-  typedef std::shared_ptr<rdouble> rdptr;
+  using rdptr = std::shared_ptr<rdouble>;
 
   char XY[np][2] = {"P", "Q"};
   char X[np][2][2] = {{"A", "B"}, {"C", "D"}};

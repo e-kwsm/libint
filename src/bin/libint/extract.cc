@@ -39,7 +39,7 @@ void ExtractExternSymbols::operator()(const VertexPtr& v) {
   if (v->precomputed()) {
     // discard compile-time entities
     {
-      typedef CTimeEntity<double> cdouble;
+      using cdouble = CTimeEntity<double>;
       std::shared_ptr<cdouble> ptr_cast =
           std::dynamic_pointer_cast<cdouble, DGVertex>(v);
       if (ptr_cast) {
@@ -67,7 +67,7 @@ void ExtractExternSymbols::operator()(const VertexPtr& v) {
 
 const ExtractExternSymbols::Symbols& ExtractExternSymbols::symbols() const {
   symbols_.clear();
-  typedef LabelMap::const_iterator citer;
+  using citer = LabelMap::const_iterator;
   citer end = map_.end();
   for (citer l = map_.begin(); l != end; ++l) {
     symbols_.push_back(l->first);
@@ -104,7 +104,7 @@ void ExtractRR::operator()(const VertexPtr& v) {
 
 const ExtractRR::RRList& ExtractRR::rrlist() const {
   rrlist_.clear();
-  typedef RRMap::const_iterator citer;
+  using citer = RRMap::const_iterator;
   citer end = map_.end();
   for (citer rr = map_.begin(); rr != end; ++rr) {
     rrlist_.push_back(rr->first);

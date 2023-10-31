@@ -79,7 +79,7 @@ std::shared_ptr<MemoryManager::MemBlock> MemoryManager::steal_from_block(
 
 std::shared_ptr<MemoryManager::MemBlock> MemoryManager::find_block(
     const Address& address) {
-  typedef memblkset::iterator iter;
+  using iter = memblkset::iterator;
   using std::placeholders::_1;
   iter blk = find_if(blks_.begin(), blks_.end(),
                      std::bind(MemBlock::address_eq, _1, address));
@@ -129,7 +129,7 @@ std::shared_ptr<MemoryManager::MemBlock> MemoryManager::merge_blocks(
     std::shared_ptr<MemBlock> lleft = left->left();
     std::shared_ptr<MemBlock> rright = right->right();
 
-    typedef memblkset::iterator iter;
+    using iter = memblkset::iterator;
     iter liter = find(blks_.begin(), blks_.end(), left);
     if (liter != blks_.end())
       blks_.erase(liter);
@@ -160,7 +160,7 @@ std::shared_ptr<MemoryManager::MemBlock> MemoryManager::merge_blocks(
 std::shared_ptr<MemoryManager::MemBlock> MemoryManager::merge_to_superblock(
     const std::shared_ptr<MemBlock>& blk) {
   std::shared_ptr<MemBlock> sblk = superblock();
-  typedef memblkset::iterator iter;
+  using iter = memblkset::iterator;
   iter biter = find(blks_.begin(), blks_.end(), blk);
   if (biter != blks_.end())
     blks_.erase(biter);
@@ -213,7 +213,7 @@ MemoryManager::Address WorstFitMemoryManager::alloc(const Size& size) {
   if (size == 0)
     throw std::runtime_error("WorstFitMemoryManager::alloc(size) -- size is 0");
 
-  typedef memblkset::iterator iter;
+  using iter = memblkset::iterator;
   memblkset& blks = blocks();
 
   // try to find the exact match first
@@ -286,7 +286,7 @@ MemoryManager::Address BestFitMemoryManager::alloc(const Size& size) {
   if (size == 0)
     throw std::runtime_error("BestFitMemoryManager::alloc(size) -- size is 0");
 
-  typedef memblkset::iterator iter;
+  using iter = memblkset::iterator;
   memblkset& blks = blocks();
 
   // try to find the exact match first
@@ -315,7 +315,7 @@ MemoryManager::Address BestFitMemoryManager::alloc(const Size& size) {
 
   // find all free_blocks
   std::list<std::shared_ptr<MemBlock> > free_blks;
-  typedef std::list<std::shared_ptr<MemBlock> >::iterator fiter;
+  using fiter = std::list<std::shared_ptr<MemBlock> >::iterator;
   for (iter b = blks.begin(); b != blks.end(); b++) {
     b = find_if(b, blks.end(), &MemBlock::is_free);
     if (b != blks.end())
@@ -369,7 +369,7 @@ MemoryManager::Address FirstFitMemoryManager::alloc(const Size& size) {
   if (size == 0)
     throw std::runtime_error("FirstFitMemoryManager::alloc(size) -- size is 0");
 
-  typedef memblkset::iterator iter;
+  using iter = memblkset::iterator;
   memblkset& blks = blocks();
 
   // try to find the exact match first
@@ -439,7 +439,7 @@ MemoryManager::Address LastFitMemoryManager::alloc(const Size& size) {
   if (size == 0)
     throw std::runtime_error("LastFitMemoryManager::alloc(size) -- size is 0");
 
-  typedef memblkset::reverse_iterator riter;
+  using riter = memblkset::reverse_iterator;
 
   memblkset& blks = blocks();
   riter rbegin = blks.rbegin();
@@ -575,8 +575,8 @@ bool can_merge(const MemoryManager::MemBlock& A,
 }
 
 void merge(MemBlockSet& blocks) {
-  typedef MemBlockSet::const_iterator citer;
-  typedef MemBlockSet::iterator iter;
+  using citer = MemBlockSet::const_iterator;
+  using iter = MemBlockSet::iterator;
 
   if (blocks.size() <= 1) return;
 

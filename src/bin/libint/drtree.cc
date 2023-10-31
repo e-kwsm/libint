@@ -63,7 +63,7 @@ void DRTree::add_vertex(const std::shared_ptr<DGVertex>& vertex) {
     std::cout << "  nvertices = " << nvertices_ << std::endl;
 #endif
 
-    typedef DGVertex::ArcSetType::const_iterator aciter;
+    using aciter = DGVertex::ArcSetType::const_iterator;
     const aciter abegin = vertex->first_exit_arc();
     const aciter aend = vertex->plast_exit_arc();
     for (aciter a = abegin; a != aend; ++a) {
@@ -79,7 +79,7 @@ void DRTree::detach_from(const std::shared_ptr<DGVertex>& v) {
     return;
   else {
     v->subtree_ = std::shared_ptr<DRTree>();
-    typedef DGVertex::ArcSetType::const_iterator aciter;
+    using aciter = DGVertex::ArcSetType::const_iterator;
     const aciter abegin = v->first_exit_arc();
     const aciter aend = v->plast_exit_arc();
     for (aciter a = abegin; a != aend; ++a) {
