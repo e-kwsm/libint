@@ -397,6 +397,6 @@ CR_DerivGauss<IntType, part, where, trans_inv_part, trans_inv_where>::
 }
 #endif  // #if !LIBINT_ENABLE_GENERIC_CODE
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

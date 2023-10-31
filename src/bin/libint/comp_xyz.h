@@ -88,6 +88,6 @@ CR_XYZ_1_1<F, Oper, AuxQuanta>::CR_XYZ_1_1(
   compute(a, b, oper);
 }  // CR_XYZ_1_1<F,Oper,AuxQuanta>::CR_XYZ_1_1
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
