@@ -50,7 +50,7 @@ inline auto fma_minus(X x, Y y, Z z) -> decltype(x * y - z) {
 
 //@}
 
-};  // namespace libint2
+}  // namespace libint2
 
 /**
    these macros define bzero, copy, and inc operations:
