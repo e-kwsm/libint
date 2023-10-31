@@ -179,7 +179,7 @@ class FourCenter_OS_Tactic : public Tactic {
       : Tactic(), lbra0_(lbra0), lket0_(lket0), lbra1_(lbra1), lket1_(lket1) {}
   ~FourCenter_OS_Tactic() override {}
 
-  RR optimal_rr(const rr_stack& stack) const;
+  RR optimal_rr(const rr_stack& stack) const override;
 
  private:
   unsigned lbra0_;
