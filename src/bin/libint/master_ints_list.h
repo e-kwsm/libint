@@ -177,6 +177,6 @@ typedef boost::mpl::joint_view<MasterIntegralTypeList_1body_part,
                                MasterIntegralTypeList_2body_part>
     MasterIntegralTypeList;
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif  // header guard

@@ -551,6 +551,6 @@ std::string GenIntegralSet<Op, BFS, BraSetType, KetSetType,
   return descr;
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

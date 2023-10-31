@@ -42,6 +42,6 @@ class CodeSymbols {
   std::vector<std::string> symbols_;
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

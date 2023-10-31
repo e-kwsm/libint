@@ -120,6 +120,6 @@ class PtrEquiv {
  }
  */
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

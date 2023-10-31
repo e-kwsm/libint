@@ -47,6 +47,6 @@ class R2dotR2G12_11_11;
 template <class BFS>
 class R1dotR2G12_11_11;
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

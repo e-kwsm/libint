@@ -333,6 +333,6 @@ std::shared_ptr<RTimeEntity<typename ProductType<T, U>::result> > operator*(
     }
 #endif
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
