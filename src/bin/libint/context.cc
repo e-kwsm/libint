@@ -71,7 +71,7 @@ template <>
 std::string CodeContext::type_name<double* const>() const {
   return ptr_fp_type() + const_modifier();
 }
-};  // namespace libint2
+}  // namespace libint2
 
 CodeContext::CodeContext(const std::shared_ptr<CompilationParameters>& cparams)
     : cparams_(cparams), comments_on_(false) {
@@ -128,7 +128,7 @@ static const char chars[nchars][2] = {"{", "}", "(", ")", " ", "+", "-", "/",
 static const char subst_chars[nchars][20] = {
     "",        "",  "__",   "__",   "",     "_plus_", "_minus_", "_over_",
     "_times_", "_", "_up_", "_sB_", "_Sb_", "_c_",    "_aB_",    "_Ab_"};
-};  // namespace ForbiddenCppCharacters
+}  // namespace ForbiddenCppCharacters
 
 CppCodeContext::CppCodeContext(
     const std::shared_ptr<CompilationParameters>& cparams, bool vectorize)
