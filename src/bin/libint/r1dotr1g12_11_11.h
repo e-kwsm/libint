@@ -197,6 +197,6 @@ label_ = os.str();
   typedef R1dotR1G12_11_11<CGShell> R1dotR1G12_11_11_sq;
   typedef R1dotR1G12_11_11<CGF> R1dotR1G12_11_11_int;
 #endif
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

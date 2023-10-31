@@ -207,4 +207,4 @@ std::shared_ptr<Prefactors::cdouble> Prefactors::Cdouble(double a) {
 
 namespace libint2 {
 Prefactors prefactors;
-};
+}
