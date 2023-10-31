@@ -147,8 +147,8 @@ Vector<N, T> operator/(Vector<N, T> a, Vector<N, T> b) {
 
 //@}
 
-};  // namespace simd
-};  // namespace libint2
+}  // namespace simd
+}  // namespace libint2
 
 namespace libint2 {
 

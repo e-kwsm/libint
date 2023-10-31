@@ -296,8 +296,8 @@ inline VectorSSEDouble erfc(VectorSSEDouble a) {
 }
 //@}
 
-};  // namespace simd
-};  // namespace libint2
+}  // namespace simd
+}  // namespace libint2
 
 //@{ standard stream operations
 inline std::ostream& operator<<(std::ostream& os,
@@ -582,8 +582,8 @@ inline VectorSSEFloat erfc(VectorSSEFloat a) {
 }
 //@}
 
-};  // namespace simd
-};  // namespace libint2
+}  // namespace simd
+}  // namespace libint2
 
 //@{ standard stream operations
 inline std::ostream& operator<<(std::ostream& os,
@@ -1146,8 +1146,8 @@ inline VectorAVXFloat erfc(VectorAVXFloat a) {
 }
 //@}
 
-};  // namespace simd
-};  // namespace libint2
+}  // namespace simd
+}  // namespace libint2
 
 //@{ standard stream operations
 inline std::ostream& operator<<(std::ostream& os,
