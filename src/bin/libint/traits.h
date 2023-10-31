@@ -90,6 +90,6 @@ struct TypeTraits {
     return StorageTraits<T>::const_ref(s);
   }
 };
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
