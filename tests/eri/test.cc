@@ -32,7 +32,7 @@
 #include <stdint.h>  // portable: uint64_t   MSVC: __int64
 
 // MSVC defines this in winsock2.h!?
-typedef struct timeval {
+struct {
   long tv_sec;
   long tv_usec;
 } timeval;
@@ -165,7 +165,7 @@ bool test_4eri(unsigned int deriv_order, unsigned int lmax_max) {
   gettimeofday(&tod, 0);
   const double start_wall_time = tod.tv_sec + 0.000001 * tod.tv_usec;
 
-  typedef unsigned int uint;
+  using uint = unsigned int;
 
   const uint veclen = LIBINT2_MAX_VECLEN;
   const uint max_contrdepth = 3;
@@ -312,45 +312,55 @@ bool test_4eri(unsigned int deriv_order, unsigned int lmax_max) {
             // if accumulating integrals, zero out first, then compute twice
             inteval[0].zero_out_targets = 1;
             scale_target = 0.5;
-            if (deriv_order == 0) LIBINT2_PREFIXED_NAME(libint2_build_eri)
-            [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
+            if (deriv_order == 0)
+              LIBINT2_PREFIXED_NAME(libint2_build_eri)
+              [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
 #if INCLUDE_ERI >= 1
-            else if (deriv_order == 1) LIBINT2_PREFIXED_NAME(
-                libint2_build_eri1)[am[0]][am[1]][am[2]][am[3]](&inteval[0]);
+            else if (deriv_order == 1)
+              LIBINT2_PREFIXED_NAME(libint2_build_eri1)
+              [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
 #endif
 #if INCLUDE_ERI >= 2
-            else if (deriv_order == 2) LIBINT2_PREFIXED_NAME(
-                libint2_build_eri2)[am[0]][am[1]][am[2]][am[3]](&inteval[0]);
+            else if (deriv_order == 2)
+              LIBINT2_PREFIXED_NAME(libint2_build_eri2)
+              [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
 #endif
 #if INCLUDE_ERI >= 3
-            else if (deriv_order == 3) LIBINT2_PREFIXED_NAME(
-                libint2_build_eri3)[am[0]][am[1]][am[2]][am[3]](&inteval[0]);
+            else if (deriv_order == 3)
+              LIBINT2_PREFIXED_NAME(libint2_build_eri3)
+              [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
 #endif
 #if INCLUDE_ERI >= 4
-            else if (deriv_order == 4) LIBINT2_PREFIXED_NAME(
-                libint2_build_eri4)[am[0]][am[1]][am[2]][am[3]](&inteval[0]);
+            else if (deriv_order == 4)
+              LIBINT2_PREFIXED_NAME(libint2_build_eri4)
+              [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
 #endif
 #endif
 #if LIBINT_CONTRACTED_INTS
             inteval[0].contrdepth = contrdepth4;
 #endif
-            if (deriv_order == 0) LIBINT2_PREFIXED_NAME(libint2_build_eri)
-            [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
+            if (deriv_order == 0)
+              LIBINT2_PREFIXED_NAME(libint2_build_eri)
+              [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
 #if INCLUDE_ERI >= 1
-            else if (deriv_order == 1) LIBINT2_PREFIXED_NAME(
-                libint2_build_eri1)[am[0]][am[1]][am[2]][am[3]](&inteval[0]);
+            else if (deriv_order == 1)
+              LIBINT2_PREFIXED_NAME(libint2_build_eri1)
+              [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
 #endif
 #if INCLUDE_ERI >= 2
-            else if (deriv_order == 2) LIBINT2_PREFIXED_NAME(
-                libint2_build_eri2)[am[0]][am[1]][am[2]][am[3]](&inteval[0]);
+            else if (deriv_order == 2)
+              LIBINT2_PREFIXED_NAME(libint2_build_eri2)
+              [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
 #endif
 #if INCLUDE_ERI >= 3
-            else if (deriv_order == 3) LIBINT2_PREFIXED_NAME(
-                libint2_build_eri3)[am[0]][am[1]][am[2]][am[3]](&inteval[0]);
+            else if (deriv_order == 3)
+              LIBINT2_PREFIXED_NAME(libint2_build_eri3)
+              [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
 #endif
 #if INCLUDE_ERI >= 4
-            else if (deriv_order == 4) LIBINT2_PREFIXED_NAME(
-                libint2_build_eri4)[am[0]][am[1]][am[2]][am[3]](&inteval[0]);
+            else if (deriv_order == 4)
+              LIBINT2_PREFIXED_NAME(libint2_build_eri4)
+              [am[0]][am[1]][am[2]][am[3]](&inteval[0]);
 #endif
 
             if (not do_timing_only) {
@@ -510,7 +520,7 @@ bool test_3eri(unsigned int deriv_order, unsigned int lmax_max) {
   gettimeofday(&tod, 0);
   const double start_wall_time = tod.tv_sec + 0.000001 * tod.tv_usec;
 
-  typedef unsigned int uint;
+  using uint = unsigned int;
 
   const uint veclen = LIBINT2_MAX_VECLEN;
   const uint max_contrdepth = 3;
@@ -663,45 +673,55 @@ bool test_3eri(unsigned int deriv_order, unsigned int lmax_max) {
           // if accumulating integrals, zero out first, then compute twice
           inteval[0].zero_out_targets = 1;
           scale_target = 0.5;
-          if (deriv_order == 0) LIBINT2_PREFIXED_NAME(libint2_build_3eri)
-          [am[0]][am[1]][am[2]](&inteval[0]);
+          if (deriv_order == 0)
+            LIBINT2_PREFIXED_NAME(libint2_build_3eri)
+            [am[0]][am[1]][am[2]](&inteval[0]);
 #if INCLUDE_ERI3 >= 1
-          if (deriv_order == 1) LIBINT2_PREFIXED_NAME(libint2_build_3eri1)
-          [am[0]][am[1]][am[2]](&inteval[0]);
+          if (deriv_order == 1)
+            LIBINT2_PREFIXED_NAME(libint2_build_3eri1)
+            [am[0]][am[1]][am[2]](&inteval[0]);
 #endif
 #if INCLUDE_ERI3 >= 2
-          if (deriv_order == 2) LIBINT2_PREFIXED_NAME(libint2_build_3eri2)
-          [am[0]][am[1]][am[2]](&inteval[0]);
+          if (deriv_order == 2)
+            LIBINT2_PREFIXED_NAME(libint2_build_3eri2)
+            [am[0]][am[1]][am[2]](&inteval[0]);
 #endif
 #if INCLUDE_ERI3 >= 3
-          if (deriv_order == 3) LIBINT2_PREFIXED_NAME(libint2_build_3eri3)
-          [am[0]][am[1]][am[2]](&inteval[0]);
+          if (deriv_order == 3)
+            LIBINT2_PREFIXED_NAME(libint2_build_3eri3)
+            [am[0]][am[1]][am[2]](&inteval[0]);
 #endif
 #if INCLUDE_ERI3 >= 4
-          if (deriv_order == 4) LIBINT2_PREFIXED_NAME(libint2_build_3eri4)
-          [am[0]][am[1]][am[2]](&inteval[0]);
+          if (deriv_order == 4)
+            LIBINT2_PREFIXED_NAME(libint2_build_3eri4)
+            [am[0]][am[1]][am[2]](&inteval[0]);
 #endif
 #endif
 #if LIBINT_CONTRACTED_INTS
           inteval[0].contrdepth = contrdepth3;
 #endif
-          if (deriv_order == 0) LIBINT2_PREFIXED_NAME(libint2_build_3eri)
-          [am[0]][am[1]][am[2]](&inteval[0]);
+          if (deriv_order == 0)
+            LIBINT2_PREFIXED_NAME(libint2_build_3eri)
+            [am[0]][am[1]][am[2]](&inteval[0]);
 #if INCLUDE_ERI3 >= 1
-          if (deriv_order == 1) LIBINT2_PREFIXED_NAME(libint2_build_3eri1)
-          [am[0]][am[1]][am[2]](&inteval[0]);
+          if (deriv_order == 1)
+            LIBINT2_PREFIXED_NAME(libint2_build_3eri1)
+            [am[0]][am[1]][am[2]](&inteval[0]);
 #endif
 #if INCLUDE_ERI3 >= 2
-          if (deriv_order == 2) LIBINT2_PREFIXED_NAME(libint2_build_3eri2)
-          [am[0]][am[1]][am[2]](&inteval[0]);
+          if (deriv_order == 2)
+            LIBINT2_PREFIXED_NAME(libint2_build_3eri2)
+            [am[0]][am[1]][am[2]](&inteval[0]);
 #endif
 #if INCLUDE_ERI3 >= 3
-          if (deriv_order == 3) LIBINT2_PREFIXED_NAME(libint2_build_3eri3)
-          [am[0]][am[1]][am[2]](&inteval[0]);
+          if (deriv_order == 3)
+            LIBINT2_PREFIXED_NAME(libint2_build_3eri3)
+            [am[0]][am[1]][am[2]](&inteval[0]);
 #endif
 #if INCLUDE_ERI3 >= 4
-          if (deriv_order == 4) LIBINT2_PREFIXED_NAME(libint2_build_3eri4)
-          [am[0]][am[1]][am[2]](&inteval[0]);
+          if (deriv_order == 4)
+            LIBINT2_PREFIXED_NAME(libint2_build_3eri4)
+            [am[0]][am[1]][am[2]](&inteval[0]);
 #endif
 
           if (not do_timing_only) {
@@ -840,7 +860,7 @@ bool test_2eri(unsigned int deriv_order, unsigned int lmax_max) {
 
   bool test_success = true;
 
-  typedef unsigned int uint;
+  using uint = unsigned int;
 
   const uint veclen = LIBINT2_MAX_VECLEN;
 #if LIBINT_CONTRACTED_INTS

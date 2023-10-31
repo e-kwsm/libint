@@ -187,47 +187,50 @@ int main(int argc, char* argv[]) {
 static void print_header(std::ostream& os);
 static void print_config(std::ostream& os);
 // Put all configuration-specific API elements in here
-static void config_to_api(const std::shared_ptr<CompilationParameters>& cparams,
-                          std::shared_ptr<Libint2Iface>& iface);
+static void config_to_api(const SafePtr<CompilationParameters>& cparams,
+                          SafePtr<Libint2Iface>& iface);
 
 #ifdef INCLUDE_ERI
 #define USE_GENERIC_ERI_BUILD 1
 #if !USE_GENERIC_ERI_BUILD
-static void build_TwoPRep_2b_2k(
-    std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
-    std::shared_ptr<Libint2Iface>& iface);
+static void build_TwoPRep_2b_2k(std::ostream& os,
+                                const SafePtr<CompilationParameters>& cparams,
+                                SafePtr<Libint2Iface>& iface);
 #else
-static void build_TwoPRep_2b_2k(
-    std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
-    std::shared_ptr<Libint2Iface>& iface, unsigned int deriv_level);
+static void build_TwoPRep_2b_2k(std::ostream& os,
+                                const SafePtr<CompilationParameters>& cparams,
+                                SafePtr<Libint2Iface>& iface,
+                                unsigned int deriv_level);
 #endif
 #endif
 
 #ifdef INCLUDE_ERI3
-static void build_TwoPRep_1b_2k(
-    std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
-    std::shared_ptr<Libint2Iface>& iface, unsigned int deriv_level);
+static void build_TwoPRep_1b_2k(std::ostream& os,
+                                const SafePtr<CompilationParameters>& cparams,
+                                SafePtr<Libint2Iface>& iface,
+                                unsigned int deriv_level);
 #endif
 
 #ifdef INCLUDE_ERI2
-static void build_TwoPRep_1b_1k(
-    std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
-    std::shared_ptr<Libint2Iface>& iface, unsigned int deriv_level);
+static void build_TwoPRep_1b_1k(std::ostream& os,
+                                const SafePtr<CompilationParameters>& cparams,
+                                SafePtr<Libint2Iface>& iface,
+                                unsigned int deriv_level);
 #endif
 
 #ifdef INCLUDE_G12
-static void build_R12kG12_2b_2k(
-    std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
-    std::shared_ptr<Libint2Iface>& iface);
+static void build_R12kG12_2b_2k(std::ostream& os,
+                                const SafePtr<CompilationParameters>& cparams,
+                                SafePtr<Libint2Iface>& iface);
 static void build_R12kG12_2b_2k_separate(
-    std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
-    std::shared_ptr<Libint2Iface>& iface);
+    std::ostream& os, const SafePtr<CompilationParameters>& cparams,
+    SafePtr<Libint2Iface>& iface);
 #endif
 
 #ifdef INCLUDE_G12DKH
-static void build_G12DKH_2b_2k(
-    std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
-    std::shared_ptr<Libint2Iface>& iface);
+static void build_G12DKH_2b_2k(std::ostream& os,
+                               const SafePtr<CompilationParameters>& cparams,
+                               SafePtr<Libint2Iface>& iface);
 #endif
 
 #ifdef INCLUDE_ONEBODY
@@ -242,11 +245,11 @@ template <typename OperType>
 struct AuxQuantaType;
 template <>
 struct AuxQuantaType<ElecPotOper> {
-  typedef mType type;
+  using type = mType;
 };
 template <typename OperType>
 struct AuxQuantaType {
-  typedef EmptySet type;
+  using type = EmptySet;
 };
 
 template <typename OperDescrType>
@@ -278,19 +281,19 @@ template <>
 
 template <typename _OperType>
 void build_onebody_1b_1k(std::ostream& os, std::string label,
-                         const std::shared_ptr<CompilationParameters>& cparams,
-                         std::shared_ptr<Libint2Iface>& iface,
+                         const SafePtr<CompilationParameters>& cparams,
+                         SafePtr<Libint2Iface>& iface,
                          unsigned int deriv_level) {
   // implement overlap as a special case of cartesian emultipole
   using OperType =
       typename std::conditional<std::is_same<_OperType, OverlapOper>::value,
                                 CartesianMultipoleOper<3u>, _OperType>::type;
   const std::string task = task_label(label, deriv_level);
-  typedef CGShell BFType;
-  typedef typename OperType::Descriptor OperDescrType;
-  typedef GenIntegralSet_1_1<CGShell, OperType,
-                             typename AuxQuantaType<OperType>::type>
-      Onebody_sh_1_1;
+  using BFType = CGShell;
+  using OperDescrType = typename OperType::Descriptor;
+  using Onebody_sh_1_1 =
+      GenIntegralSet_1_1<CGShell, OperType,
+                         typename AuxQuantaType<OperType>::type>;
 
   vector<BFType*> shells;
   unsigned int lmax = cparams->max_am(task);
@@ -330,10 +333,10 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
   // 3) at the end, for each unresolved recurrence relation generate
   //    explicit source code
   //
-  std::shared_ptr<DirectedGraph> dg(new DirectedGraph);
-  std::shared_ptr<Strategy> strat(new Strategy());
-  std::shared_ptr<CodeContext> context(new CppCodeContext(cparams));
-  std::shared_ptr<MemoryManager> memman(new WorstFitMemoryManager());
+  SafePtr<DirectedGraph> dg(new DirectedGraph);
+  SafePtr<Strategy> strat(new Strategy());
+  SafePtr<CodeContext> context(new CppCodeContext(cparams));
+  SafePtr<MemoryManager> memman(new WorstFitMemoryManager());
 
   for (unsigned int la = 0; la <= lmax; la++) {
     for (unsigned int lb = 0; lb <= lmax; lb++) {
@@ -344,10 +347,10 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
            std::is_same<_OperType, ElecPotOper>::value))
         continue;
 
-      std::shared_ptr<Tactic> tactic(new TwoCenter_OS_Tactic(la, lb));
+      SafePtr<Tactic> tactic(new TwoCenter_OS_Tactic(la, lb));
 
       // this will hold all target shell sets
-      std::vector<std::shared_ptr<Onebody_sh_1_1>> targets;
+      std::vector<SafePtr<Onebody_sh_1_1>> targets;
 
       /////////////////////////////////
       // loop over operator components
@@ -429,7 +432,7 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
         for (unsigned int op = 0; op != descrs.size(); ++op) {
           OperType oper(descrs[op]);
 
-          std::shared_ptr<Onebody_sh_1_1> target =
+          SafePtr<Onebody_sh_1_1> target =
               Onebody_sh_1_1::Instance(a, b, nullaux, oper);
           targets.push_back(target);
         }  // loop over operator components
@@ -462,8 +465,8 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
 
       // shove all targets on the graph, IN ORDER
       for (auto t = targets.begin(); t != targets.end(); ++t) {
-        std::shared_ptr<DGVertex> t_ptr =
-            std::dynamic_pointer_cast<DGVertex, Onebody_sh_1_1>(*t);
+        SafePtr<DGVertex> t_ptr =
+            dynamic_pointer_cast<DGVertex, Onebody_sh_1_1>(*t);
         dg->append_target(t_ptr);
       }
 
@@ -492,8 +495,7 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
                    def_filenames, prefix, eval_label, false);
 
       // update max stack size and # of targets
-      const std::shared_ptr<TaskParameters>& tparams =
-          taskmgr.current().params();
+      const SafePtr<TaskParameters>& tparams = taskmgr.current().params();
       tparams->max_stack_size(max_am, memman->max_memory_used());
       tparams->max_ntarget(targets.size());
       // os << " Max memory used = " << memman->max_memory_used() << std::endl;
@@ -591,7 +593,7 @@ void try_main(int argc, char* argv[]) {
 #endif
 
   // use default parameters
-  std::shared_ptr<CompilationParameters> cparams(new CompilationParameters);
+  SafePtr<CompilationParameters> cparams(new CompilationParameters);
 
   cparams->max_am("default", LIBINT_MAX_AM);
   cparams->max_am_opt("default", LIBINT_OPT_AM);
@@ -795,9 +797,9 @@ void try_main(int argc, char* argv[]) {
 #endif
 
   // initialize code context to produce library API
-  std::shared_ptr<CodeContext> icontext(new CppCodeContext(cparams));
+  SafePtr<CodeContext> icontext(new CppCodeContext(cparams));
   // initialize object to generate interface
-  std::shared_ptr<Libint2Iface> iface(new Libint2Iface(cparams, icontext));
+  SafePtr<Libint2Iface> iface(new Libint2Iface(cparams, icontext));
 
   print_header(os);
   print_config(os);
@@ -916,15 +918,15 @@ void try_main(int argc, char* argv[]) {
 
 #if DEBUG
   // print out the external symbols found for each task
-  typedef LibraryTaskManager::TasksCIter tciter;
+  using tciter = LibraryTaskManager::TasksCIter;
   const tciter tend = taskmgr.plast();
   for (tciter t = taskmgr.first(); t != tend; ++t) {
-    const std::shared_ptr<TaskExternSymbols> tsymbols = t->symbols();
-    typedef TaskExternSymbols::SymbolList SymbolList;
+    const SafePtr<TaskExternSymbols> tsymbols = t->symbols();
+    using SymbolList = TaskExternSymbols::SymbolList;
     const SymbolList& symbols = tsymbols->symbols();
     // print out the labels
     std::cout << "Recovered labels for task " << t->label() << std::endl;
-    typedef SymbolList::const_iterator citer;
+    using citer = SymbolList::const_iterator;
     citer end = symbols.end();
     for (citer s = symbols.begin(); s != end; ++s) std::cout << *s << std::endl;
   }
@@ -982,11 +984,11 @@ void print_config(std::ostream& os) {
 
 #ifdef INCLUDE_ERI
 void build_TwoPRep_2b_2k(std::ostream& os,
-                         const std::shared_ptr<CompilationParameters>& cparams,
-                         std::shared_ptr<Libint2Iface>& iface,
+                         const SafePtr<CompilationParameters>& cparams,
+                         SafePtr<Libint2Iface>& iface,
                          unsigned int deriv_level) {
   const std::string task = task_label("eri", deriv_level);
-  typedef TwoPRep_11_11_sq TwoPRep_sh_11_11;
+  using TwoPRep_sh_11_11 = TwoPRep_11_11_sq;
   vector<CGShell*> shells;
   unsigned int lmax = cparams->max_am(task);
   for (unsigned int l = 0; l <= lmax; l++) {
@@ -1007,10 +1009,10 @@ void build_TwoPRep_2b_2k(std::ostream& os,
   // 3) at the end, for each unresolved recurrence relation generate
   //    explicit source code
   //
-  std::shared_ptr<DirectedGraph> dg_xxxx(new DirectedGraph);
-  std::shared_ptr<Strategy> strat(new Strategy());
-  std::shared_ptr<CodeContext> context(new CppCodeContext(cparams));
-  std::shared_ptr<MemoryManager> memman(new WorstFitMemoryManager());
+  SafePtr<DirectedGraph> dg_xxxx(new DirectedGraph);
+  SafePtr<Strategy> strat(new Strategy());
+  SafePtr<CodeContext> context(new CppCodeContext(cparams));
+  SafePtr<MemoryManager> memman(new WorstFitMemoryManager());
 
   for (unsigned int la = 0; la <= lmax; la++) {
     for (unsigned int lb = 0; lb <= lmax; lb++) {
@@ -1020,10 +1022,9 @@ void build_TwoPRep_2b_2k(std::ostream& os,
                   LIBINT_SHELL_SET)>::value(la, lb, lc, ld))
             continue;
 
-          // std::shared_ptr<Tactic> tactic(new ParticleDirectionTactic(la+lb >
-          // lc+ld ? false : true));
-          std::shared_ptr<Tactic> tactic(
-              new FourCenter_OS_Tactic(la, lb, lc, ld));
+          // SafePtr<Tactic> tactic(new ParticleDirectionTactic(la+lb > lc+ld ?
+          // false : true));
+          SafePtr<Tactic> tactic(new FourCenter_OS_Tactic(la, lb, lc, ld));
 
 #if STUDY_MEMORY_USAGE
           const int lim = 1;
@@ -1060,7 +1061,7 @@ void build_TwoPRep_2b_2k(std::ostream& os,
           ////////////
           // NB translational invariance is now handled by CR_DerivGauss
           CartesianDerivIterator<4> diter(deriv_level);
-          std::vector<std::shared_ptr<TwoPRep_sh_11_11>> targets;
+          std::vector<SafePtr<TwoPRep_sh_11_11>> targets;
           bool last_deriv = false;
           do {
             CGShell a(la);
@@ -1077,18 +1078,18 @@ void build_TwoPRep_2b_2k(std::ostream& os,
               }
             }
 
-            std::shared_ptr<TwoPRep_sh_11_11> abcd =
+            SafePtr<TwoPRep_sh_11_11> abcd =
                 TwoPRep_sh_11_11::Instance(a, b, c, d, mType(0u));
             targets.push_back(abcd);
             last_deriv = diter.last();
             if (!last_deriv) diter.next();
           } while (!last_deriv);
           // append all derivatives as targets to the graph
-          for (std::vector<std::shared_ptr<TwoPRep_sh_11_11>>::const_iterator
-                   t = targets.begin();
+          for (std::vector<SafePtr<TwoPRep_sh_11_11>>::const_iterator t =
+                   targets.begin();
                t != targets.end(); ++t) {
-            std::shared_ptr<DGVertex> t_ptr =
-                std::dynamic_pointer_cast<DGVertex, TwoPRep_sh_11_11>(*t);
+            SafePtr<DGVertex> t_ptr =
+                dynamic_pointer_cast<DGVertex, TwoPRep_sh_11_11>(*t);
             dg_xxxx->append_target(t_ptr);
           }
 
@@ -1100,7 +1101,7 @@ void build_TwoPRep_2b_2k(std::ostream& os,
             CGShell b(lb);
             CGShell c(lc);
             CGShell d(ld);
-            std::shared_ptr<TwoPRep_sh_11_11> abcd =
+            SafePtr<TwoPRep_sh_11_11> abcd =
                 TwoPRep_sh_11_11::Instance(a, b, c, d, mType(0u));
             abcd_label = abcd->label();
           }
@@ -1129,8 +1130,7 @@ void build_TwoPRep_2b_2k(std::ostream& os,
                        decl_filenames, def_filenames, prefix, label, false);
 
           // update max stack size and # of targets
-          const std::shared_ptr<TaskParameters>& tparams =
-              taskmgr.current().params();
+          const SafePtr<TaskParameters>& tparams = taskmgr.current().params();
           tparams->max_stack_size(max_am, memman->max_memory_used());
           tparams->max_ntarget(targets.size());
           // os << " Max memory used = " << memman->max_memory_used() <<
@@ -1173,11 +1173,11 @@ void build_TwoPRep_2b_2k(std::ostream& os,
 #ifdef INCLUDE_ERI3
 
 void build_TwoPRep_1b_2k(std::ostream& os,
-                         const std::shared_ptr<CompilationParameters>& cparams,
-                         std::shared_ptr<Libint2Iface>& iface,
+                         const SafePtr<CompilationParameters>& cparams,
+                         SafePtr<Libint2Iface>& iface,
                          unsigned int deriv_level) {
   const std::string task = task_label("3eri", deriv_level);
-  typedef TwoPRep_11_11_sq TwoPRep_sh_11_11;
+  using TwoPRep_sh_11_11 = TwoPRep_11_11_sq;
   vector<CGShell*> shells;
   const unsigned int lmax = cparams->max_am(task);
   const unsigned int lmax_default =
@@ -1204,10 +1204,10 @@ void build_TwoPRep_1b_2k(std::ostream& os,
   // 3) at the end, for each unresolved recurrence relation generate
   //    explicit source code
   //
-  std::shared_ptr<DirectedGraph> dg_xxx(new DirectedGraph);
-  std::shared_ptr<Strategy> strat(new Strategy());
-  std::shared_ptr<CodeContext> context(new CppCodeContext(cparams));
-  std::shared_ptr<MemoryManager> memman(new WorstFitMemoryManager());
+  SafePtr<DirectedGraph> dg_xxx(new DirectedGraph);
+  SafePtr<Strategy> strat(new Strategy());
+  SafePtr<CodeContext> context(new CppCodeContext(cparams));
+  SafePtr<MemoryManager> memman(new WorstFitMemoryManager());
 
   for (unsigned int lbra = 0; lbra <= lmax; lbra++) {
     for (unsigned int lc = 0; lc <= lmax_default; lc++) {
@@ -1223,9 +1223,9 @@ void build_TwoPRep_1b_2k(std::ostream& os,
         const unsigned int dummy_center =
             (LIBINT_SHELL_SET == LIBINT_SHELL_SET_ORCA) ? 0 : 1;
 
-        // std::shared_ptr<Tactic> tactic(new ParticleDirectionTactic(lbra >
-        // lc+ld ? false : true));
-        std::shared_ptr<Tactic> tactic(
+        // SafePtr<Tactic> tactic(new ParticleDirectionTactic(lbra > lc+ld ?
+        // false : true));
+        SafePtr<Tactic> tactic(
             new FourCenter_OS_Tactic(dummy_center == 0 ? 0 : lbra,
                                      dummy_center == 1 ? 0 : lbra, lc, ld));
 
@@ -1259,7 +1259,7 @@ void build_TwoPRep_1b_2k(std::ostream& os,
         ////////////
         // NB translational invariance is now handled by CR_DerivGauss
         CartesianDerivIterator<3> diter(deriv_level);
-        std::vector<std::shared_ptr<TwoPRep_sh_11_11>> targets;
+        std::vector<SafePtr<TwoPRep_sh_11_11>> targets;
         bool last_deriv = false;
         do {
           CGShell a = (dummy_center == 0) ? CGShell::unit() : CGShell(lbra);
@@ -1284,18 +1284,18 @@ void build_TwoPRep_1b_2k(std::ostream& os,
           }
 
           // use 4-center integrals
-          std::shared_ptr<TwoPRep_sh_11_11> abcd =
+          SafePtr<TwoPRep_sh_11_11> abcd =
               TwoPRep_sh_11_11::Instance(a, b, c, d, mType(0u));
           targets.push_back(abcd);
           last_deriv = diter.last();
           if (!last_deriv) diter.next();
         } while (!last_deriv);
         // append all derivatives as targets to the graph
-        for (std::vector<std::shared_ptr<TwoPRep_sh_11_11>>::const_iterator t =
+        for (std::vector<SafePtr<TwoPRep_sh_11_11>>::const_iterator t =
                  targets.begin();
              t != targets.end(); ++t) {
-          std::shared_ptr<DGVertex> t_ptr =
-              std::dynamic_pointer_cast<DGVertex, TwoPRep_sh_11_11>(*t);
+          SafePtr<DGVertex> t_ptr =
+              dynamic_pointer_cast<DGVertex, TwoPRep_sh_11_11>(*t);
           dg_xxx->append_target(t_ptr);
         }
 
@@ -1311,7 +1311,7 @@ void build_TwoPRep_1b_2k(std::ostream& os,
           if (dummy_center == 1 && deriv_level == 0) a.pure_sh(true);
           if (dummy_center == 0 && deriv_level == 0) b.pure_sh(true);
 #endif
-          std::shared_ptr<TwoPRep_sh_11_11> abcd =
+          SafePtr<TwoPRep_sh_11_11> abcd =
               TwoPRep_sh_11_11::Instance(a, b, c, d, mType(0u));
           abcd_label = abcd->label();
         }
@@ -1341,8 +1341,7 @@ void build_TwoPRep_1b_2k(std::ostream& os,
                      decl_filenames, def_filenames, prefix, label, false);
 
         // update max stack size and # of targets
-        const std::shared_ptr<TaskParameters>& tparams =
-            taskmgr.current().params();
+        const SafePtr<TaskParameters>& tparams = taskmgr.current().params();
         tparams->max_stack_size(max_am, memman->max_memory_used());
         tparams->max_ntarget(targets.size());
         // os << " Max memory used = " << memman->max_memory_used() <<
@@ -1379,11 +1378,11 @@ void build_TwoPRep_1b_2k(std::ostream& os,
 #ifdef INCLUDE_ERI2
 
 void build_TwoPRep_1b_1k(std::ostream& os,
-                         const std::shared_ptr<CompilationParameters>& cparams,
-                         std::shared_ptr<Libint2Iface>& iface,
+                         const SafePtr<CompilationParameters>& cparams,
+                         SafePtr<Libint2Iface>& iface,
                          unsigned int deriv_level) {
   const std::string task = task_label("2eri", deriv_level);
-  typedef TwoPRep_11_11_sq TwoPRep_sh_11_11;
+  using TwoPRep_sh_11_11 = TwoPRep_11_11_sq;
   vector<CGShell*> shells;
   unsigned int lmax = cparams->max_am(task);
   for (unsigned int l = 0; l <= lmax; l++) {
@@ -1404,10 +1403,10 @@ void build_TwoPRep_1b_1k(std::ostream& os,
   // 3) at the end, for each unresolved recurrence relation generate
   //    explicit source code
   //
-  std::shared_ptr<DirectedGraph> dg_xxx(new DirectedGraph);
-  std::shared_ptr<Strategy> strat(new Strategy());
-  std::shared_ptr<CodeContext> context(new CppCodeContext(cparams));
-  std::shared_ptr<MemoryManager> memman(new WorstFitMemoryManager());
+  SafePtr<DirectedGraph> dg_xxx(new DirectedGraph);
+  SafePtr<Strategy> strat(new Strategy());
+  SafePtr<CodeContext> context(new CppCodeContext(cparams));
+  SafePtr<MemoryManager> memman(new WorstFitMemoryManager());
 
   for (unsigned int lbra = 0; lbra <= lmax; lbra++) {
     for (unsigned int lket = 0; lket <= lmax; lket++) {
@@ -1419,9 +1418,9 @@ void build_TwoPRep_1b_1k(std::ostream& os,
       const unsigned int dummy_center2 =
           (LIBINT_SHELL_SET == LIBINT_SHELL_SET_ORCA) ? 2 : 3;
 
-      // std::shared_ptr<Tactic> tactic(new ParticleDirectionTactic(lbra > lket
-      // ? false : true));
-      std::shared_ptr<Tactic> tactic(new FourCenter_OS_Tactic(
+      // SafePtr<Tactic> tactic(new ParticleDirectionTactic(lbra > lket ? false
+      // : true));
+      SafePtr<Tactic> tactic(new FourCenter_OS_Tactic(
           dummy_center1 == 0 ? 0 : lbra, dummy_center1 == 1 ? 0 : lbra,
           dummy_center2 == 2 ? 0 : lket, dummy_center2 == 3 ? 0 : lket));
 
@@ -1453,7 +1452,7 @@ void build_TwoPRep_1b_1k(std::ostream& os,
       ////////////
       // NB translational invariance is now handled by CR_DerivGauss
       CartesianDerivIterator<2> diter(deriv_level);
-      std::vector<std::shared_ptr<TwoPRep_sh_11_11>> targets;
+      std::vector<SafePtr<TwoPRep_sh_11_11>> targets;
       bool last_deriv = false;
       do {
         CGShell a = (dummy_center1 == 0) ? CGShell::unit() : CGShell(lbra);
@@ -1480,18 +1479,18 @@ void build_TwoPRep_1b_1k(std::ostream& os,
         }
 
         // use 4-center integrals
-        std::shared_ptr<TwoPRep_sh_11_11> abcd =
+        SafePtr<TwoPRep_sh_11_11> abcd =
             TwoPRep_sh_11_11::Instance(a, b, c, d, mType(0u));
         targets.push_back(abcd);
         last_deriv = diter.last();
         if (!last_deriv) diter.next();
       } while (!last_deriv);
       // append all derivatives as targets to the graph
-      for (std::vector<std::shared_ptr<TwoPRep_sh_11_11>>::const_iterator t =
+      for (std::vector<SafePtr<TwoPRep_sh_11_11>>::const_iterator t =
                targets.begin();
            t != targets.end(); ++t) {
-        std::shared_ptr<DGVertex> t_ptr =
-            std::dynamic_pointer_cast<DGVertex, TwoPRep_sh_11_11>(*t);
+        SafePtr<DGVertex> t_ptr =
+            dynamic_pointer_cast<DGVertex, TwoPRep_sh_11_11>(*t);
         dg_xxx->append_target(t_ptr);
       }
 
@@ -1509,7 +1508,7 @@ void build_TwoPRep_1b_1k(std::ostream& os,
         if (dummy_center2 == 3 && deriv_level == 0) c.pure_sh(true);
         if (dummy_center2 == 2 && deriv_level == 0) d.pure_sh(true);
 #endif
-        std::shared_ptr<TwoPRep_sh_11_11> abcd =
+        SafePtr<TwoPRep_sh_11_11> abcd =
             TwoPRep_sh_11_11::Instance(a, b, c, d, mType(0u));
         abcd_label = abcd->label();
       }
@@ -1539,8 +1538,7 @@ void build_TwoPRep_1b_1k(std::ostream& os,
                    decl_filenames, def_filenames, prefix, label, false);
 
       // update max stack size and # of targets
-      const std::shared_ptr<TaskParameters>& tparams =
-          taskmgr.current().params();
+      const SafePtr<TaskParameters>& tparams = taskmgr.current().params();
       tparams->max_stack_size(max_am, memman->max_memory_used());
       tparams->max_ntarget(targets.size());
       // os << " Max memory used = " << memman->max_memory_used() << std::endl;
@@ -1574,8 +1572,8 @@ void build_TwoPRep_1b_1k(std::ostream& os,
 
 #ifdef INCLUDE_G12
 void build_R12kG12_2b_2k(std::ostream& os,
-                         const std::shared_ptr<CompilationParameters>& cparams,
-                         std::shared_ptr<Libint2Iface>& iface) {
+                         const SafePtr<CompilationParameters>& cparams,
+                         SafePtr<Libint2Iface>& iface) {
   const std::string task("r12kg12");
   vector<CGShell*> shells;
   unsigned int lmax = cparams->max_am(task);
@@ -1602,13 +1600,13 @@ void build_R12kG12_2b_2k(std::ostream& os,
   // 3) at the end, for each unresolved recurrence relation generate
   //    explicit source code
   //
-  std::shared_ptr<DirectedGraph> dg_xxxx(new DirectedGraph);
-  std::shared_ptr<Strategy> strat(new Strategy);
-  std::shared_ptr<Tactic> tactic(new FirstChoiceTactic<DummyRandomizePolicy>);
-  // std::shared_ptr<Tactic> tactic(new RandomChoiceTactic());
-  // std::shared_ptr<Tactic> tactic(new FewestNewVerticesTactic(dg_xxxx));
-  std::shared_ptr<CodeContext> context(new CppCodeContext(cparams));
-  std::shared_ptr<MemoryManager> memman(new WorstFitMemoryManager());
+  SafePtr<DirectedGraph> dg_xxxx(new DirectedGraph);
+  SafePtr<Strategy> strat(new Strategy);
+  SafePtr<Tactic> tactic(new FirstChoiceTactic<DummyRandomizePolicy>);
+  // SafePtr<Tactic> tactic(new RandomChoiceTactic());
+  // SafePtr<Tactic> tactic(new FewestNewVerticesTactic(dg_xxxx));
+  SafePtr<CodeContext> context(new CppCodeContext(cparams));
+  SafePtr<MemoryManager> memman(new WorstFitMemoryManager());
 
   for (unsigned int la = 0; la <= lmax; la++) {
     for (unsigned int lb = 0; lb <= lmax; lb++) {
@@ -1635,89 +1633,89 @@ void build_R12kG12_2b_2k(std::ostream& os,
           dg_xxxx->registry()->accumulate_targets(
               cparams->accumulate_targets());
 
-          typedef R12kG12_11_11_sq int_type;
-          typedef R12kG12 oper_type;
+          using int_type = R12kG12_11_11_sq;
+          using oper_type = R12kG12;
           // k=0
           if (!ssss) {
-            typedef oper_type::Descriptor oper_descr;
+            using oper_descr = oper_type::Descriptor;
             oper_type oper(oper_descr(0));
 #if LIBINT_CONTRACTED_INTS
             oper.descr().contract();
 #endif
-            std::shared_ptr<int_type> abcd = int_type::Instance(
+            SafePtr<int_type> abcd = int_type::Instance(
                 *shells[la], *shells[lb], *shells[lc], *shells[ld], 0u, oper);
             os << "building " << abcd->description() << endl;
-            std::shared_ptr<DGVertex> abcd_ptr =
-                std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+            SafePtr<DGVertex> abcd_ptr =
+                dynamic_pointer_cast<DGVertex, int_type>(abcd);
             dg_xxxx->append_target(abcd_ptr);
           }
 
           // k=-1
           if (!ssss) {
-            typedef oper_type::Descriptor oper_descr;
+            using oper_descr = oper_type::Descriptor;
             oper_type oper(oper_descr(-1));
 #if LIBINT_CONTRACTED_INTS
             oper.descr().contract();
 #endif
-            std::shared_ptr<int_type> abcd = int_type::Instance(
+            SafePtr<int_type> abcd = int_type::Instance(
                 *shells[la], *shells[lb], *shells[lc], *shells[ld], 0u, oper);
             os << "building " << abcd->description() << endl;
-            std::shared_ptr<DGVertex> abcd_ptr =
-                std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+            SafePtr<DGVertex> abcd_ptr =
+                dynamic_pointer_cast<DGVertex, int_type>(abcd);
             dg_xxxx->append_target(abcd_ptr);
           }
 
 #if SUPPORT_T1G12
           // [T_1,G12]
           if (true) {
-            typedef TiG12_11_11_sq int_type;
-            typedef int_type::OperType oper_type;
-            typedef oper_type::Descriptor oper_descr;
+            using int_type = TiG12_11_11_sq;
+            using oper_type = int_type::OperType;
+            using oper_descr = oper_type::Descriptor;
             oper_type oper(oper_descr(0));
 #if LIBINT_CONTRACTED_INTS
             oper.descr().contract();
 #endif
-            std::shared_ptr<int_type> abcd = int_type::Instance(
+            SafePtr<int_type> abcd = int_type::Instance(
                 *shells[la], *shells[lb], *shells[lc], *shells[ld], 0u, oper);
             os << "building " << abcd->description() << endl;
-            std::shared_ptr<DGVertex> abcd_ptr =
-                std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+            SafePtr<DGVertex> abcd_ptr =
+                dynamic_pointer_cast<DGVertex, int_type>(abcd);
             dg_xxxx->append_target(abcd_ptr);
           }
 
           // [T_2,G12]
           if (true) {
-            typedef TiG12_11_11_sq int_type;
-            typedef int_type::OperType oper_type;
-            typedef oper_type::Descriptor oper_descr;
+            using int_type = TiG12_11_11_sq;
+            using oper_type = int_type::OperType;
+            using oper_descr = oper_type::Descriptor;
             oper_type oper(oper_descr(1));
 #if LIBINT_CONTRACTED_INTS
             oper.descr().contract();
 #endif
-            std::shared_ptr<int_type> abcd = int_type::Instance(
+            SafePtr<int_type> abcd = int_type::Instance(
                 *shells[la], *shells[lb], *shells[lc], *shells[ld], 0u, oper);
             os << "building " << abcd->description() << endl;
-            std::shared_ptr<DGVertex> abcd_ptr =
-                std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+            SafePtr<DGVertex> abcd_ptr =
+                dynamic_pointer_cast<DGVertex, int_type>(abcd);
             dg_xxxx->append_target(abcd_ptr);
           }
 #endif
 
           // [G12,[T1,G12]]
           if (!ssss) {
-            typedef G12TiG12_11_11_sq int_type;
-            typedef int_type::OperType oper_type;
-            typedef oper_type::Descriptor oper_descr;
+            using int_type = G12TiG12_11_11_sq;
+            using oper_type = int_type::OperType;
+            using oper_descr = oper_type::Descriptor;
             oper_type oper(
                 oper_descr(0));  // doesn't matter whether T1 or T2 here
 #if LIBINT_CONTRACTED_INTS
             oper.descr().contract();
 #endif
-            std::shared_ptr<int_type> abcd = int_type::Instance(
+            SafePtr<int_type> abcd = int_type::Instance(
                 *shells[la], *shells[lb], *shells[lc], *shells[ld], 0u, oper);
             os << "building " << abcd->description() << endl;
-            std::shared_ptr<DGVertex> abcd_ptr =
-                std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+            SafePtr<DGVertex> abcd_ptr =
+                dynamic_pointer_cast<DGVertex, int_type>(abcd);
             dg_xxxx->append_target(abcd_ptr);
           }
 
@@ -1741,8 +1739,7 @@ void build_R12kG12_2b_2k(std::ostream& os,
                        decl_filenames, def_filenames, prefix, label, false);
 
           // update max stack size
-          const std::shared_ptr<TaskParameters>& tparams =
-              taskmgr.current().params();
+          const SafePtr<TaskParameters>& tparams = taskmgr.current().params();
           tparams->max_stack_size(max_am, memman->max_memory_used());
           tparams->max_ntarget(5);
 
@@ -1777,9 +1774,9 @@ void build_R12kG12_2b_2k(std::ostream& os,
 #endif  // INCLUDE_G12
 
 #ifdef INCLUDE_G12
-void build_R12kG12_2b_2k_separate(
-    std::ostream& os, const std::shared_ptr<CompilationParameters>& cparams,
-    std::shared_ptr<Libint2Iface>& iface) {
+void build_R12kG12_2b_2k_separate(std::ostream& os,
+                                  const SafePtr<CompilationParameters>& cparams,
+                                  SafePtr<Libint2Iface>& iface) {
   // do not support this if the commutator integrals are needed
 #if SUPPORT_T1G12
   assert(false);
@@ -1807,11 +1804,11 @@ void build_R12kG12_2b_2k_separate(
         iface->macro_define(std::string("MAX_AM_") + task_NAMES[task], lmax));
     iface->to_params(iface->macro_define("SUPPORT_T1G12", 0));
 
-    std::shared_ptr<DirectedGraph> dg_xxxx(new DirectedGraph);
-    std::shared_ptr<Strategy> strat(new Strategy);
-    std::shared_ptr<Tactic> tactic(new FirstChoiceTactic<DummyRandomizePolicy>);
-    std::shared_ptr<CodeContext> context(new CppCodeContext(cparams));
-    std::shared_ptr<MemoryManager> memman(new WorstFitMemoryManager());
+    SafePtr<DirectedGraph> dg_xxxx(new DirectedGraph);
+    SafePtr<Strategy> strat(new Strategy);
+    SafePtr<Tactic> tactic(new FirstChoiceTactic<DummyRandomizePolicy>);
+    SafePtr<CodeContext> context(new CppCodeContext(cparams));
+    SafePtr<MemoryManager> memman(new WorstFitMemoryManager());
 
     for (unsigned int la = 0; la <= lmax; la++) {
       for (unsigned int lb = 0; lb <= lmax; lb++) {
@@ -1840,37 +1837,37 @@ void build_R12kG12_2b_2k_separate(
             std::string _label;
             // k=0
             if (task == 0) {
-              typedef R12kG12_11_11_sq int_type;
-              typedef R12kG12 oper_type;
-              typedef oper_type::Descriptor oper_descr;
+              using int_type = R12kG12_11_11_sq;
+              using oper_type = R12kG12;
+              using oper_descr = oper_type::Descriptor;
               oper_type oper(oper_descr(0));
 #if LIBINT_CONTRACTED_INTS
               oper.descr().contract();
 #endif
-              std::shared_ptr<int_type> abcd = int_type::Instance(
+              SafePtr<int_type> abcd = int_type::Instance(
                   *shells[la], *shells[lb], *shells[lc], *shells[ld], 0u, oper);
               os << "building " << abcd->description() << endl;
-              std::shared_ptr<DGVertex> abcd_ptr =
-                  std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+              SafePtr<DGVertex> abcd_ptr =
+                  dynamic_pointer_cast<DGVertex, int_type>(abcd);
               dg_xxxx->append_target(abcd_ptr);
               _label = abcd_ptr->label();
             }
 
             // [G12,[T1,G12]]
             if (task == 1) {
-              typedef G12TiG12_11_11_sq int_type;
-              typedef int_type::OperType oper_type;
-              typedef oper_type::Descriptor oper_descr;
+              using int_type = G12TiG12_11_11_sq;
+              using oper_type = int_type::OperType;
+              using oper_descr = oper_type::Descriptor;
               oper_type oper(
                   oper_descr(0));  // doesn't matter whether T1 or T2 here
 #if LIBINT_CONTRACTED_INTS
               oper.descr().contract();
 #endif
-              std::shared_ptr<int_type> abcd = int_type::Instance(
+              SafePtr<int_type> abcd = int_type::Instance(
                   *shells[la], *shells[lb], *shells[lc], *shells[ld], 0u, oper);
               os << "building " << abcd->description() << endl;
-              std::shared_ptr<DGVertex> abcd_ptr =
-                  std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+              SafePtr<DGVertex> abcd_ptr =
+                  dynamic_pointer_cast<DGVertex, int_type>(abcd);
               dg_xxxx->append_target(abcd_ptr);
               _label = abcd_ptr->label();
             }
@@ -1886,8 +1883,7 @@ void build_R12kG12_2b_2k_separate(
                          decl_filenames, def_filenames, prefix, label, false);
 
             // update max stack size
-            const std::shared_ptr<TaskParameters>& tparams =
-                taskmgr.current().params();
+            const SafePtr<TaskParameters>& tparams = taskmgr.current().params();
             tparams->max_stack_size(max_am, memman->max_memory_used());
             tparams->max_ntarget(1);
 
@@ -1924,8 +1920,8 @@ void build_R12kG12_2b_2k_separate(
 
 #ifdef INCLUDE_G12DKH
 void build_G12DKH_2b_2k(std::ostream& os,
-                        const std::shared_ptr<CompilationParameters>& cparams,
-                        std::shared_ptr<Libint2Iface>& iface) {
+                        const SafePtr<CompilationParameters>& cparams,
+                        SafePtr<Libint2Iface>& iface) {
   const std::string task("g12dkh");
   vector<CGShell*> shells;
   unsigned int lmax = cparams->max_am(task);
@@ -1947,9 +1943,9 @@ void build_G12DKH_2b_2k(std::ostream& os,
   // 3) at the end, for each unresolved recurrence relation generate
   //    explicit source code
   //
-  std::shared_ptr<DirectedGraph> dg_xxxx(new DirectedGraph);
-  std::shared_ptr<Strategy> strat(new Strategy);
-  std::shared_ptr<Tactic> tactic(new FirstChoiceTactic<DummyRandomizePolicy>);
+  SafePtr<DirectedGraph> dg_xxxx(new DirectedGraph);
+  SafePtr<Strategy> strat(new Strategy);
+  SafePtr<Tactic> tactic(new FirstChoiceTactic<DummyRandomizePolicy>);
   for (int la = 0; la <= lmax; la++) {
     for (int lb = 0; lb <= lmax; lb++) {
       for (int lc = 0; lc <= lmax; lc++) {
@@ -1979,72 +1975,72 @@ void build_G12DKH_2b_2k(std::ostream& os,
 
           // k=0
           if (!ssss) {
-            typedef R12kG12_11_11_sq int_type;
-            typedef R12kG12 oper_type;
-            typedef oper_type::Descriptor oper_descr;
-            std::shared_ptr<int_type> abcd =
+            using int_type = R12kG12_11_11_sq;
+            using oper_type = R12kG12;
+            using oper_descr = oper_type::Descriptor;
+            SafePtr<int_type> abcd =
                 int_type::Instance(*shells[la], *shells[lb], *shells[lc],
                                    *shells[ld], 0u, oper_type(oper_descr(0)));
             os << "building " << abcd->description() << endl;
-            std::shared_ptr<DGVertex> abcd_ptr =
-                std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+            SafePtr<DGVertex> abcd_ptr =
+                dynamic_pointer_cast<DGVertex, int_type>(abcd);
             dg_xxxx->append_target(abcd_ptr);
           }
           // k=2
           if (!ssss) {
-            typedef R12kG12_11_11_sq int_type;
-            typedef R12kG12 oper_type;
-            typedef oper_type::Descriptor oper_descr;
-            std::shared_ptr<int_type> abcd =
+            using int_type = R12kG12_11_11_sq;
+            using oper_type = R12kG12;
+            using oper_descr = oper_type::Descriptor;
+            SafePtr<int_type> abcd =
                 int_type::Instance(*shells[la], *shells[lb], *shells[lc],
                                    *shells[ld], 0u, oper_type(oper_descr(2)));
             os << "building " << abcd->description() << endl;
-            std::shared_ptr<DGVertex> abcd_ptr =
-                std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+            SafePtr<DGVertex> abcd_ptr =
+                dynamic_pointer_cast<DGVertex, int_type>(abcd);
             dg_xxxx->append_target(abcd_ptr);
           }
           // k=4
           if (!ssss) {
-            typedef R12kG12_11_11_sq int_type;
-            typedef R12kG12 oper_type;
-            typedef oper_type::Descriptor oper_descr;
-            std::shared_ptr<int_type> abcd =
+            using int_type = R12kG12_11_11_sq;
+            using oper_type = R12kG12;
+            using oper_descr = oper_type::Descriptor;
+            SafePtr<int_type> abcd =
                 int_type::Instance(*shells[la], *shells[lb], *shells[lc],
                                    *shells[ld], 0u, oper_type(oper_descr(4)));
             os << "building " << abcd->description() << endl;
-            std::shared_ptr<DGVertex> abcd_ptr =
-                std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+            SafePtr<DGVertex> abcd_ptr =
+                dynamic_pointer_cast<DGVertex, int_type>(abcd);
             dg_xxxx->append_target(abcd_ptr);
           }
           // (G12prime.Div1)^2
           if (true) {
-            typedef DivG12prime_xTx_11_11_sq int_type;
-            typedef int_type::OperType oper_type;
-            typedef oper_type::Descriptor oper_descr;
-            std::shared_ptr<int_type> abcd =
+            using int_type = DivG12prime_xTx_11_11_sq;
+            using oper_type = int_type::OperType;
+            using oper_descr = oper_type::Descriptor;
+            SafePtr<int_type> abcd =
                 int_type::Instance(*shells[la], *shells[lb], *shells[lc],
                                    *shells[ld], 0u, oper_type(oper_descr(0)));
             os << "building " << abcd->description() << endl;
-            std::shared_ptr<DGVertex> abcd_ptr =
-                std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+            SafePtr<DGVertex> abcd_ptr =
+                dynamic_pointer_cast<DGVertex, int_type>(abcd);
             dg_xxxx->append_target(abcd_ptr);
           }
           // (G12prime.Div2)^2
           if (true) {
-            typedef DivG12prime_xTx_11_11_sq int_type;
-            typedef int_type::OperType oper_type;
-            typedef oper_type::Descriptor oper_descr;
-            std::shared_ptr<int_type> abcd =
+            using int_type = DivG12prime_xTx_11_11_sq;
+            using oper_type = int_type::OperType;
+            using oper_descr = oper_type::Descriptor;
+            SafePtr<int_type> abcd =
                 int_type::Instance(*shells[la], *shells[lb], *shells[lc],
                                    *shells[ld], 0u, oper_type(oper_descr(1)));
             os << "building " << abcd->description() << endl;
-            std::shared_ptr<DGVertex> abcd_ptr =
-                std::dynamic_pointer_cast<DGVertex, int_type>(abcd);
+            SafePtr<DGVertex> abcd_ptr =
+                dynamic_pointer_cast<DGVertex, int_type>(abcd);
             dg_xxxx->append_target(abcd_ptr);
           }
 
-          std::shared_ptr<CodeContext> context(new CppCodeContext(cparams));
-          std::shared_ptr<MemoryManager> memman(new WorstFitMemoryManager());
+          SafePtr<CodeContext> context(new CppCodeContext(cparams));
+          SafePtr<MemoryManager> memman(new WorstFitMemoryManager());
           dg_xxxx->apply(strat, tactic);
           dg_xxxx->optimize_rr_out(context);
           dg_xxxx->traverse();
@@ -2067,14 +2063,12 @@ void build_G12DKH_2b_2k(std::ostream& os,
           src_filename += ".cc";
           std::basic_ofstream<char> declfile(decl_filename.c_str());
           std::basic_ofstream<char> srcfile(src_filename.c_str());
-          dg_xxxx->generate_code(context, memman,
-                                 ImplicitDimensions::default_dims(),
-                                 std::shared_ptr<CodeSymbols>(new CodeSymbols),
-                                 label, declfile, srcfile);
+          dg_xxxx->generate_code(
+              context, memman, ImplicitDimensions::default_dims(),
+              SafePtr<CodeSymbols>(new CodeSymbols), label, declfile, srcfile);
 
           // update max stack size
-          const std::shared_ptr<TaskParameters>& tparams =
-              taskmgr.current().params();
+          const SafePtr<TaskParameters>& tparams = taskmgr.current().params();
           tparams->max_stack_size(max_am, memman->max_memory_used());
           tparams->max_ntarget(3);
 
@@ -2112,8 +2106,8 @@ void build_G12DKH_2b_2k(std::ostream& os,
 
 #endif  // INCLUDE_G12DKH
 
-void config_to_api(const std::shared_ptr<CompilationParameters>& cparams,
-                   std::shared_ptr<Libint2Iface>& iface) {
+void config_to_api(const SafePtr<CompilationParameters>& cparams,
+                   SafePtr<Libint2Iface>& iface) {
   int max_deriv_order = 0;
 #ifdef INCLUDE_ONEBODY
   iface->to_params(iface->macro_define("SUPPORT_ONEBODY", 1));
