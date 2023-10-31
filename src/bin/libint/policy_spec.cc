@@ -61,4 +61,4 @@ template <>
 void StdLibintTDPolicy<CGShell>::dealloc_subobj(
     vector<StdLibintTDPolicy<CGShell>::subobj_stype>& subobj) {}
 
-};  // namespace libint2
+}  // namespace libint2
