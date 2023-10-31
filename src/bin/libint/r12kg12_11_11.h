@@ -48,6 +48,6 @@ inline bool GenIntegralSet_11_11<CGShell, R12kG12, mType>::auto_unroll() const {
   else
     return false;
 }
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

@@ -132,6 +132,6 @@ CR_11_R12kR12lG12_11<F>::CR_11_R12kR12lG12_11(
   }
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

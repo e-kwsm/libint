@@ -33,6 +33,6 @@ class ConstructablePolymorphically {
   virtual ~ConstructablePolymorphically() {}
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

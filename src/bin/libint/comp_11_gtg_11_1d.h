@@ -131,6 +131,6 @@ std::string CR_11_GTG_11_1d<Axis>::generic_instance(
 }
 #endif
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

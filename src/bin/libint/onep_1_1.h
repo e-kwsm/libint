@@ -59,6 +59,6 @@ inline bool GenIntegralSet_1_1<CGShell, ElecPotOper, mType>::auto_unroll()
     return false;
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

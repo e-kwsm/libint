@@ -168,6 +168,6 @@ class SingletonStack : public PurgeableStack<T> {
   InstanceID next_instance_;
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

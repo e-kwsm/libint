@@ -306,6 +306,6 @@ typedef CR_11_σpCoulombσp_11<CGF> CR_11_σpCoulombσp_11_int;
 
 typedef CR_11_Coulombσp_11<CGShell> CR_11_Coulombσp_11_sh;
 typedef CR_11_Coulombσp_11<CGF> CR_11_Coulombσp_11_int;
-};  // namespace libint2
+}  // namespace libint2
 
 #endif  // header guard

@@ -48,6 +48,6 @@ class Strategy {
                 const std::shared_ptr<Tactic>& tactic);
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

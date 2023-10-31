@@ -311,6 +311,6 @@ inline CTimeVector3<double> Vector(const OriginDerivative<3u>& dd) {
 }
 
 }  // namespace prefactor
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
