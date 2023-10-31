@@ -125,6 +125,6 @@ FNVStringHash::hash(const std::string& S) {
   return hval_;
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

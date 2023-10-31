@@ -211,6 +211,6 @@ struct DecontractedIntegralSet {
   }
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

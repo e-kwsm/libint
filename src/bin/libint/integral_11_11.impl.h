@@ -33,6 +33,6 @@ bool GenIntegralSet_11_11<BFS, Oper, AuxQuanta>::auto_unroll() const {
   return false;
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

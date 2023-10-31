@@ -212,6 +212,6 @@ LinearCombination<std::shared_ptr<DGVertex>, BraketPair<F, BKType> > R12v(
   return result;
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif  // header guard

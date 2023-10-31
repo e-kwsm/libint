@@ -305,6 +305,6 @@ std::string label_to_funcname(const std::string& label);
 /// compiler somehow prefers long expressions It does not make sense if there
 /// will be only set-level RR calls
 bool condense_expr(unsigned int unroll_threshold, bool vectorize);
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

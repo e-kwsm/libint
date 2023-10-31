@@ -81,6 +81,6 @@ class ExtractRR {
   RRMap map_;
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif  // header guard

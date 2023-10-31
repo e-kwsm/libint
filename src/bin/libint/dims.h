@@ -98,6 +98,6 @@ class ImplicitDimensions {
   static std::shared_ptr<ImplicitDimensions> default_dims_;
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

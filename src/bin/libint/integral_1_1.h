@@ -223,6 +223,6 @@ void GenIntegralSet_1_1<BFS, Oper, AuxQuanta>::unregister() const {
 
 // this_precomputed() and auto_unroll() will be specialized, the nonspecialized
 // version is in integral_11_11.impl.h
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

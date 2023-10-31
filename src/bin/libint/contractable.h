@@ -45,6 +45,6 @@ class Contractable {
 template <typename Derived>
 bool Contractable<Derived>::default_value_ = false;
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

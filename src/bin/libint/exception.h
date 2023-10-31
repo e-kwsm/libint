@@ -93,6 +93,6 @@ class InputError : public std::logic_error {
   InputError(const std::string& a) : logic_error(a) {}
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

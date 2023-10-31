@@ -131,6 +131,6 @@ std::shared_ptr<typename I::iter_type> IntegralSet_to_Integrals<I>::child(
   return children_.at(i);
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
