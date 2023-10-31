@@ -600,4 +600,4 @@ void merge(MemBlockSet& blocks) {
   }
 }
 
-};  // namespace libint2
+}  // namespace libint2

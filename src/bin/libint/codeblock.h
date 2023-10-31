@@ -73,6 +73,6 @@ class ForLoop : public CodeBlock {
   bool dummy_loop_;
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

@@ -97,6 +97,6 @@ class PurgeableStacks {
   std::vector<stack_type*> stacks_;
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

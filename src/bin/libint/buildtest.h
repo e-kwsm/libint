@@ -481,6 +481,6 @@ TesterCmdLine<N>::TesterCmdLine(int argc, char* argv[]) {
   }
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

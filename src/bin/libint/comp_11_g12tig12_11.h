@@ -155,6 +155,6 @@ std::string CR_11_G12TiG12_11<F>::generic_instance(
 }
 #endif
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

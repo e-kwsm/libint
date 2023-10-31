@@ -35,4 +35,4 @@ unsigned int ConvertNumFlops<CGShell>(unsigned int nflops) {
   return 0;
 }
 
-};  // namespace libint2
+}  // namespace libint2

@@ -266,6 +266,6 @@ typedef CR_DerivGauss<TwoPRep_11_11_int, 1, InKet, trinvskip2_part,
                       trinvskip2_where>
     Deriv_d_11_TwoPRep_11_int;
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif  // header guard
