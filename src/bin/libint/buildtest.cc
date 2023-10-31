@@ -34,14 +34,14 @@ using namespace libint2;
 namespace libint2 {
 
 void generate_rr_code(std::ostream& os,
-                      const std::shared_ptr<CompilationParameters>& cparams,
+                      const SafePtr<CompilationParameters>& cparams,
                       std::deque<std::string>& decl_filenames,
                       std::deque<std::string>& def_filenames) {
-  std::shared_ptr<CodeContext> context(new CppCodeContext(cparams));
+  SafePtr<CodeContext> context(new CppCodeContext(cparams));
   ImplicitDimensions::set_default_dims(cparams);
   std::string prefix(cparams->source_directory());
 
-  std::shared_ptr<RRStack> rrstack = RRStack::Instance();
+  SafePtr<RRStack> rrstack = RRStack::Instance();
 
 #define GENERATE_ALL_RRS 0
 #if GENERATE_ALL_RRS
@@ -50,18 +50,19 @@ void generate_rr_code(std::ostream& os,
   //
   RRStack::citer_type it = rrstack->begin();
   while (it != rrstack->end()) {
-    std::shared_ptr<RecurrenceRelation> rr = (*it).second.second;
+    SafePtr<RecurrenceRelation> rr = (*it).second.second;
 #else
   //
   // generate code for all recurrence relation actually used
   //
   // 1) merge RR lists from all tasks
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
-  typedef LibraryTaskManager::TasksCIter tciter;
+  using tciter = LibraryTaskManager::TasksCIter;
   const tciter tend = taskmgr.plast();
   std::set<TaskExternSymbols::RRList::value_type> aggregate_rrlist;
   for (tciter t = taskmgr.first(); t != tend; ++t) {
-    const std::shared_ptr<TaskExternSymbols> tsymbols = t->symbols();
+    const SafePtr<TaskExternSymbols> tsymbols = t->symbols();
+    using SymbolList = TaskExternSymbols::SymbolList;
     auto rrlist = tsymbols->rrlist();
     aggregate_rrlist.insert(rrlist.begin(), rrlist.end());
   }

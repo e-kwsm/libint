@@ -32,7 +32,7 @@
 #include <stdint.h>  // portable: uint64_t   MSVC: __int64
 
 // MSVC defines this in winsock2.h!?
-typedef struct timeval {
+struct {
   long tv_sec;
   long tv_usec;
 } timeval;
@@ -165,7 +165,7 @@ bool test_4eri(unsigned int deriv_order, unsigned int lmax_max) {
   gettimeofday(&tod, 0);
   const double start_wall_time = tod.tv_sec + 0.000001 * tod.tv_usec;
 
-  typedef unsigned int uint;
+  using uint = unsigned int;
 
   const uint veclen = LIBINT2_MAX_VECLEN;
   const uint max_contrdepth = 3;
@@ -510,7 +510,7 @@ bool test_3eri(unsigned int deriv_order, unsigned int lmax_max) {
   gettimeofday(&tod, 0);
   const double start_wall_time = tod.tv_sec + 0.000001 * tod.tv_usec;
 
-  typedef unsigned int uint;
+  using uint = unsigned int;
 
   const uint veclen = LIBINT2_MAX_VECLEN;
   const uint max_contrdepth = 3;
@@ -840,7 +840,7 @@ bool test_2eri(unsigned int deriv_order, unsigned int lmax_max) {
 
   bool test_success = true;
 
-  typedef unsigned int uint;
+  using uint = unsigned int;
 
   const uint veclen = LIBINT2_MAX_VECLEN;
 #if LIBINT_CONTRACTED_INTS

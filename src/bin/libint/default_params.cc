@@ -57,7 +57,7 @@ void CompilationParameters::print(std::ostream& os) const {
   os << "MAX_AM           = " << max_am(default_task_name()) << endl;
   os << "OPT_AM           = " << max_am_opt(default_task_name()) << endl;
 
-  typedef LibraryTaskManager::TasksCIter citer;
+  using citer = LibraryTaskManager::TasksCIter;
   const LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
   for (citer t = taskmgr.first(); t != taskmgr.plast(); ++t) {
     const std::string& tlabel = t->label();
@@ -100,7 +100,7 @@ unsigned int CompilationParameters::max_am(std::string t,
   if (t.empty()) t = default_task_name();
   task_exists(t);
 
-  typedef std::map<std::string, TaskParameters>::const_iterator citer;
+  using citer = std::map<std::string, TaskParameters>::const_iterator;
   citer ti = task_params_.find(t);
   auto max_am = (ti != task_params_.end())
                     ? ti->second.max_am
@@ -112,7 +112,7 @@ unsigned int CompilationParameters::max_am_opt(std::string t) const {
   if (t.empty()) t = default_task_name();
   task_exists(t);
 
-  typedef std::map<std::string, TaskParameters>::const_iterator citer;
+  using citer = std::map<std::string, TaskParameters>::const_iterator;
   citer ti = task_params_.find(t);
   if (ti != task_params_.end())
     return ti->second.max_am_opt;
@@ -124,7 +124,7 @@ unsigned int CompilationParameters::num_bf(std::string t) const {
   if (t.empty()) t = default_task_name();
   task_exists(t);
 
-  typedef std::map<std::string, TaskParameters>::const_iterator citer;
+  using citer = std::map<std::string, TaskParameters>::const_iterator;
   citer ti = task_params_.find(t);
   if (ti != task_params_.end())
     return ti->second.num_bf;
@@ -146,7 +146,7 @@ void CompilationParameters::max_am(const std::string& t, unsigned int ma,
                                    unsigned int c) {
   task_exists(t);
 
-  typedef std::map<std::string, TaskParameters>::iterator iter;
+  using iter = std::map<std::string, TaskParameters>::iterator;
   iter ti = task_params_.find(t);
   if (ti != task_params_.end()) {
     if (ti->second.max_am.size() <= c) ti->second.max_am.resize(c + 1);
@@ -162,7 +162,7 @@ void CompilationParameters::max_am(const std::string& t, unsigned int ma,
 void CompilationParameters::max_am_opt(const std::string& t, unsigned int v) {
   task_exists(t);
 
-  typedef std::map<std::string, TaskParameters>::iterator iter;
+  using iter = std::map<std::string, TaskParameters>::iterator;
   iter ti = task_params_.find(t);
   if (ti != task_params_.end())
     ti->second.max_am_opt = v;
@@ -177,7 +177,7 @@ void CompilationParameters::max_am_opt(const std::string& t, unsigned int v) {
 void CompilationParameters::num_bf(const std::string& t, unsigned int nbf) {
   task_exists(t);
 
-  typedef std::map<std::string, TaskParameters>::iterator iter;
+  using iter = std::map<std::string, TaskParameters>::iterator;
   iter ti = task_params_.find(t);
   if (ti != task_params_.end())
     ti->second.num_bf = nbf;
