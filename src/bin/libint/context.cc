@@ -73,12 +73,12 @@ std::string CodeContext::type_name<double* const>() const {
 }
 };  // namespace libint2
 
-CodeContext::CodeContext(const SafePtr<CompilationParameters>& cparams)
+CodeContext::CodeContext(const std::shared_ptr<CompilationParameters>& cparams)
     : cparams_(cparams), comments_on_(false) {
   zero_out_counters();
 }
 
-const SafePtr<CompilationParameters>& CodeContext::cparams() const {
+const std::shared_ptr<CompilationParameters>& CodeContext::cparams() const {
   return cparams_;
 }
 
@@ -130,8 +130,8 @@ static const char subst_chars[nchars][20] = {
     "_times_", "_", "_up_", "_sB_", "_Sb_", "_c_",    "_aB_",    "_Ab_"};
 };  // namespace ForbiddenCppCharacters
 
-CppCodeContext::CppCodeContext(const SafePtr<CompilationParameters>& cparams,
-                               bool vectorize)
+CppCodeContext::CppCodeContext(
+    const std::shared_ptr<CompilationParameters>& cparams, bool vectorize)
     : CodeContext(cparams), vectorize_(vectorize) {}
 
 CppCodeContext::~CppCodeContext() {}
@@ -540,9 +540,9 @@ std::string CppCodeContext::value_to_pointer(const std::string& val) const {
   }
 }
 
-SafePtr<ForLoop> CppCodeContext::for_loop(
-    std::string& varname, const SafePtr<Entity>& less_than,
-    const SafePtr<Entity>& start_at) const {
+std::shared_ptr<ForLoop> CppCodeContext::for_loop(
+    std::string& varname, const std::shared_ptr<Entity>& less_than,
+    const std::shared_ptr<Entity>& start_at) const {
   // not implemented
   abort();
 }
