@@ -49,7 +49,7 @@ enum CGShellOrdering {
   CGShellOrdering_MOLDEN
 };
 
-};
+}
 
 #include <libint2/cgshellinfo.h>
 
