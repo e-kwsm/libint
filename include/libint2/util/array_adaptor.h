@@ -44,7 +44,7 @@ class ext_stack_allocator {
   using propagate_on_container_move_assignment = std::true_type;
 
   static auto constexpr size = N;
-  typedef T array_type[N];
+  using array_type = T[N];
 
  private:
   T* stack_;  // stack-allocated storage

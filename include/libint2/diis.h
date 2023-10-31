@@ -59,8 +59,8 @@ template <typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows,
           int _MaxCols>
 struct traits<
     Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>> {
-  typedef Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> D;
-  typedef typename D::Scalar element_type;
+  using D = Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>;
+  using element_type = typename D::Scalar;
 };
 
 template <typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows,
@@ -139,7 +139,7 @@ void axpy(Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& y,
 template <typename D>
 class DIIS {
  public:
-  typedef typename diis::traits<D>::element_type value_type;
+  using value_type = typename diis::traits<D>::element_type;
 
   /// Constructor
 
@@ -337,10 +337,9 @@ class DIIS {
   value_type damping_factor;
   value_type mixing_fraction;
 
-  typedef Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic,
-                        Eigen::RowMajor>
-      EigenMatrixX;
-  typedef Eigen::Matrix<value_type, Eigen::Dynamic, 1> EigenVectorX;
+  using EigenMatrixX = Eigen::Matrix<value_type, Eigen::Dynamic, Eigen::Dynamic,
+                                     Eigen::RowMajor>;
+  using EigenVectorX = Eigen::Matrix<value_type, Eigen::Dynamic, 1>;
 
   EigenMatrixX B_;  //!< B(i,j) = <ei|ej>
 

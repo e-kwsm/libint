@@ -1862,8 +1862,8 @@ struct GaussianGmEval
     const auto sqrt_rho = sqrt(rho);
     const auto oo_sqrt_rho = 1 / sqrt_rho;
 
-    typedef
-        typename std::vector<std::pair<AnyReal, AnyReal>>::const_iterator citer;
+    using citer =
+        typename std::vector<std::pair<AnyReal, AnyReal>>::const_iterator;
     const citer gend = geminal.end();
     for (citer i = geminal.begin(); i != gend; ++i) {
       const auto gamma = i->first;
@@ -1950,7 +1950,7 @@ struct GaussianGmEval
 
 template <typename GmEvalFunction>
 struct GenericGmEval : private GmEvalFunction {
-  typedef typename GmEvalFunction::value_type Real;
+  using Real = typename GmEvalFunction::value_type;
 
   GenericGmEval(int mmax, Real precision)
       : GmEvalFunction(mmax, precision), mmax_(mmax), precision_(precision) {}
@@ -2023,7 +2023,7 @@ namespace os_core_ints {
 /// core integral evaluator delta function kernels
 template <typename Real>
 struct delta_gm_eval {
-  typedef Real value_type;
+  using value_type = Real;
 
   delta_gm_eval(unsigned int, Real) {}
   void operator()(Real* Gm, Real rho, Real T, int mmax) const {
@@ -2045,8 +2045,8 @@ struct r12_xx_K_gm_eval;
 template <typename Real>
 struct r12_xx_K_gm_eval<Real, 1>
     : private detail::CoreEvalScratch<r12_xx_K_gm_eval<Real, 1>> {
-  typedef detail::CoreEvalScratch<r12_xx_K_gm_eval<Real, 1>> base_type;
-  typedef Real value_type;
+  using base_type = detail::CoreEvalScratch<r12_xx_K_gm_eval<Real, 1>>;
+  using value_type = Real;
 
 #ifndef LIBINT_USER_DEFINED_REAL
   using FmEvalType = libint2::FmEval_Chebyshev7<double>;
@@ -2076,7 +2076,7 @@ struct r12_xx_K_gm_eval<Real, 1>
 /// core integral evaluator for \f$ \mathrm{erf}(\omega r) / r \f$ kernel
 template <typename Real>
 struct erf_coulomb_gm_eval {
-  typedef Real value_type;
+  using value_type = Real;
 
 #ifndef LIBINT_USER_DEFINED_REAL
   using FmEvalType = libint2::FmEval_Chebyshev7<double>;
