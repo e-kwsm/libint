@@ -62,7 +62,7 @@ class FirstChoiceTactic : public Tactic {
       : Tactic(), rpolicy_(rpolicy) {}
   ~FirstChoiceTactic() override {}
 
-  RR optimal_rr(const rr_stack& stack) const {
+  RR optimal_rr(const rr_stack& stack) const override {
     if (!stack.empty())
       return stack[0 + rpolicy_->noise(stack.size())];
     else
@@ -82,7 +82,7 @@ class FewestNewVerticesTactic : public Tactic {
       : Tactic(), dg_(dg) {}
   ~FewestNewVerticesTactic() override {}
 
-  RR optimal_rr(const rr_stack& stack) const;
+  RR optimal_rr(const rr_stack& stack) const override;
 
  private:
   std::shared_ptr<DirectedGraph> dg_;
@@ -97,7 +97,7 @@ class ZeroNewVerticesTactic : public Tactic {
       : Tactic(), dg_(dg) {}
   ~ZeroNewVerticesTactic() override {}
 
-  RR optimal_rr(const rr_stack& stack) const;
+  RR optimal_rr(const rr_stack& stack) const override;
 
  private:
   std::shared_ptr<DirectedGraph> dg_;
@@ -110,7 +110,7 @@ class RandomChoiceTactic : public Tactic {
   RandomChoiceTactic();
   ~RandomChoiceTactic() override {}
 
-  RR optimal_rr(const rr_stack& stack) const;
+  RR optimal_rr(const rr_stack& stack) const override;
 };
 
 /** NullTactic always returns null RecurrenceRelation
@@ -120,7 +120,7 @@ class NullTactic : public Tactic {
   NullTactic() : Tactic() {}
   ~NullTactic() override {}
 
-  RR optimal_rr(const rr_stack& stack) const;
+  RR optimal_rr(const rr_stack& stack) const override;
 };
 
 /**
@@ -155,7 +155,7 @@ class TwoCenter_OS_Tactic : public Tactic {
       : Tactic(), lbra0_(lbra0), lket0_(lket0) {}
   ~TwoCenter_OS_Tactic() override {}
 
-  RR optimal_rr(const rr_stack& stack) const;
+  RR optimal_rr(const rr_stack& stack) const override;
 
  private:
   unsigned lbra0_;
