@@ -66,6 +66,6 @@ class ClassInfo {
 template <typename T>
 ClassInfo<T>* ClassInfo<T>::info_;
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

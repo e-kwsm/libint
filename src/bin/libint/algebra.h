@@ -35,7 +35,7 @@ struct OperatorTypes {
   typedef enum { Plus, Minus, Times, Divide } OperatorType;
 };
 static const char OperatorSymbol[][2] = {"+", "-", "*", "/"};
-};  // namespace algebra
+}  // namespace algebra
 
 /**
   AlgebraicOperator is an algebraic operator that
@@ -197,7 +197,7 @@ class AlgebraicOperator : public DGVertex {
   bool this_precomputed() const override { return false; }
 
   std::string label_;
-};
+}
 
 /*
 template <>

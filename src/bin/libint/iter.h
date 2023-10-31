@@ -204,6 +204,6 @@ void SubIteratorBase<T, P>::delete_subobj() {
   P<T>::dealloc_subobj(subobj_);
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

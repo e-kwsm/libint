@@ -151,6 +151,6 @@ typedef boost::mpl::list<
     DummySymmIntegral_11_11_sq, DummySymmIntegral_11_11_int>
     MasterIntegralTypeList;
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif  // header guard

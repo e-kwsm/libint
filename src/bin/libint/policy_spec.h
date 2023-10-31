@@ -494,6 +494,6 @@ struct StdLibintTDPolicy<R1dotR2G12_11_11<BFS>> {
           subobj) {}
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
