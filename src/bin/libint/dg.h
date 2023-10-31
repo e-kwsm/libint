@@ -538,6 +538,6 @@ struct VertexPrinter {
   void operator()(const std::shared_ptr<DGVertex>& v);
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

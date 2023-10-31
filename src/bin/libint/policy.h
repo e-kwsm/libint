@@ -144,6 +144,6 @@ class Policy : public TDPol<T>, public TIPol {
   }
 };
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

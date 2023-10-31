@@ -285,7 +285,7 @@ std::shared_ptr<RecurrenceRelation::ExprType> operator*(
 // Instantiate the RRStack
 typedef RRStackBase<RecurrenceRelation> RRStack;
 
-};  // namespace libint2
+}  // namespace libint2
 
 // #include <vrr_11_twoprep_11.h>
 // #include <hrr.h>
