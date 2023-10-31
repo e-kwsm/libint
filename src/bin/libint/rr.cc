@@ -48,10 +48,10 @@ RecurrenceRelation::~RecurrenceRelation() {}
 // code symbols 3) apply IntSet_to_Ints 4) Apply RRs such that no additional
 // vertices appear 5) call dg->generate_code()
 //
-void RecurrenceRelation::generate_code(
-    const std::shared_ptr<CodeContext>& context,
-    const std::shared_ptr<ImplicitDimensions>& dims,
-    const std::string& funcname, std::ostream& decl, std::ostream& def) {
+void RecurrenceRelation::generate_code(const SafePtr<CodeContext>& context,
+                                       const SafePtr<ImplicitDimensions>& dims,
+                                       const std::string& funcname,
+                                       std::ostream& decl, std::ostream& def) {
   //
   // Check if there is a generic equivalent that can be used
   //
@@ -60,14 +60,14 @@ void RecurrenceRelation::generate_code(
     return;
   }
 
-  const std::shared_ptr<DGVertex> target_vptr = rr_target();
+  const SafePtr<DGVertex> target_vptr = rr_target();
 #if DEBUG
   std::cout << "RecurrenceRelation::generate_code: target = "
             << target_vptr->label() << std::endl;
 #endif
 
-  const std::shared_ptr<CompilationParameters>& cparams = context->cparams();
-  std::shared_ptr<DirectedGraph> dg(new DirectedGraph);
+  const SafePtr<CompilationParameters>& cparams = context->cparams();
+  SafePtr<DirectedGraph> dg(new DirectedGraph);
   dg->set_label(context->label_to_name(label_to_funcname(funcname)));
   generate_graph_(dg);
 
@@ -78,9 +78,8 @@ void RecurrenceRelation::generate_code(
   dg->registry()->return_targets(false);
 
   // check if CSE to be performed
-  typedef IntegralSet<IncableBFSet> ISet;
-  std::shared_ptr<ISet> target =
-      std::dynamic_pointer_cast<ISet, DGVertex>(target_vptr);
+  using ISet = IntegralSet<IncableBFSet>;
+  SafePtr<ISet> target = dynamic_pointer_cast<ISet, DGVertex>(target_vptr);
   if (target) {
     //
     // do CSE only if max_am <= cparams->max_am_opt()
@@ -125,7 +124,7 @@ void RecurrenceRelation::generate_code(
 #endif
 
   // Assign symbols for the target and source integral sets
-  std::shared_ptr<CodeSymbols> symbols(new CodeSymbols);
+  SafePtr<CodeSymbols> symbols(new CodeSymbols);
   assign_symbols_(symbols);
   // Traverse the graph
   dg->optimize_rr_out(context);
@@ -137,20 +136,20 @@ void RecurrenceRelation::generate_code(
   }
 #endif
   // Generate code
-  std::shared_ptr<MemoryManager> memman(new WorstFitMemoryManager());
-  std::shared_ptr<ImplicitDimensions> localdims = adapt_dims_(dims);
+  SafePtr<MemoryManager> memman(new WorstFitMemoryManager());
+  SafePtr<ImplicitDimensions> localdims = adapt_dims_(dims);
   dg->generate_code(context, memman, localdims, symbols, funcname, decl, def);
 
   // extract all external symbols -- these will be members of the evaluator
   // structure
-  std::shared_ptr<ExtractExternSymbols> extractor(new ExtractExternSymbols);
+  SafePtr<ExtractExternSymbols> extractor(new ExtractExternSymbols);
   dg->foreach (*extractor);
   const ExtractExternSymbols::Symbols& externsymbols = extractor->symbols();
 
 #if 0
   // print out the symbols
   std::cout << "Recovered symbols from DirectedGraph for " << label() << std::endl;
-  typedef ExtractExternSymbols::Symbols::const_iterator citer;
+  using citer = ExtractExternSymbols::Symbols::const_iterator;
   citer end = externsymbols.end();
   for(citer t=externsymbols.begin(); t!=end; ++t)
     std::cout << *t << std::endl;
@@ -166,17 +165,17 @@ void RecurrenceRelation::generate_code(
   // get this RR InstanceID
   RRStack::InstanceID myid =
       RRStack::Instance()
-          ->find(std::enable_shared_from_this<this_type>::shared_from_this())
+          ->find(EnableSafePtrFromThis<this_type>::SafePtr_from_this())
           .first;
 
   // For each task which requires this RR:
   // 1) update max stack size
   // 2) append external symbols from this RR to its list
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
-  typedef LibraryTaskManager::TasksCIter tciter;
+  using tciter = LibraryTaskManager::TasksCIter;
   const tciter tend = taskmgr.plast();
   for (tciter t = taskmgr.first(); t != tend; ++t) {
-    const std::shared_ptr<TaskExternSymbols> tsymbols = t->symbols();
+    const SafePtr<TaskExternSymbols> tsymbols = t->symbols();
     if (tsymbols->find(myid)) {
       // update max stack size
       t->params()->max_vector_stack_size(memman->max_memory_used());
@@ -190,26 +189,27 @@ void RecurrenceRelation::generate_code(
 
 namespace libint2 {
 // generate_generic_code reuses this function from dg.cc:
-extern std::string declare_function(
-    const std::shared_ptr<CodeContext>& context,
-    const std::shared_ptr<ImplicitDimensions>& dims,
-    const std::shared_ptr<CodeSymbols>& args, const std::string& tlabel,
-    const std::string& function_descr, std::ostream& decl);
+extern std::string declare_function(const SafePtr<CodeContext>& context,
+                                    const SafePtr<ImplicitDimensions>& dims,
+                                    const SafePtr<CodeSymbols>& args,
+                                    const std::string& tlabel,
+                                    const std::string& function_descr,
+                                    std::ostream& decl);
 }  // namespace libint2
 
 void RecurrenceRelation::generate_generic_code(
-    const std::shared_ptr<CodeContext>& context,
-    const std::shared_ptr<ImplicitDimensions>& dims,
-    const std::string& funcname, std::ostream& decl, std::ostream& def) {
-  const std::shared_ptr<DGVertex> target_vptr = rr_target();
+    const SafePtr<CodeContext>& context,
+    const SafePtr<ImplicitDimensions>& dims, const std::string& funcname,
+    std::ostream& decl, std::ostream& def) {
+  const SafePtr<DGVertex> target_vptr = rr_target();
   std::cout << "RecurrenceRelation::generate_generic_code: target = "
             << target_vptr->label() << std::endl;
 
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
   const std::string tlabel = taskmgr.current().label();
-  std::shared_ptr<ImplicitDimensions> localdims = adapt_dims_(dims);
+  SafePtr<ImplicitDimensions> localdims = adapt_dims_(dims);
   // Assign symbols for the target and source integral sets
-  std::shared_ptr<CodeSymbols> symbols(new CodeSymbols);
+  SafePtr<CodeSymbols> symbols(new CodeSymbols);
   assign_symbols_(symbols);
 
   // declare function
@@ -239,8 +239,8 @@ void RecurrenceRelation::generate_generic_code(
   def << context->code_postfix();
 }
 
-std::shared_ptr<DirectedGraph> RecurrenceRelation::generate_graph_(
-    const std::shared_ptr<DirectedGraph>& dg) {
+SafePtr<DirectedGraph> RecurrenceRelation::generate_graph_(
+    const SafePtr<DirectedGraph>& dg) {
   dg->append_target(rr_target());
   for (unsigned int c = 0; c < num_children(); c++)
     dg->append_vertex(rr_child(c));
@@ -248,8 +248,8 @@ std::shared_ptr<DirectedGraph> RecurrenceRelation::generate_graph_(
   cout << "RecurrenceRelation::generate_code -- the number of integral sets = "
        << dg->num_vertices() << endl;
 #endif
-  std::shared_ptr<Strategy> strat(new Strategy);
-  std::shared_ptr<Tactic> ntactic(new NullTactic);
+  SafePtr<Strategy> strat(new Strategy);
+  SafePtr<Tactic> ntactic(new NullTactic);
   // Always need to unroll integral sets first
   dg->registry()->unroll_threshold(std::numeric_limits<unsigned int>::max());
   dg->apply(strat, ntactic);
@@ -263,7 +263,7 @@ std::shared_ptr<DirectedGraph> RecurrenceRelation::generate_graph_(
     dg->apply_at<&DGVertex::not_need_to_compute>(rr_child(c));
   // Apply recurrence relations using existing vertices on the graph (i.e.
   // such that no new vertices appear)
-  std::shared_ptr<Tactic> ztactic(new FewestNewVerticesTactic(dg));
+  SafePtr<Tactic> ztactic(new FewestNewVerticesTactic(dg));
   dg->apply(strat, ztactic);
 #if DEBUG
   cout << "RecurrenceRelation::generate_code -- should be same as previous = "
@@ -273,8 +273,7 @@ std::shared_ptr<DirectedGraph> RecurrenceRelation::generate_graph_(
   return dg;
 }
 
-void RecurrenceRelation::assign_symbols_(
-    std::shared_ptr<CodeSymbols>& symbols) {
+void RecurrenceRelation::assign_symbols_(SafePtr<CodeSymbols>& symbols) {
   // Set symbols on the target and children sets
   rr_target()->set_symbol("target");
   symbols->append_symbol("target");
@@ -287,8 +286,8 @@ void RecurrenceRelation::assign_symbols_(
   }
 }
 
-std::shared_ptr<ImplicitDimensions> RecurrenceRelation::adapt_dims_(
-    const std::shared_ptr<ImplicitDimensions>& dims) const {
+SafePtr<ImplicitDimensions> RecurrenceRelation::adapt_dims_(
+    const SafePtr<ImplicitDimensions>& dims) const {
   return dims;
 }
 
@@ -302,26 +301,25 @@ std::string RecurrenceRelation::description() const {
   return descr;
 }
 
-void RecurrenceRelation::add_expr(const std::shared_ptr<ExprType>& expr,
-                                  int minus) {
+void RecurrenceRelation::add_expr(const SafePtr<ExprType>& expr, int minus) {
   if (expr_ == 0) {
     if (minus != -1) {
       expr_ = expr;
     } else {
       using libint2::prefactor::Scalar;
-      std::shared_ptr<ExprType> negative(
+      SafePtr<ExprType> negative(
           new ExprType(ExprType::OperatorTypes::Times, expr, Scalar(-1.0)));
       expr_ = negative;
       ++nflops_;
     }
   } else {
     if (minus != -1) {
-      std::shared_ptr<ExprType> sum(
+      SafePtr<ExprType> sum(
           new ExprType(ExprType::OperatorTypes::Plus, expr_, expr));
       expr_ = sum;
       ++nflops_;
     } else {
-      std::shared_ptr<ExprType> sum(
+      SafePtr<ExprType> sum(
           new ExprType(ExprType::OperatorTypes::Minus, expr_, expr));
       expr_ = sum;
       ++nflops_;
@@ -337,8 +335,8 @@ bool RecurrenceRelation::invariant_type() const {
 }
 
 std::string RecurrenceRelation::spfunction_call(
-    const std::shared_ptr<CodeContext>& context,
-    const std::shared_ptr<ImplicitDimensions>& dims) const {
+    const SafePtr<CodeContext>& context,
+    const SafePtr<ImplicitDimensions>& dims) const {
   ostringstream os;
   os << context->label_to_name(
             label_to_funcname(context->cparams()->api_prefix() + label()))
@@ -356,7 +354,7 @@ std::string RecurrenceRelation::spfunction_call(
 }
 
 bool RecurrenceRelation::has_generic(
-    const std::shared_ptr<CompilationParameters>& cparams) const {
+    const SafePtr<CompilationParameters>& cparams) const {
   return false;
 }
 
@@ -367,8 +365,8 @@ std::string RecurrenceRelation::generic_header() const {
 }
 
 std::string RecurrenceRelation::generic_instance(
-    const std::shared_ptr<CodeContext>& context,
-    const std::shared_ptr<CodeSymbols>& args) const {
+    const SafePtr<CodeContext>& context,
+    const SafePtr<CodeSymbols>& args) const {
   throw std::logic_error(
       "RecurrenceRelation::generic_instance() -- should not be called! Check "
       "if DerivedRecurrenceRelation::generic_instance() is implemented");
@@ -386,61 +384,57 @@ size_t RecurrenceRelation::size_of_children() const {
 namespace libint2 {
 namespace algebra {
 /// these operators are extremely useful to write compact expressions
-std::shared_ptr<RecurrenceRelation::ExprType> operator+(
-    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
-  typedef RecurrenceRelation::ExprType Oper;
-  return std::shared_ptr<Oper>(new Oper(Oper::OperatorTypes::Plus, A, B));
+SafePtr<RecurrenceRelation::ExprType> operator+(const SafePtr<DGVertex>& A,
+                                                const SafePtr<DGVertex>& B) {
+  using Oper = RecurrenceRelation::ExprType;
+  return SafePtr<Oper>(new Oper(Oper::OperatorTypes::Plus, A, B));
 }
-std::shared_ptr<RecurrenceRelation::ExprType> operator-(
-    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
-  typedef RecurrenceRelation::ExprType Oper;
-  return std::shared_ptr<Oper>(new Oper(Oper::OperatorTypes::Minus, A, B));
+SafePtr<RecurrenceRelation::ExprType> operator-(const SafePtr<DGVertex>& A,
+                                                const SafePtr<DGVertex>& B) {
+  using Oper = RecurrenceRelation::ExprType;
+  return SafePtr<Oper>(new Oper(Oper::OperatorTypes::Minus, A, B));
 }
-std::shared_ptr<RecurrenceRelation::ExprType> operator*(
-    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
-  typedef RecurrenceRelation::ExprType Oper;
-  return std::shared_ptr<Oper>(new Oper(Oper::OperatorTypes::Times, A, B));
+SafePtr<RecurrenceRelation::ExprType> operator*(const SafePtr<DGVertex>& A,
+                                                const SafePtr<DGVertex>& B) {
+  using Oper = RecurrenceRelation::ExprType;
+  return SafePtr<Oper>(new Oper(Oper::OperatorTypes::Times, A, B));
 }
-std::shared_ptr<RecurrenceRelation::ExprType> operator/(
-    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
-  typedef RecurrenceRelation::ExprType Oper;
-  return std::shared_ptr<Oper>(new Oper(Oper::OperatorTypes::Divide, A, B));
+SafePtr<RecurrenceRelation::ExprType> operator/(const SafePtr<DGVertex>& A,
+                                                const SafePtr<DGVertex>& B) {
+  using Oper = RecurrenceRelation::ExprType;
+  return SafePtr<Oper>(new Oper(Oper::OperatorTypes::Divide, A, B));
 }
-const std::shared_ptr<RecurrenceRelation::ExprType>& operator+=(
-    std::shared_ptr<RecurrenceRelation::ExprType>& A,
-    const std::shared_ptr<DGVertex>& B) {
-  typedef RecurrenceRelation::ExprType Oper;
+const SafePtr<RecurrenceRelation::ExprType>& operator+=(
+    SafePtr<RecurrenceRelation::ExprType>& A, const SafePtr<DGVertex>& B) {
+  using Oper = RecurrenceRelation::ExprType;
   if (A) {
-    const std::shared_ptr<Oper>& Sum = A + B;
+    const SafePtr<Oper>& Sum = A + B;
     A = Sum;
   } else
     A = Scalar(0) + B;
   return A;
 }
-const std::shared_ptr<RecurrenceRelation::ExprType>& operator-=(
-    std::shared_ptr<RecurrenceRelation::ExprType>& A,
-    const std::shared_ptr<DGVertex>& B) {
-  typedef RecurrenceRelation::ExprType Oper;
+const SafePtr<RecurrenceRelation::ExprType>& operator-=(
+    SafePtr<RecurrenceRelation::ExprType>& A, const SafePtr<DGVertex>& B) {
+  using Oper = RecurrenceRelation::ExprType;
   if (A) {
-    const std::shared_ptr<Oper>& Diff = A - B;
+    const SafePtr<Oper>& Diff = A - B;
     A = Diff;
   } else
     A = Scalar(0) - B;
   return A;
 }
-const std::shared_ptr<RecurrenceRelation::ExprType>& operator*=(
-    std::shared_ptr<RecurrenceRelation::ExprType>& A,
-    const std::shared_ptr<DGVertex>& B) {
-  typedef RecurrenceRelation::ExprType Oper;
-  const std::shared_ptr<Oper>& Product = A * B;
+const SafePtr<RecurrenceRelation::ExprType>& operator*=(
+    SafePtr<RecurrenceRelation::ExprType>& A, const SafePtr<DGVertex>& B) {
+  using Oper = RecurrenceRelation::ExprType;
+  const SafePtr<Oper>& Product = A * B;
   A = Product;
   return A;
 }
-const std::shared_ptr<RecurrenceRelation::ExprType>& operator/=(
-    std::shared_ptr<RecurrenceRelation::ExprType>& A,
-    const std::shared_ptr<DGVertex>& B) {
-  typedef RecurrenceRelation::ExprType Oper;
-  const std::shared_ptr<Oper>& Quotient = A / B;
+const SafePtr<RecurrenceRelation::ExprType>& operator/=(
+    SafePtr<RecurrenceRelation::ExprType>& A, const SafePtr<DGVertex>& B) {
+  using Oper = RecurrenceRelation::ExprType;
+  const SafePtr<Oper>& Quotient = A / B;
   A = Quotient;
   return A;
 }

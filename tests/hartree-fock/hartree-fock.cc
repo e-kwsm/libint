@@ -38,11 +38,12 @@
 #endif
 
 using real_t = libint2::scalar_type;
-typedef Eigen::Matrix<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
-    Matrix;  // import dense, dynamically sized Matrix type from Eigen;
-             // this is a matrix with row-major storage
-             // (http://en.wikipedia.org/wiki/Row-major_order) to meet the
-             // layout of the integrals returned by the Libint integral library
+// import dense, dynamically sized Matrix type from Eigen;
+// this is a matrix with row-major storage
+// (http://en.wikipedia.org/wiki/Row-major_order) to meet the layout of the
+// integrals returned by the Libint integral library
+using Matrix =
+    Eigen::Matrix<real_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
 struct Atom {
   int atomic_number;

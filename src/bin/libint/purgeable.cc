@@ -33,13 +33,13 @@ PurgeableStacks* PurgeableStacks::Instance() {
 }
 
 void PurgeableStacks::register_stack(stack_type* stack) {
-  typedef std::vector<stack_type*>::const_iterator citer;
+  using citer = std::vector<stack_type*>::const_iterator;
   citer v = std::find(stacks_.begin(), stacks_.end(), stack);
   assert(v == stacks_.end());
   stacks_.push_back(stack);
 }
 
 void PurgeableStacks::purge() {
-  typedef std::vector<stack_type*>::iterator iter;
+  using iter = std::vector<stack_type*>::iterator;
   for (iter s = stacks_.begin(); s != stacks_.end(); ++s) (*s)->purge();
 }

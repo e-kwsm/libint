@@ -29,7 +29,7 @@
 #include <test_eri/eri.h>
 #endif
 
-typedef unsigned int uint;
+using uint = unsigned int;
 
 TEST_CASE("Slater/Yukawa integrals", "[engine][2-body]") {
   std::vector<Shell> obs{

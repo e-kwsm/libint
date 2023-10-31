@@ -39,9 +39,8 @@ void ExtractExternSymbols::operator()(const VertexPtr& v) {
   if (v->precomputed()) {
     // discard compile-time entities
     {
-      typedef CTimeEntity<double> cdouble;
-      std::shared_ptr<cdouble> ptr_cast =
-          std::dynamic_pointer_cast<cdouble, DGVertex>(v);
+      using cdouble = CTimeEntity<double>;
+      SafePtr<cdouble> ptr_cast = dynamic_pointer_cast<cdouble, DGVertex>(v);
       if (ptr_cast) {
         return;
       }
@@ -49,12 +48,12 @@ void ExtractExternSymbols::operator()(const VertexPtr& v) {
 
     // discard unrolled integral sets composed of precomputed integrals
     {
-      std::shared_ptr<DGArcRR> arcrr;
+      SafePtr<DGArcRR> arcrr;
       if (v->size() == 1 && v->num_exit_arcs() == 1 &&
-          ((arcrr = std::dynamic_pointer_cast<DGArcRR, DGArc>(
+          ((arcrr = dynamic_pointer_cast<DGArcRR, DGArc>(
                 *(v->first_exit_arc()))) != 0
-               ? std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
-                                           RecurrenceRelation>(arcrr->rr()) != 0
+               ? dynamic_pointer_cast<IntegralSet_to_Integrals_base,
+                                      RecurrenceRelation>(arcrr->rr()) != 0
                : false) &&
           (*(v->first_exit_arc()))->dest()->precomputed()) {
         return;
@@ -67,7 +66,7 @@ void ExtractExternSymbols::operator()(const VertexPtr& v) {
 
 const ExtractExternSymbols::Symbols& ExtractExternSymbols::symbols() const {
   symbols_.clear();
-  typedef LabelMap::const_iterator citer;
+  using citer = LabelMap::const_iterator;
   citer end = map_.end();
   for (citer l = map_.begin(); l != end; ++l) {
     symbols_.push_back(l->first);
@@ -80,19 +79,18 @@ const ExtractExternSymbols::Symbols& ExtractExternSymbols::symbols() const {
 
 void ExtractRR::operator()(const VertexPtr& v) {
   if (v->num_exit_arcs() != 0) {
-    std::shared_ptr<DGArc> arc = *(v->first_exit_arc());
-    std::shared_ptr<DGArcRR> arc_rr =
-        std::dynamic_pointer_cast<DGArcRR, DGArc>(arc);
+    SafePtr<DGArc> arc = *(v->first_exit_arc());
+    SafePtr<DGArcRR> arc_rr = dynamic_pointer_cast<DGArcRR, DGArc>(arc);
     if (arc_rr != 0) {
-      std::shared_ptr<RecurrenceRelation> rr = arc_rr->rr();
-      std::shared_ptr<IntegralSet_to_Integrals_base> iset_to_i =
-          std::dynamic_pointer_cast<IntegralSet_to_Integrals_base,
-                                    RecurrenceRelation>(rr);
-      std::shared_ptr<Uncontract_Integral_base> unc_i =
-          std::dynamic_pointer_cast<Uncontract_Integral_base,
-                                    RecurrenceRelation>(rr);
+      SafePtr<RecurrenceRelation> rr = arc_rr->rr();
+      SafePtr<IntegralSet_to_Integrals_base> iset_to_i =
+          dynamic_pointer_cast<IntegralSet_to_Integrals_base,
+                               RecurrenceRelation>(rr);
+      SafePtr<Uncontract_Integral_base> unc_i =
+          dynamic_pointer_cast<Uncontract_Integral_base, RecurrenceRelation>(
+              rr);
       if (iset_to_i == 0 && unc_i == 0) {
-        const std::shared_ptr<RRStack>& rrstack = RRStack::Instance();
+        const SafePtr<RRStack>& rrstack = RRStack::Instance();
         // RRStack must be guaranteed to have this rr
         const RRStack::value_type rrstackvalue = rrstack->find(rr);
         const RRid rrid = rrstackvalue.first;
@@ -104,7 +102,7 @@ void ExtractRR::operator()(const VertexPtr& v) {
 
 const ExtractRR::RRList& ExtractRR::rrlist() const {
   rrlist_.clear();
-  typedef RRMap::const_iterator citer;
+  using citer = RRMap::const_iterator;
   citer end = map_.end();
   for (citer rr = map_.begin(); rr != end; ++rr) {
     rrlist_.push_back(rr->first);

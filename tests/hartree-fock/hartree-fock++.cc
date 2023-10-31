@@ -70,13 +70,12 @@ constexpr auto screening_method = libint2::ScreeningMethod::SchwarzInf;
 // N.B. integral engine timings are controled in engine.h
 #define REPORT_INTEGRAL_TIMINGS
 
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
-    Matrix;  // import dense, dynamically sized Matrix type from Eigen;
-             // this is a matrix with row-major storage
-             // (http://en.wikipedia.org/wiki/Row-major_order)
+// import dense, dynamically sized Matrix type from Eigen;
+// this is a matrix with row-major storage
+// (http://en.wikipedia.org/wiki/Row-major_order)
+using Matrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 // to meet the layout of the integrals returned by the Libint integral library
-typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic, Eigen::Dynamic>
-    DiagonalMatrix;
+usinig DiagonalMatrix = Eigen::DiagonalMatrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
 #ifdef LIBINT2_HAVE_BTAS
 typedef btas::Tensor<double> tensor;
