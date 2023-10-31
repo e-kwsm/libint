@@ -48,7 +48,7 @@ std::array<T, N> make_std_array(T* data) {
   std::copy(data, data + N, result.begin());
   return result;
 }
-};  // namespace libint2
+}  // namespace libint2
 
 std::array<LIBINT2_UINT_LEAST64, CGShell::max_qn + 1> CGF::key_l_offset(
     make_std_array<LIBINT2_UINT_LEAST64, CGShell::max_qn + 1>(
