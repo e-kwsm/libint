@@ -73,10 +73,10 @@ template <typename Sequence,
               typename Sequence::value_type>::is_integer>::type>
 struct FixedOrderedIntegerPartitionIterator {
  public:
-  typedef const Sequence& value_type;
-  typedef typename Sequence::value_type integer_type;
-  typedef typename std::make_unsigned<integer_type>::type unsigned_integer_type;
-  typedef typename Sequence::size_type size_type;
+  using value_type = const Sequence&;
+  using integer_type = typename Sequence::value_type;
+  using unsigned_integer_type = typename std::make_unsigned<integer_type>::type;
+  using size_type = typename Sequence::size_type;
 
   /// \param n the positive integer to be partitioned
   template <typename Seq = Sequence>

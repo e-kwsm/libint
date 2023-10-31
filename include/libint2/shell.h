@@ -718,7 +718,7 @@ constexpr Real bc_real(Int i, Int j) {
  * Shell::renorm() ).
  */
 struct Shell {
-  typedef double real_t;
+  using real_t = double;
 
   /// contracted Gaussian = angular momentum + sph/cart flag + contraction
   /// coefficients
@@ -875,7 +875,7 @@ struct Shell {
   }
 
   struct defaultable_boolean {
-    typedef enum { false_value = 0, true_value = 1, default_value = 2 } value_t;
+    enum value_t { false_value = 0, true_value = 1, default_value = 2 };
     defaultable_boolean() : value_(default_value) {}
     defaultable_boolean(bool v) : value_(static_cast<value_t>(v ? 1 : 0)) {}
     bool is_default() const { return value_ == default_value; }
@@ -1077,7 +1077,7 @@ inline void default_screening_method(ScreeningMethod screening_method) {
 /// ShellPair contains pre-computed shell-pair data, primitive pairs are
 /// screened to finite precision
 struct ShellPair {
-  typedef Shell::real_t real_t;
+  using real_t = Shell::real_t;
 
   // clang-format off
       /// PrimPairData contains pre-computed primitive pair data
