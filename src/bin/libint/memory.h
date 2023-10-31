@@ -310,6 +310,6 @@ bool can_merge(const MemoryManager::MemBlock& A,
 /// Merge blocks, if possible
 void merge(MemBlockSet& blocks);
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

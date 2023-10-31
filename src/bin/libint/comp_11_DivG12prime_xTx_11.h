@@ -129,6 +129,6 @@ CR_11_DivG12prime_xTx_11<F>::CR_11_DivG12prime_xTx_11(
     expr_ *= Scalar(-4.0) * Scalar("gamma_bra") * Scalar("gamma_ket");
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

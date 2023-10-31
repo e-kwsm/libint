@@ -931,6 +931,6 @@ struct TrivialBFSet<CGF1d<Axis> > {
     };
 #endif
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif

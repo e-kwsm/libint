@@ -210,6 +210,6 @@ label_ = os.str();
   typedef R1dotR2G12_11_11<CGF> R1dotR2G12_11_11_int;
 #endif
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
