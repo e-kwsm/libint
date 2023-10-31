@@ -28,6 +28,7 @@ using namespace std;
 using namespace libint2;
 
 namespace {
+const char mh_name[] = "libint2.h";
 const char th_name[] = "libint2_types.h";
 const char ph_name[] = "libint2_params.h";
 const char ih_name[] = "libint2_iface.h";
@@ -47,9 +48,8 @@ inline void header_guard_close(std::ostream& os) {
 
 };  // namespace
 
-Libint2Iface::Libint2Iface(
-    const std::shared_ptr<CompilationParameters>& cparams,
-    const std::shared_ptr<CodeContext>& ctext)
+Libint2Iface::Libint2Iface(const SafePtr<CompilationParameters>& cparams,
+                           const SafePtr<CodeContext>& ctext)
     : null_str_(""),
       oss_(),
       cparams_(cparams),
@@ -110,7 +110,7 @@ Libint2Iface::Libint2Iface(
 
   // print out declarations for the array of pointers to evaluator functions
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
-  typedef LibraryTaskManager::TasksCIter tciter;
+  using tciter = LibraryTaskManager::TasksCIter;
   for (tciter t = taskmgr.first(); t != taskmgr.plast(); ++t) {
     const std::string& tlabel = t->label();
     const unsigned int nbf = cparams_->num_bf(tlabel);
@@ -213,9 +213,9 @@ Libint2Iface::Libint2Iface(
 Libint2Iface::~Libint2Iface() {
   // For each task, print out defines for stack dimensions
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
-  typedef LibraryTaskManager::TasksCIter tciter;
+  using tciter = LibraryTaskManager::TasksCIter;
   for (tciter t = taskmgr.first(); t != taskmgr.plast(); ++t) {
-    std::shared_ptr<TaskParameters> tparams = t->params();
+    SafePtr<TaskParameters> tparams = t->params();
     const std::string& tlabel = t->label();
     ph_ << macro_define(tlabel, "NUM_TARGETS", tparams->max_ntarget());
     const unsigned int max_am = tparams->max_am();
@@ -247,7 +247,6 @@ Libint2Iface::~Libint2Iface() {
 
   // For each task, generate the evaluator type
   th_ << "#include <libint2/util/vector.h>" << std::endl;
-  th_ << "#include <libint2/util/intrinsic_types.h>" << std::endl;
   th_ << "#include <libint2/util/intrinsic_operations.h>" << std::endl;
   th_ << "#include <libint2/util/timer.h>"
       << std::endl;  // in case LIBINT2_PROFILE is on
@@ -489,11 +488,11 @@ void Libint2Iface::generate_inteval_type(std::ostream& os) {
   // If need to generate single type for all tasks, take a union of all symbols
   // else process each task separately
   //
-  typedef LibraryTaskManager::TasksCIter tciter;
+  using tciter = LibraryTaskManager::TasksCIter;
   const tciter tend =
       cparams_->single_evaltype() ? taskmgr.first() + 1 : taskmgr.plast();
   for (tciter t = taskmgr.first(); t != tend; ++t) {
-    const std::shared_ptr<TaskExternSymbols> tsymbols = t->symbols();
+    const SafePtr<TaskExternSymbols> tsymbols = t->symbols();
 
     // Prologue
     os << "typedef struct {" << std::endl;
@@ -501,14 +500,14 @@ void Libint2Iface::generate_inteval_type(std::ostream& os) {
     //
     // Declare external symbols
     //
-    typedef TaskExternSymbols::SymbolList SymbolList;
+    using SymbolList = TaskExternSymbols::SymbolList;
     std::string tlabel;
     SymbolList symbols;
     if (cparams_->single_evaltype()) {
       TaskExternSymbols composite_symbols;
       const tciter tend = taskmgr.plast();
       for (tciter t = taskmgr.first(); t != tend; ++t) {
-        const std::shared_ptr<TaskExternSymbols> tsymbols = t->symbols();
+        const SafePtr<TaskExternSymbols> tsymbols = t->symbols();
         composite_symbols.add(tsymbols->symbols());
       }
       symbols = composite_symbols.symbols();
@@ -599,7 +598,7 @@ void Libint2Iface::generate_inteval_type(std::ostream& os) {
       unsigned int max_ntargets = 0;
       const tciter tend = taskmgr.plast();
       for (tciter t = taskmgr.first(); t != tend; ++t) {
-        std::shared_ptr<TaskParameters> tparams = t->params();
+        SafePtr<TaskParameters> tparams = t->params();
         max_ntargets = std::max(max_ntargets, tparams->max_ntarget());
       }
       ostringstream oss;
