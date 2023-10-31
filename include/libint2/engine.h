@@ -74,7 +74,7 @@ namespace libint2 {
 /// contracted Gaussian geminal = \f$ \sum_i c_i \exp(- \alpha r_{12}^2) \f$,
 /// represented as a vector of
 /// {\f$ \alpha_i \f$, \f$ c_i \f$ } pairs
-typedef std::vector<std::pair<double, double>> ContractedGaussianGeminal;
+using ContractedGaussianGeminal = std::vector<std::pair<double, double>>;
 
 constexpr size_t num_geometrical_derivatives(size_t ncenter,
                                              size_t deriv_order) {
@@ -199,8 +199,7 @@ inline constexpr int rank(Operator oper) {
 
 namespace detail {
 struct default_operator_traits {
-  typedef struct {
-  } oper_params_type;
+  struct oper_params_type {};
   static oper_params_type default_params() { return oper_params_type{}; }
   static constexpr auto nopers = 1u;
   // N.B.: Below field means we *should* template specialize operator_traits for
@@ -228,13 +227,13 @@ template <>
 struct operator_traits<Operator::nuclear>
     : public detail::default_operator_traits {
   /// point charges and their positions
-  typedef std::vector<std::pair<scalar_type, std::array<scalar_type, 3>>>
-      oper_params_type;
+  using oper_params_type =
+      std::vector<std::pair<scalar_type, std::array<scalar_type, 3>>>;
   static oper_params_type default_params() { return oper_params_type{}; }
 #ifndef LIBINT_USER_DEFINED_REAL
-  typedef const libint2::FmEval_Chebyshev7<scalar_type> core_eval_type;
+  using core_eval_type = const libint2::FmEval_Chebyshev7<scalar_type>;
 #else
-  typedef const libint2::FmEval_Reference<scalar_type> core_eval_type;
+  using core_eval_type = const libint2::FmEval_Reference<scalar_type>;
 #endif
 };
 template <>
@@ -249,16 +248,15 @@ struct operator_traits<Operator::erf_nuclear>
     : public detail::default_operator_traits {
   /// the attenuation parameter (0 = zero potential, +infinity = no attenuation)
   /// + point charges and positions
-  typedef std::tuple<scalar_type, typename operator_traits<
-                                      Operator::nuclear>::oper_params_type>
-      oper_params_type;
+  using oper_params_type =
+      std::tuple<scalar_type,
+                 typename operator_traits<Operator::nuclear>::oper_params_type>;
   static oper_params_type default_params() {
     return std::make_tuple(
         0, operator_traits<Operator::nuclear>::default_params());
   }
-  typedef const libint2::GenericGmEval<
-      libint2::os_core_ints::erf_coulomb_gm_eval<scalar_type>>
-      core_eval_type;
+  using core_eval_type = const libint2::GenericGmEval<
+      libint2::os_core_ints::erf_coulomb_gm_eval<scalar_type>>;
 };
 
 template <>
@@ -266,15 +264,14 @@ struct operator_traits<Operator::erfc_nuclear>
     : public detail::default_operator_traits {
   /// the attenuation parameter (0 = no attenuation, +infinity = zero potential)
   /// + point charges and positions
-  typedef typename operator_traits<Operator::erf_nuclear>::oper_params_type
-      oper_params_type;
+  using oper_params_type =
+      typename operator_traits<Operator::erf_nuclear>::oper_params_type;
   static oper_params_type default_params() {
     return std::make_tuple(
         0, operator_traits<Operator::nuclear>::default_params());
   }
-  typedef const libint2::GenericGmEval<
-      libint2::os_core_ints::erfc_coulomb_gm_eval<scalar_type>>
-      core_eval_type;
+  using core_eval_type = const libint2::GenericGmEval<
+      libint2::os_core_ints::erfc_coulomb_gm_eval<scalar_type>>;
 };
 
 template <>
@@ -282,7 +279,7 @@ struct operator_traits<Operator::emultipole1>
     : public detail::default_operator_traits {
   /// Cartesian coordinates of the origin with respect to which the dipole
   /// moment is defined
-  typedef std::array<double, 3> oper_params_type;
+  using oper_params_type = std::array<double, 3>;
   static oper_params_type default_params() {
     return oper_params_type{{0, 0, 0}};
   }
@@ -312,16 +309,16 @@ template <>
 struct operator_traits<Operator::coulomb>
     : public detail::default_operator_traits {
 #ifndef LIBINT_USER_DEFINED_REAL
-  typedef const libint2::FmEval_Chebyshev7<scalar_type> core_eval_type;
+  using core_eval_type = const libint2::FmEval_Chebyshev7<scalar_type>;
 #else
-  typedef const libint2::FmEval_Reference<scalar_type> core_eval_type;
+  using core_eval_type = const libint2::FmEval_Reference<scalar_type>;
 #endif
 };
 namespace detail {
 template <int K>
 struct cgtg_operator_traits : public detail::default_operator_traits {
-  typedef libint2::GaussianGmEval<scalar_type, K> core_eval_type;
-  typedef ContractedGaussianGeminal oper_params_type;
+  using core_eval_type = libint2::GaussianGmEval<scalar_type, K>;
+  using oper_params_type = ContractedGaussianGeminal;
 };
 }  // namespace detail
 template <>
@@ -337,54 +334,50 @@ struct operator_traits<Operator::delcgtg2>
 template <>
 struct operator_traits<Operator::delta>
     : public detail::default_operator_traits {
-  typedef const libint2::GenericGmEval<
-      libint2::os_core_ints::delta_gm_eval<scalar_type>>
-      core_eval_type;
+  using core_eval_type = const libint2::GenericGmEval<
+      libint2::os_core_ints::delta_gm_eval<scalar_type>>;
 };
 
 template <>
 struct operator_traits<Operator::r12> : public detail::default_operator_traits {
-  typedef const libint2::GenericGmEval<
-      libint2::os_core_ints::r12_xx_K_gm_eval<scalar_type, 1>>
-      core_eval_type;
+  using core_eval_type = const libint2::GenericGmEval<
+      libint2::os_core_ints::r12_xx_K_gm_eval<scalar_type, 1>>;
 };
 
 template <>
 struct operator_traits<Operator::erf_coulomb>
     : public detail::default_operator_traits {
   /// the attenuation parameter (0 = zero potential, +infinity = no attenuation)
-  typedef scalar_type oper_params_type;
+  using oper_params_type = scalar_type;
   static oper_params_type default_params() { return oper_params_type{0}; }
-  typedef const libint2::GenericGmEval<
-      libint2::os_core_ints::erf_coulomb_gm_eval<scalar_type>>
-      core_eval_type;
+  using core_eval_type = const libint2::GenericGmEval<
+      libint2::os_core_ints::erf_coulomb_gm_eval<scalar_type>>;
 };
 template <>
 struct operator_traits<Operator::erfc_coulomb>
     : public detail::default_operator_traits {
   /// the attenuation parameter (0 = no attenuation, +infinity = zero potential)
-  typedef scalar_type oper_params_type;
+  using oper_params_type = scalar_type;
   static oper_params_type default_params() { return oper_params_type{0}; }
-  typedef const libint2::GenericGmEval<
-      libint2::os_core_ints::erfc_coulomb_gm_eval<scalar_type>>
-      core_eval_type;
+  using core_eval_type = const libint2::GenericGmEval<
+      libint2::os_core_ints::erfc_coulomb_gm_eval<scalar_type>>;
 };
 
 template <>
 struct operator_traits<Operator::stg> : public detail::default_operator_traits {
   /// the attenuation parameter (0 = constant, infinity = delta-function)
-  typedef scalar_type oper_params_type;
+  using oper_params_type = scalar_type;
   static oper_params_type default_params() { return oper_params_type{0}; }
-  typedef const libint2::TennoGmEval<scalar_type> core_eval_type;
+  using core_eval_type = const libint2::TennoGmEval<scalar_type>;
 };
 
 template <>
 struct operator_traits<Operator::stg_x_coulomb>
     : public detail::default_operator_traits {
   /// the attenuation parameter (0 = coulomb, infinity = delta-function)
-  typedef scalar_type oper_params_type;
+  using oper_params_type = scalar_type;
   static oper_params_type default_params() { return oper_params_type{0}; }
-  typedef const libint2::TennoGmEval<scalar_type> core_eval_type;
+  using core_eval_type = const libint2::TennoGmEval<scalar_type>;
 };
 
 /// the runtime version of \c operator_traits<oper>::default_params()
@@ -443,8 +436,7 @@ constexpr size_t nderivorders_2body = LIBINT2_MAX_DERIV_ORDER + 1;
  */
 class Engine {
  private:
-  typedef struct {
-  } empty_pod;
+  struct empty_pod {};
 
  public:
   static constexpr auto max_ntargets =

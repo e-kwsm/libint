@@ -28,21 +28,21 @@ namespace detail {
 template <class T1, class T2>
 class compressed_pair : private T1, private T2 {
  public:
-  typedef T1 first_type;
-  typedef T2 second_type;
-  typedef typename std::add_const<first_type>::type first_const_type;
-  typedef typename std::add_const<second_type>::type second_const_type;
-  typedef typename std::add_lvalue_reference<first_type>::type first_reference;
-  typedef
-      typename std::add_lvalue_reference<second_type>::type second_reference;
-  typedef typename std::add_lvalue_reference<first_const_type>::type
-      first_const_reference;
-  typedef typename std::add_lvalue_reference<second_const_type>::type
-      second_const_reference;
-  typedef typename std::add_rvalue_reference<first_type>::type
-      first_rvalue_reference;
-  typedef typename std::add_rvalue_reference<second_type>::type
-      second_rvalue_reference;
+  using first_type = T1;
+  using second_type = T2;
+  using first_const_type = typename std::add_const<first_type>::type;
+  using second_const_type = typename std::add_const<second_type>::type;
+  using first_reference = typename std::add_lvalue_reference<first_type>::type;
+  using second_reference =
+      typename std::add_lvalue_reference<second_type>::type;
+  using first_const_reference =
+      typename std::add_lvalue_reference<first_const_type>::type;
+  using second_const_reference =
+      typename std::add_lvalue_reference<second_const_type>::type;
+  using first_rvalue_reference =
+      typename std::add_rvalue_reference<first_type>::type;
+  using second_rvalue_reference =
+      typename std::add_rvalue_reference<second_type>::type;
 
   compressed_pair() = default;
   compressed_pair(const first_type& x, const second_type& y)

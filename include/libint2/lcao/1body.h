@@ -51,20 +51,21 @@
 #include <omp.h>
 #endif
 
-typedef btas::RangeNd<CblasRowMajor, std::array<long, 2>> Range2;
-typedef btas::RangeNd<CblasRowMajor, std::array<long, 3>> Range3;
-typedef btas::RangeNd<CblasRowMajor, std::array<long, 4>> Range4;
-typedef btas::Tensor<double, Range2> Tensor2d;
-typedef btas::Tensor<double, Range3> Tensor3d;
-typedef btas::Tensor<double, Range3> Tensor4d;
+using Range2 = btas::RangeNd<CblasRowMajor, std::array<long, 2>>;
+using Range3 = btas::RangeNd<CblasRowMajor, std::array<long, 3>>;
+using Range4 = btas::RangeNd<CblasRowMajor, std::array<long, 4>>;
+using Tensor2d = btas::Tensor<double, Range2>;
+using Tensor3d = btas::Tensor<double, Range3>;
+using Tensor4d = btas::Tensor<double, Range3>;
 
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
-    Matrix;  // import dense, dynamically sized Matrix type from Eigen;
-             // this is a matrix with row-major storage
-             // (http://en.wikipedia.org/wiki/Row-major_order)
+// import dense, dynamically sized Matrix type from Eigen;
+// this is a matrix with row-major storage
+// (http://en.wikipedia.org/wiki/Row-major_order)
+using Matrix =
+    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 // to meet the layout of the integrals returned by the Libint integral library
-typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic, Eigen::Dynamic>
-    DiagonalMatrix;
+using DiagonalMatrix =
+    Eigen::DiagonalMatrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
 using libint2::BasisSet;
 using libint2::BraKet;
@@ -153,8 +154,8 @@ struct DFFockEngine {
   DFFockEngine(const BasisSet& _obs, const BasisSet& _dfbs)
       : obs(_obs), dfbs(_dfbs) {}
 
-  typedef btas::RangeNd<CblasRowMajor, std::array<long, 3>> Range3d;
-  typedef btas::Tensor<double, Range3d> Tensor3d;
+  using Range3d = btas::RangeNd<CblasRowMajor, std::array<long, 3>>;
+  using Tensor3d = btas::Tensor<double, Range3d>;
   Tensor3d xyK;
 
   // a DF-based builder, using coefficients of occupied MOs
@@ -853,8 +854,8 @@ std::array<Matrix, libint2::operator_traits<obtype>::nopers> compute_1body_ints(
   const auto n = obs.nbf();
   const auto nshells = obs.size();
   using libint2::nthreads;
-  typedef std::array<Matrix, libint2::operator_traits<obtype>::nopers>
-      result_type;
+  using result_type =
+      std::array<Matrix, libint2::operator_traits<obtype>::nopers>;
   const unsigned int nopers = libint2::operator_traits<obtype>::nopers;
   result_type result;
   for (auto& r : result) r = Matrix::Zero(n, n);
@@ -927,7 +928,7 @@ std::vector<Matrix> compute_1body_ints_deriv(
   constexpr auto nopers = libint2::operator_traits<obtype>::nopers;
   const auto nresults =
       nopers * libint2::num_geometrical_derivatives(atoms.size(), deriv_order);
-  typedef std::vector<Matrix> result_type;
+  using result_type = std::vector<Matrix>;
   result_type result(nresults);
   for (auto& r : result) r = Matrix::Zero(n, n);
 
@@ -2007,10 +2008,10 @@ Matrix DFFockEngine::compute_2body_fock_dfC(const Matrix& Cocc) {
   std::vector<libint2::Timers<5>> timers(nthreads);
   for (auto& timer : timers) timer.set_now_overhead(25);
 
-  typedef btas::RangeNd<CblasRowMajor, std::array<long, 1>> Range1d;
-  typedef btas::RangeNd<CblasRowMajor, std::array<long, 2>> Range2d;
-  typedef btas::Tensor<double, Range1d> Tensor1d;
-  typedef btas::Tensor<double, Range2d> Tensor2d;
+  using Range1d = btas::RangeNd<CblasRowMajor, std::array<long, 1>>;
+  using Range2d = btas::RangeNd<CblasRowMajor, std::array<long, 2>>;
+  using Tensor1d = btas::Tensor<double, Range1d>;
+  using Tensor2d = btas::Tensor<double, Range2d>;
 
   // using first time? compute 3-center ints and transform to inv sqrt
   // representation

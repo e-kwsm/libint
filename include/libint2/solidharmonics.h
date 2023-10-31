@@ -58,7 +58,7 @@ namespace solidharmonics {
 template <typename Real>
 class SolidHarmonicsCoefficients {
  public:
-  typedef ::libint2::value_type real_t;
+  using real_t = ::libint2::value_type;
 
   SolidHarmonicsCoefficients() : l_(-1) {}
   SolidHarmonicsCoefficients(unsigned char l) : l_(l) {
@@ -241,14 +241,11 @@ class SolidHarmonicsCoefficients {
     // done
   }
 
-  struct CtorHelperIter {
-    using iterator_category = std::input_iterator_tag;
-    using value_type = SolidHarmonicsCoefficients;
-    using difference_type = std::ptrdiff_t;
-    using pointer = value_type*;
-    using reference = value_type&;
-
+  struct CtorHelperIter : public std::iterator<std::input_iterator_tag,
+                                               SolidHarmonicsCoefficients> {
     unsigned int l_;
+    using typename std::iterator<std::input_iterator_tag,
+                                 SolidHarmonicsCoefficients>::value_type;
 
     CtorHelperIter() = default;
     CtorHelperIter(unsigned int l) : l_(l) {}
