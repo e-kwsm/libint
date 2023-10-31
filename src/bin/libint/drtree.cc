@@ -25,7 +25,8 @@
 
 using namespace libint2;
 
-std::shared_ptr<DRTree> DRTree::CreateRootedAt(const SafePtr<DGVertex>& v) {
+std::shared_ptr<DRTree> DRTree::CreateRootedAt(
+    const std::shared_ptr<DGVertex>& v) {
   std::shared_ptr<DRTree> stree = v->subtree();
   if (!stree) {
     std::shared_ptr<DRTree> result(new DRTree(v));
@@ -53,7 +54,7 @@ void DRTree::add_vertex(const std::shared_ptr<DGVertex>& vertex) {
       throw ProgrammingError(
           "DRTree::add_vertex() -- vertex is on a subtree already");
     vertex->subtree_ =
-        Enablestd::shared_ptrFromThis<this_type>::SafePtr_from_this();
+        std::enable_shared_from_this<this_type>::shared_from_this();
     ++nvertices_;
 #if LOCAL_DEBUG
     std::cout << "Vertex " << vertex->label()

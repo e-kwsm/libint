@@ -18,16 +18,13 @@
  *
  */
 
-// clang-format off
-#include <master_ints_list.h>
-#include <master_rrs_list.h>
-// clang-format on
-
 #include <dg.h>
 #include <graph_registry.h>
 #include <integral_11_11.impl.h>
 #include <integral_1_1.impl.h>
 #include <intset_to_ints.h>
+#include <master_ints_list.h>
+#include <master_rrs_list.h>
 #include <rr.h>
 #include <singl_stack.h>
 #include <strategy.h>
@@ -70,84 +67,84 @@ struct MasterStrategy;
 #if LIBINT_SHELLQUARTET_STRATEGY == LIBINT_SHELLQUARTET_STRATEGY_A0C0
 template <>
 struct MasterStrategy<TwoPRep_11_11_sq> {
-  typedef boost::mpl::list<HRR_ab_11_TwoPRep_11_sh, HRR_cd_11_TwoPRep_11_sh,
-                           Deriv_a_11_TwoPRep_11_sh, Deriv_b_11_TwoPRep_11_sh,
-                           Deriv_c_11_TwoPRep_11_sh, Deriv_d_11_TwoPRep_11_sh,
+  using value =
+      boost::mpl::list<HRR_ab_11_TwoPRep_11_sh, HRR_cd_11_TwoPRep_11_sh,
+                       Deriv_a_11_TwoPRep_11_sh, Deriv_b_11_TwoPRep_11_sh,
+                       Deriv_c_11_TwoPRep_11_sh, Deriv_d_11_TwoPRep_11_sh,
 #if LIBINT_ERI_STRATEGY == 2
-                           ITR_a_11_TwoPRep_11_sh, ITR_c_11_TwoPRep_11_sh,
+                       ITR_a_11_TwoPRep_11_sh, ITR_c_11_TwoPRep_11_sh,
 #endif
-                           VRR_a_11_TwoPRep_11_sh, VRR_c_11_TwoPRep_11_sh>
-      value;
+                       VRR_a_11_TwoPRep_11_sh, VRR_c_11_TwoPRep_11_sh>;
 };
 template <>
 struct MasterStrategy<TwoPRep_11_11_int> {
-  typedef boost::mpl::list<HRR_ab_11_TwoPRep_11_int, HRR_cd_11_TwoPRep_11_int,
-                           Deriv_a_11_TwoPRep_11_int, Deriv_b_11_TwoPRep_11_int,
-                           Deriv_c_11_TwoPRep_11_int, Deriv_d_11_TwoPRep_11_int,
+  using value =
+      boost::mpl::list<HRR_ab_11_TwoPRep_11_int, HRR_cd_11_TwoPRep_11_int,
+                       Deriv_a_11_TwoPRep_11_int, Deriv_b_11_TwoPRep_11_int,
+                       Deriv_c_11_TwoPRep_11_int, Deriv_d_11_TwoPRep_11_int,
 #if LIBINT_ERI_STRATEGY == 2
-                           ITR_a_11_TwoPRep_11_int, ITR_c_11_TwoPRep_11_int,
+                       ITR_a_11_TwoPRep_11_int, ITR_c_11_TwoPRep_11_int,
 #endif
-                           VRR_a_11_TwoPRep_11_int, VRR_c_11_TwoPRep_11_int>
-      value;
+                       VRR_a_11_TwoPRep_11_int, VRR_c_11_TwoPRep_11_int>;
 };
 #else  // 0B0D strategy
 template <>
 struct MasterStrategy<TwoPRep_11_11_sq> {
-  typedef boost::mpl::list<HRR_ba_11_TwoPRep_11_sh, HRR_dc_11_TwoPRep_11_sh,
-                           Deriv_a_11_TwoPRep_11_sh, Deriv_b_11_TwoPRep_11_sh,
-                           Deriv_c_11_TwoPRep_11_sh, Deriv_d_11_TwoPRep_11_sh,
+  using value =
+      boost::mpl::list<HRR_ba_11_TwoPRep_11_sh, HRR_dc_11_TwoPRep_11_sh,
+                       Deriv_a_11_TwoPRep_11_sh, Deriv_b_11_TwoPRep_11_sh,
+                       Deriv_c_11_TwoPRep_11_sh, Deriv_d_11_TwoPRep_11_sh,
 #if LIBINT_ERI_STRATEGY == 2
-                           ITR_b_11_TwoPRep_11_sh, ITR_d_11_TwoPRep_11_sh,
+                       ITR_b_11_TwoPRep_11_sh, ITR_d_11_TwoPRep_11_sh,
 #endif
-                           VRR_b_11_TwoPRep_11_sh, VRR_d_11_TwoPRep_11_sh>
-      value;
+                       VRR_b_11_TwoPRep_11_sh, VRR_d_11_TwoPRep_11_sh>;
 };
 template <>
 struct MasterStrategy<TwoPRep_11_11_int> {
-  typedef boost::mpl::list<HRR_ba_11_TwoPRep_11_int, HRR_dc_11_TwoPRep_11_int,
-                           Deriv_a_11_TwoPRep_11_int, Deriv_b_11_TwoPRep_11_int,
-                           Deriv_c_11_TwoPRep_11_int, Deriv_d_11_TwoPRep_11_int,
+  using value =
+      boost::mpl::list<HRR_ba_11_TwoPRep_11_int, HRR_dc_11_TwoPRep_11_int,
+                       Deriv_a_11_TwoPRep_11_int, Deriv_b_11_TwoPRep_11_int,
+                       Deriv_c_11_TwoPRep_11_int, Deriv_d_11_TwoPRep_11_int,
 #if LIBINT_ERI_STRATEGY == 2
-                           ITR_b_11_TwoPRep_11_int, ITR_d_11_TwoPRep_11_int,
+                       ITR_b_11_TwoPRep_11_int, ITR_d_11_TwoPRep_11_int,
 #endif
-                           VRR_b_11_TwoPRep_11_int, VRR_d_11_TwoPRep_11_int>
-      value;
+                       VRR_b_11_TwoPRep_11_int, VRR_d_11_TwoPRep_11_int>;
 };
 #endif
 
 #if LIBINT_SHELLQUARTET_STRATEGY == LIBINT_SHELLQUARTET_STRATEGY_A0C0
 template <>
 struct MasterStrategy<R12kG12_11_11_sq> {
-  typedef boost::mpl::list<HRR_ab_11_R12kG12_11_sh, HRR_cd_11_R12kG12_11_sh,
-                           VRR_a_11_R12kG12_11_sh, VRR_c_11_R12kG12_11_sh>
-      value;
+  using value =
+      boost::mpl::list<HRR_ab_11_R12kG12_11_sh, HRR_cd_11_R12kG12_11_sh,
+                       VRR_a_11_R12kG12_11_sh, VRR_c_11_R12kG12_11_sh>;
 };
 template <>
 struct MasterStrategy<R12kG12_11_11_int> {
-  typedef boost::mpl::list<HRR_ab_11_R12kG12_11_int, HRR_cd_11_R12kG12_11_int,
-                           VRR_a_11_R12kG12_11_int, VRR_c_11_R12kG12_11_int>
-      value;
+  using value =
+      boost::mpl::list<HRR_ab_11_R12kG12_11_int, HRR_cd_11_R12kG12_11_int,
+                       VRR_a_11_R12kG12_11_int, VRR_c_11_R12kG12_11_int>;
 };
 #else  // 0B0D strategy
 template <>
 struct MasterStrategy<R12kG12_11_11_sq> {
-  typedef boost::mpl::list<HRR_ba_11_R12kG12_11_sh, HRR_dc_11_R12kG12_11_sh,
-                           VRR_b_11_R12kG12_11_sh, VRR_d_11_R12kG12_11_sh>
-      value;
+  using value =
+      boost::mpl::list<HRR_ba_11_R12kG12_11_sh, HRR_dc_11_R12kG12_11_sh,
+                       VRR_b_11_R12kG12_11_sh, VRR_d_11_R12kG12_11_sh>;
 };
 template <>
 struct MasterStrategy<R12kG12_11_11_int> {
-  typedef boost::mpl::list<HRR_ba_11_R12kG12_11_int, HRR_dc_11_R12kG12_11_int,
-                           VRR_b_11_R12kG12_11_int, VRR_d_11_R12kG12_11_int>
-      value;
+  using value =
+      boost::mpl::list<HRR_ba_11_R12kG12_11_int, HRR_dc_11_R12kG12_11_int,
+                       VRR_b_11_R12kG12_11_int, VRR_d_11_R12kG12_11_int>;
 };
 #endif
 
 template <>
 struct MasterStrategy<R12kR12lG12_11_11_sq> {
-  typedef boost::mpl::list<HRR_ab_11_R12kR12lG12_11_sh,
-                           HRR_cd_11_R12kR12lG12_11_sh, CR_11_R12kR12lG12_11_sh>
-      value;
+  using value =
+      boost::mpl::list<HRR_ab_11_R12kR12lG12_11_sh, HRR_cd_11_R12kR12lG12_11_sh,
+                       CR_11_R12kR12lG12_11_sh>;
 };
 template <>
 struct MasterStrategy<R12kR12lG12_11_11_int> {
@@ -158,69 +155,65 @@ struct MasterStrategy<R12kR12lG12_11_11_int> {
 };
 template <>
 struct MasterStrategy<TiG12_11_11_sq> {
-  typedef boost::mpl::list<HRR_ab_11_TiG12_11_sh, HRR_cd_11_TiG12_11_sh,
-                           CR_11_TiG12_11_sh>
-      value;
+  using value = boost::mpl::list<HRR_ab_11_TiG12_11_sh, HRR_cd_11_TiG12_11_sh,
+                                 CR_11_TiG12_11_sh>;
 };
 template <>
 struct MasterStrategy<TiG12_11_11_int> {
-  typedef boost::mpl::list<HRR_ab_11_TiG12_11_int, HRR_cd_11_TiG12_11_int,
-                           CR_11_TiG12_11_int>
-      value;
+  using value = boost::mpl::list<HRR_ab_11_TiG12_11_int, HRR_cd_11_TiG12_11_int,
+                                 CR_11_TiG12_11_int>;
 };
 template <>
 struct MasterStrategy<G12TiG12_11_11_sq> {
-  typedef boost::mpl::list<HRR_ab_11_G12TiG12_11_sh, HRR_cd_11_G12TiG12_11_sh,
-                           CR_11_G12TiG12_11_sh>
-      value;
+  using value =
+      boost::mpl::list<HRR_ab_11_G12TiG12_11_sh, HRR_cd_11_G12TiG12_11_sh,
+                       CR_11_G12TiG12_11_sh>;
 };
 template <>
 struct MasterStrategy<G12TiG12_11_11_int> {
-  typedef boost::mpl::list<HRR_ab_11_G12TiG12_11_int, HRR_cd_11_G12TiG12_11_int,
-                           CR_11_G12TiG12_11_int>
-      value;
+  using value =
+      boost::mpl::list<HRR_ab_11_G12TiG12_11_int, HRR_cd_11_G12TiG12_11_int,
+                       CR_11_G12TiG12_11_int>;
 };
 template <>
 struct MasterStrategy<DivG12prime_xTx_11_11_sq> {
-  typedef boost::mpl::list<HRR_ab_11_DivG12prime_xTx_sh,
-                           HRR_cd_11_DivG12prime_xTx_sh,
-                           CR_11_DivG12prime_xTx_11_sh>
-      value;
+  using value = boost::mpl::list<HRR_ab_11_DivG12prime_xTx_sh,
+                                 HRR_cd_11_DivG12prime_xTx_sh,
+                                 CR_11_DivG12prime_xTx_11_sh>;
 };
 template <>
 struct MasterStrategy<DivG12prime_xTx_11_11_int> {
-  typedef boost::mpl::list<HRR_ab_11_DivG12prime_xTx_int,
-                           HRR_cd_11_DivG12prime_xTx_int,
-                           CR_11_DivG12prime_xTx_11_int>
-      value;
+  using value = boost::mpl::list<HRR_ab_11_DivG12prime_xTx_int,
+                                 HRR_cd_11_DivG12prime_xTx_int,
+                                 CR_11_DivG12prime_xTx_11_int>;
 };
 #if LIBINT_SHELLQUARTET_STRATEGY == LIBINT_SHELLQUARTET_STRATEGY_A0C0
 template <>
 struct MasterStrategy<DummySymmIntegral_11_11_sq> {
-  typedef boost::mpl::list<HRR_ab_11_Dummy_11_sh, HRR_cd_11_Dummy_11_sh> value;
+  using value = boost::mpl::list<HRR_ab_11_Dummy_11_sh, HRR_cd_11_Dummy_11_sh>;
 };
 template <>
 struct MasterStrategy<DummySymmIntegral_11_11_int> {
-  typedef boost::mpl::list<HRR_ab_11_Dummy_11_int, HRR_cd_11_Dummy_11_int>
-      value;
+  using value =
+      boost::mpl::list<HRR_ab_11_Dummy_11_int, HRR_cd_11_Dummy_11_int>;
 };
 #else  // 0B0D strategy
 template <>
 struct MasterStrategy<DummySymmIntegral_11_11_sq> {
-  typedef boost::mpl::list<HRR_ba_11_Dummy_11_sh, HRR_dc_11_Dummy_11_sh> value;
+  using value = boost::mpl::list<HRR_ba_11_Dummy_11_sh, HRR_dc_11_Dummy_11_sh>;
 };
 template <>
 struct MasterStrategy<DummySymmIntegral_11_11_int> {
-  typedef boost::mpl::list<HRR_ba_11_Dummy_11_int, HRR_dc_11_Dummy_11_int>
-      value;
+  using value =
+      boost::mpl::list<HRR_ba_11_Dummy_11_int, HRR_dc_11_Dummy_11_int>;
 };
 #endif
 
 #if LIBINT_SUPPORT_ONEBODYINTS
 template <>
 struct MasterStrategy<Overlap_1_1_sh_x> {
-  typedef boost::mpl::list<CR_XYZ_1_1<CGShell1d<CartesianAxis_X>, OverlapOper>>
-      value;
+  using value =
+      boost::mpl::list<CR_XYZ_1_1<CGShell1d<CartesianAxis_X>, OverlapOper>>;
 };
 template <>
 struct MasterStrategy<Overlap_1_1_sh_y> {
@@ -353,7 +346,7 @@ struct MasterStrategy<SMultipole_1_1_int> {
 
 template <typename T>
 struct MasterStrategy {
-  typedef boost::mpl::list<> value;
+  using value = boost::mpl::list<>;
 };
 
 /// transform<RRType> encapsulates RRType and the action associated with RRType
@@ -361,7 +354,7 @@ struct MasterStrategy {
 template <class RRType>
 class apply_strategy_transform {
  public:
-  typedef typename RRType::TargetType IntType;
+  using IntType = typename RRType::TargetType;
   // return true if no more visitations necessary
   static bool visit(const std::shared_ptr<DirectedGraph>& dg,
                     const std::shared_ptr<IntType>& integral,
@@ -389,7 +382,7 @@ class apply_strategy_transform {
       std::shared_ptr<RRType> rr_ptr = RRType::Instance(integral, xyz);
       if (rr_ptr != 0)
         rrstack.push_back(
-            std::static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
+            static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
     }
     return false;
   }
@@ -400,7 +393,7 @@ class apply_strategy_transform {
                          Tactic::rr_stack& rrstack) {
     // If given NullTactic -- skip
     std::shared_ptr<NullTactic> ntactic =
-        std::dynamic_pointer_cast<NullTactic, Tactic>(tactic);
+        dynamic_pointer_cast<NullTactic, Tactic>(tactic);
     if (ntactic) return false;
 
     // in CGF case collect all rrs on rrstack
@@ -410,7 +403,7 @@ class apply_strategy_transform {
       // iteration?
       if (rr_ptr != 0)
         rrstack.push_back(
-            std::static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
+            static_pointer_cast<RecurrenceRelation, RRType>(rr_ptr));
     }
     return false;
   }
@@ -429,7 +422,7 @@ class apply_strategy {
  public:
   struct Impl {
     Impl(const std::shared_ptr<DirectedGraph>& dg,
-         const std::shared_ptr<IntType>& integral,
+         const SafePtr<IntType>& integral,
          const std::shared_ptr<Tactic>& tactic)
         : dg_(dg), integral_(integral), tactic_(tactic), done_(false) {}
 
@@ -485,7 +478,7 @@ struct match_first_inttype_transform {
                     const std::shared_ptr<DGVertex>& integral,
                     const std::shared_ptr<Tactic>& tactic,
                     std::shared_ptr<RecurrenceRelation>& rr) {
-    std::shared_ptr<T> tptr = std::dynamic_pointer_cast<T, DGVertex>(integral);
+    std::shared_ptr<T> tptr = dynamic_pointer_cast<T, DGVertex>(integral);
     if (tptr != 0) {
 #if 0
         std::cout << "Visiting integral " << integral->label() << ", its type is " << class_name<T>() << std::endl;
@@ -520,9 +513,9 @@ struct match_first_inttype_transform {
         if (can_unroll && can_uncontract) {
 #endif
       if (can_unroll) {
-        typedef IntegralSet_to_Integrals<T> ISet2I;
+        using ISet2I = IntegralSet_to_Integrals<T>;
         std::shared_ptr<ISet2I> x(new ISet2I(tptr));
-        rr = std::static_pointer_cast<RecurrenceRelation, ISet2I>(x);
+        rr = static_pointer_cast<RecurrenceRelation, ISet2I>(x);
 #if DEBUG
         std::cout << "Unrolled " << tptr->label() << std::endl;
 #endif
@@ -530,9 +523,9 @@ struct match_first_inttype_transform {
         // if allowed to uncontract -- try that first
         const bool can_uncontract = dg->registry()->uncontract();
         if (can_uncontract) {
-          typedef Uncontract_Integral<T> UncI;
+          using UncI = Uncontract_Integral<T>;
           std::shared_ptr<UncI> x(new UncI(tptr));
-          rr = std::static_pointer_cast<RecurrenceRelation, UncI>(x);
+          rr = static_pointer_cast<RecurrenceRelation, UncI>(x);
           if (rr != 0) {
             if (rr->num_children() != 0) {
 #if DEBUG
@@ -544,8 +537,8 @@ struct match_first_inttype_transform {
         }
 
         // if uncontraction failed -- apply the known strategy
-        typedef apply_strategy<T> apply_strategy_t;
-        typedef typename apply_strategy_t::Impl apply_strategy_t_impl;
+        using apply_strategy_t = apply_strategy<T>;
+        using apply_strategy_t_impl = typename apply_strategy_t::Impl;
         std::shared_ptr<apply_strategy_t_impl> applier_impl(
             new apply_strategy_t_impl(dg, tptr, tactic));
         apply_strategy_t applier(applier_impl);
@@ -576,7 +569,7 @@ class match_first_inttype {
  public:
   struct Impl {
     Impl(const std::shared_ptr<DirectedGraph>& dg,
-         const std::shared_ptr<DGVertex>& integral,
+         const SafePtr<DGVertex>& integral,
          const std::shared_ptr<Tactic>& tactic)
         : dg_(dg),
           integral_(integral),
@@ -616,8 +609,7 @@ class match_first_inttype {
 
 std::shared_ptr<RecurrenceRelation> Strategy::optimal_rr(
     const std::shared_ptr<DirectedGraph>& graph,
-    const std::shared_ptr<DGVertex>& integral,
-    const std::shared_ptr<Tactic>& tactic) {
+    const SafePtr<DGVertex>& integral, const std::shared_ptr<Tactic>& tactic) {
 #if 0
   {
     std::cout << "Strategy::optimal_rr() -- integral:" << std::endl;

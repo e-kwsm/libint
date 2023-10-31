@@ -80,7 +80,7 @@ void RecurrenceRelation::generate_code(
   // check if CSE to be performed
   using ISet = IntegralSet<IncableBFSet>;
   std::shared_ptr<ISet> target =
-      dynamic_pointer_cast<ISet, DGVertex>(target_vptr);
+      std::dynamic_pointer_cast<ISet, DGVertex>(target_vptr);
   if (target) {
     //
     // do CSE only if max_am <= cparams->max_am_opt()
@@ -166,7 +166,7 @@ void RecurrenceRelation::generate_code(
   // get this RR InstanceID
   RRStack::InstanceID myid =
       RRStack::Instance()
-          ->find(Enablestd::shared_ptrFromThis<this_type>::SafePtr_from_this())
+          ->find(std::enable_shared_from_this<this_type>::shared_from_this())
           .first;
 
   // For each task which requires this RR:
@@ -387,28 +387,28 @@ namespace libint2 {
 namespace algebra {
 /// these operators are extremely useful to write compact expressions
 std::shared_ptr<RecurrenceRelation::ExprType> operator+(
-    const SafePtr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
+    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
   using Oper = RecurrenceRelation::ExprType;
   return std::shared_ptr<Oper>(new Oper(Oper::OperatorTypes::Plus, A, B));
 }
 std::shared_ptr<RecurrenceRelation::ExprType> operator-(
-    const SafePtr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
+    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
   using Oper = RecurrenceRelation::ExprType;
   return std::shared_ptr<Oper>(new Oper(Oper::OperatorTypes::Minus, A, B));
 }
 std::shared_ptr<RecurrenceRelation::ExprType> operator*(
-    const SafePtr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
+    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
   using Oper = RecurrenceRelation::ExprType;
   return std::shared_ptr<Oper>(new Oper(Oper::OperatorTypes::Times, A, B));
 }
 std::shared_ptr<RecurrenceRelation::ExprType> operator/(
-    const SafePtr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
+    const std::shared_ptr<DGVertex>& A, const std::shared_ptr<DGVertex>& B) {
   using Oper = RecurrenceRelation::ExprType;
   return std::shared_ptr<Oper>(new Oper(Oper::OperatorTypes::Divide, A, B));
 }
 const std::shared_ptr<RecurrenceRelation::ExprType>& operator+=(
     std::shared_ptr<RecurrenceRelation::ExprType>& A,
-    const SafePtr<DGVertex>& B) {
+    const std::shared_ptr<DGVertex>& B) {
   using Oper = RecurrenceRelation::ExprType;
   if (A) {
     const std::shared_ptr<Oper>& Sum = A + B;
@@ -419,7 +419,7 @@ const std::shared_ptr<RecurrenceRelation::ExprType>& operator+=(
 }
 const std::shared_ptr<RecurrenceRelation::ExprType>& operator-=(
     std::shared_ptr<RecurrenceRelation::ExprType>& A,
-    const SafePtr<DGVertex>& B) {
+    const std::shared_ptr<DGVertex>& B) {
   using Oper = RecurrenceRelation::ExprType;
   if (A) {
     const std::shared_ptr<Oper>& Diff = A - B;
@@ -430,7 +430,7 @@ const std::shared_ptr<RecurrenceRelation::ExprType>& operator-=(
 }
 const std::shared_ptr<RecurrenceRelation::ExprType>& operator*=(
     std::shared_ptr<RecurrenceRelation::ExprType>& A,
-    const SafePtr<DGVertex>& B) {
+    const std::shared_ptr<DGVertex>& B) {
   using Oper = RecurrenceRelation::ExprType;
   const std::shared_ptr<Oper>& Product = A * B;
   A = Product;
@@ -438,7 +438,7 @@ const std::shared_ptr<RecurrenceRelation::ExprType>& operator*=(
 }
 const std::shared_ptr<RecurrenceRelation::ExprType>& operator/=(
     std::shared_ptr<RecurrenceRelation::ExprType>& A,
-    const SafePtr<DGVertex>& B) {
+    const std::shared_ptr<DGVertex>& B) {
   using Oper = RecurrenceRelation::ExprType;
   const std::shared_ptr<Oper>& Quotient = A / B;
   A = Quotient;

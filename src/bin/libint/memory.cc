@@ -106,7 +106,8 @@ void MemoryManager::free(const Address& address) {
 }
 
 std::shared_ptr<MemoryManager::MemBlock> MemoryManager::merge_blocks(
-    const std::shared_ptr<MemBlock>& left, const SafePtr<MemBlock>& right) {
+    const std::shared_ptr<MemBlock>& left,
+    const std::shared_ptr<MemBlock>& right) {
   if (left->free() != right->free())
     throw std::runtime_error(
         "MemoryManager::merge_block() -- both blocks must be occupied or free");
@@ -193,7 +194,7 @@ void MemoryManager::reset() {
   swap(blks_, empty_blks);
   superblock_ = std::shared_ptr<MemBlock>(
       new MemBlock(Address(0), maxmem_, true, std::shared_ptr<MemBlock>(),
-                   SafePtr<MemBlock>()));
+                   std::shared_ptr<MemBlock>()));
 }
 
 ///////////////
@@ -438,7 +439,6 @@ MemoryManager::Address LastFitMemoryManager::alloc(const Size& size) {
   if (size == 0)
     throw std::runtime_error("LastFitMemoryManager::alloc(size) -- size is 0");
 
-  using iter = memblkset::iterator;
   using riter = memblkset::reverse_iterator;
 
   memblkset& blks = blocks();
