@@ -141,7 +141,7 @@ const std::shared_ptr<DGVertex>& DirectedGraph::vertex_is_on(
 
   static std::shared_ptr<DGVertex> null_ptr;
 #if USE_ASSOCCONTAINER_BASED_DIRECTEDGRAPH
-  typedef vertices::const_iterator citer;
+  using citer = vertices::const_iterator;
   key_type vkey = key(*vertex);
   // find the first elemnt with this key and iterate until vertex is found or
   // key changes
@@ -262,7 +262,7 @@ void DirectedGraph::traverse() {
   prepare_to_traverse();
 
   // Start at the targets which don't have parents
-  typedef vertices::iterator iter;
+  using iter = vertices::iterator;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
     if ((vptr)->is_a_target() && (vptr)->num_entry_arcs() == 0) {
@@ -374,7 +374,7 @@ struct __print_arcs_to_dot {
   std::ostream& os;
   __print_arcs_to_dot(std::ostream& o) : os(o) {}
   void operator()(const std::shared_ptr<DGVertex>& v) {
-    typedef DGVertex::ArcSetType::const_iterator aciter;
+    using aciter = DGVertex::ArcSetType::const_iterator;
     const aciter abegin = v->first_exit_arc();
     const aciter aend = v->plast_exit_arc();
     for (aciter a = abegin; a != aend; ++a) {
@@ -434,7 +434,7 @@ void DirectedGraph::reset() {
 void DirectedGraph::apply(const std::shared_ptr<Strategy>& strategy,
                           const std::shared_ptr<Tactic>& tactic) {
   const std::shared_ptr<DirectedGraph> this_ptr = shared_from_this();
-  typedef vertices::iterator iter;
+  using iter = vertices::iterator;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
     if ((vptr)->num_exit_arcs() != 0 || (vptr)->precomputed() ||
@@ -509,7 +509,7 @@ void DirectedGraph::optimize_rr_out(
 
 // Replace recurrence relations with expressions
 void DirectedGraph::replace_rr_with_expr() {
-  typedef vertices::iterator iter;
+  using iter = vertices::iterator;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
     if ((vptr)->num_exit_arcs()) {
@@ -564,7 +564,7 @@ std::shared_ptr<DGVertex> DirectedGraph::insert_expr_at(
   cout << "insert_expr_at: " << expr->description() << endl;
 #endif
 
-  typedef RecurrenceRelation::ExprType ExprType;
+  using ExprType = RecurrenceRelation::ExprType;
   std::shared_ptr<DGVertex> expr_vertex =
       std::static_pointer_cast<DGVertex, ExprType>(expr);
 
@@ -686,7 +686,7 @@ void DirectedGraph::remove_trivial_arithmetics() {
       Scalar(1.0);
   const std::shared_ptr<CTimeEntity<double> > const_zero_point_zero =
       Scalar(0.0);
-  typedef vertices::iterator iter;
+  using iter = vertices::iterator;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
     std::shared_ptr<AlgebraicOperator<DGVertex> > oper_cast =
@@ -695,7 +695,7 @@ void DirectedGraph::remove_trivial_arithmetics() {
     if (oper_cast) {
       // std::cout << "cast " << vptr->description() << " to " <<
       // oper_cast->description() << std::endl;
-      typedef DGVertex::ArcSetType::const_iterator aciter;
+      using aciter = DGVertex::ArcSetType::const_iterator;
       aciter a = oper_cast->first_exit_arc();
       std::shared_ptr<DGVertex> left = (*a)->dest();
       ++a;
@@ -798,7 +798,7 @@ inline std::string to_vector_symbol(const std::shared_ptr<DGVertex>& v) {
 //
 void DirectedGraph::handle_trivial_nodes(
     const std::shared_ptr<CodeContext>& context) {
-  typedef vertices::iterator iter;
+  using iter = vertices::iterator;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
     // or if has more than 1 child
@@ -872,8 +872,8 @@ bool DirectedGraph::remove_vertex_at(const std::shared_ptr<DGVertex>& v1,
 
   // Collect all entry arcs in a container
   DGVertex::ArcSetType v1_entry;
-  typedef DGVertex::ArcSetType::iterator aiter;
-  typedef DGVertex::ArcSetType::const_iterator aciter;
+  using aiter = DGVertex::ArcSetType::iterator;
+  using aciter = DGVertex::ArcSetType::const_iterator;
   const aciter abegin = v1->first_entry_arc();
   const aciter aend = v1->plast_entry_arc();
   // Verify that all entry arcs are DGArcDirect
@@ -966,7 +966,7 @@ bool DirectedGraph::remove_vertex_at(const std::shared_ptr<DGVertex>& v1,
 }
 
 void DirectedGraph::remove_disconnected_vertices() {
-  typedef vertices::iterator iter;
+  using iter = vertices::iterator;
   for (iter v = stack_.begin(); v != stack_.end();) {
     const ver_ptr& vptr = vertex_ptr(*v);
     iter vnext = v;
@@ -1037,8 +1037,8 @@ namespace {
 template <class Container>
 std::shared_ptr<MemBlockSet> to_memoryblks(Container& vertices) {
   std::shared_ptr<MemBlockSet> result(new MemBlockSet);
-  typedef typename Container::const_iterator citer;
-  typedef typename Container::iterator iter;
+  using citer = typename Container::const_iterator;
+  using iter = typename Container::iterator;
   citer end(vertices.end());
   for (iter v = vertices.begin(); v != end; ++v) {
     const DirectedGraph::ver_ptr& vptr = vertex_ptr(*v);
@@ -1229,8 +1229,8 @@ void DirectedGraph::allocate_mem(
   prepare_to_traverse();
 
   struct TargetAllocator {
-    typedef DirectedGraph::targets::const_iterator target_citer;
-    typedef DirectedGraph::size sz;
+    using target_citer = DirectedGraph::targets::const_iterator;
+    using sz = DirectedGraph::size;
 
     const DirectedGraph::targets& targets_;
     const std::shared_ptr<MemoryManager>& memman_;
@@ -1405,7 +1405,7 @@ void DirectedGraph::allocate_mem(
            << " (size=" << vertex->size() << ")" << endl;
 #endif
 
-      typedef DGVertex::ArcSetType::const_iterator aciter;
+      using aciter = DGVertex::ArcSetType::const_iterator;
       const aciter abegin = vertex->first_exit_arc();
       const aciter aend = vertex->plast_exit_arc();
       // Verify that all entry arcs are DGArcDirect
@@ -1438,7 +1438,7 @@ void DirectedGraph::assign_symbols(
   std::string veclen = dims->vecdim_label();
 
   // First, set symbols for all vertices which have address assigned
-  typedef vertices::iterator iter;
+  using iter = vertices::iterator;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
     if (!(vptr)->symbol_set() && (vptr)->address_set()) {
@@ -1468,7 +1468,7 @@ void DirectedGraph::assign_symbols(
     if (iset_to_i == 0) {
       continue;
     } else {
-      typedef DGVertex::ArcSetType::const_iterator aciter;
+      using aciter = DGVertex::ArcSetType::const_iterator;
       const aciter abegin = (vptr)->first_exit_arc();
       const aciter aend = (vptr)->plast_exit_arc();
       unsigned int c = 0;
@@ -1516,7 +1516,7 @@ void DirectedGraph::assign_symbols(
 
     // test if the vertex is a static quantity, like a constant
     {
-      typedef CTimeEntity<double> cdouble;
+      using cdouble = CTimeEntity<double>;
       std::shared_ptr<cdouble> ptr_cast =
           std::dynamic_pointer_cast<cdouble, DGVertex>((vptr));
       if (ptr_cast) {
@@ -1537,7 +1537,7 @@ void DirectedGraph::assign_symbols(
 
     // test if the vertex is other runtime quantity
     {
-      typedef RTimeEntity<double> cdouble;
+      using cdouble = RTimeEntity<double>;
       std::shared_ptr<cdouble> ptr_cast =
           std::dynamic_pointer_cast<cdouble, DGVertex>((vptr));
       if (ptr_cast) {
@@ -1550,7 +1550,7 @@ void DirectedGraph::assign_symbols(
 #if 1
     if (vptr->size() == 1) {
       {  // basic integral
-        typedef IntegralSet<IncableBFSet> intset;
+        using intset = IntegralSet<IncableBFSet>;
         std::shared_ptr<intset> ptr_cast =
             std::dynamic_pointer_cast<intset, DGVertex>((vptr));
         if (ptr_cast) {
@@ -1565,7 +1565,7 @@ void DirectedGraph::assign_symbols(
 
   // finally, process all operators (start with most recently added vertices
   // since those are much more likely to be on the bottom of the graph).
-  typedef vertices::reverse_iterator riter;
+  using riter = vertices::reverse_iterator;
   for (riter v = stack_.rbegin(); v != stack_.rend(); ++v) {
     ver_ptr& vptr = vertex_ptr(*v);
     if (vptr->symbol_set()) continue;
@@ -1584,7 +1584,7 @@ void DirectedGraph::assign_oper_symbol(
   if (vertex->symbol_set()) return;
 
   {
-    typedef AlgebraicOperator<DGVertex> oper;
+    using oper = AlgebraicOperator<DGVertex>;
     std::shared_ptr<oper> ptr_cast =
         std::dynamic_pointer_cast<oper, DGVertex>(vertex);
     if (ptr_cast) {
@@ -1596,7 +1596,7 @@ void DirectedGraph::assign_oper_symbol(
         vertex->set_symbol(context->unique_name<EntityTypes::FP>());
       // else assign symbols to left and right arguments
       else {
-        typedef DGVertex::ArcSetType::const_iterator aciter;
+        using aciter = DGVertex::ArcSetType::const_iterator;
         aciter arc = ptr_cast->first_exit_arc();
         std::shared_ptr<DGVertex> left = (*arc)->dest();
         ++arc;
@@ -1617,7 +1617,7 @@ namespace {
 /// returns how many times token appears in str
 unsigned int nfind(const std::string& str, const std::string& token) {
   unsigned int nfinds = 0;
-  typedef std::string::size_type size_type;
+  using size_type = std::string::size_type;
   size_type current_pos = 0;
   while (1) {
     current_pos = str.find(token, current_pos);
@@ -1812,7 +1812,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
 
       // print algebraic expression
       {
-        typedef AlgebraicOperator<DGVertex> oper_type;
+        using oper_type = AlgebraicOperator<DGVertex>;
         std::shared_ptr<oper_type> oper_ptr =
             std::dynamic_pointer_cast<oper_type, DGVertex>(current_vertex);
         if (oper_ptr) {
@@ -1822,7 +1822,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
               accumulate_targets_directly &&
               IntegralInTargetIntegralSet()(current_vertex);
 
-          typedef DGVertex::ArcSetType::const_iterator aciter;
+          using aciter = DGVertex::ArcSetType::const_iterator;
           aciter a = oper_ptr->first_exit_arc();
           auto left_arg = (*a)->dest();
           ++a;
@@ -2005,7 +2005,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
 
       // print simple assignment statement
       if (current_vertex->num_exit_arcs() == 1) {
-        typedef DGArcDirect arc_type;
+        using arc_type = DGArcDirect;
         std::shared_ptr<arc_type> arc_ptr =
             std::dynamic_pointer_cast<arc_type, DGArc>(
                 *(current_vertex->first_exit_arc()));
@@ -2065,7 +2065,7 @@ void DirectedGraph::print_def(const std::shared_ptr<CodeContext>& context,
         // printing a recurrence relation
         // std::cout << "DirectedGraph::print_def(): a RR making " <<
         // current_vertex->description() << std::endl;
-        typedef DGArcRR arc_type;
+        using arc_type = DGArcRR;
         std::shared_ptr<arc_type> arc_ptr =
             std::dynamic_pointer_cast<arc_type, DGArc>(
                 *(current_vertex->first_exit_arc()));
@@ -2224,7 +2224,7 @@ target = oss.str();
 
 void DirectedGraph::update_func_names() {
   // Loop over all vertices
-  typedef vertices::iterator iter;
+  using iter = vertices::iterator;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
     // for every vertex with children
@@ -2280,7 +2280,7 @@ void DirectedGraph::find_subtrees() {
   if (!registry()->condense_expr()) return;
 
   // Find subtrees by starting from the targets and moving down ...
-  typedef vertices::iterator iter;
+  using iter = vertices::iterator;
   for (iter v = stack_.begin(); v != stack_.end(); ++v) {
     const ver_ptr& vptr = vertex_ptr(*v);
     if ((vptr)->is_a_target() && (vptr)->num_entry_arcs() == 0) {
@@ -2326,7 +2326,7 @@ void DirectedGraph::find_subtrees_from(const std::shared_ptr<DGVertex>& v) {
     }
 
     // move on to children
-    typedef DGVertex::ArcSetType::const_iterator aciter;
+    using aciter = DGVertex::ArcSetType::const_iterator;
     const aciter abegin = v->first_exit_arc();
     const aciter aend = v->plast_exit_arc();
     for (aciter a = abegin; a != aend; ++a) {
@@ -2367,7 +2367,7 @@ namespace libint2 {
 
 namespace {
 #if USE_ASSOCCONTAINER_BASED_DIRECTEDGRAPH
-typedef DirectedGraph::targets::value_type value_type;
+using value_type = DirectedGraph::targets::value_type;
 struct __NotUnrolledIntegralSet {
   bool operator()(const value_type& v) { return NotUnrolledIntegralSet()(v); }
 };
@@ -2375,7 +2375,7 @@ struct __NotUnrolledIntegralSet {
 };  // namespace
 
 bool nonunrolled_targets(const DirectedGraph::targets& targets) {
-  typedef DirectedGraph::target_citer citer;
+  using citer = DirectedGraph::target_citer;
   citer end = targets.end();
 #if USE_ASSOCCONTAINER_BASED_DIRECTEDGRAPH
   if (end != find_if(targets.begin(), end, __NotUnrolledIntegralSet()))
@@ -2433,7 +2433,7 @@ void PrerequisitesExtractor::operator()(const std::shared_ptr<DGVertex>& v) {
     // set to the prerequisite level
     bool member_of_shellset = false;
     std::shared_ptr<DGVertex> parent_shellset;
-    typedef DGVertex::ArcSetType::const_iterator citer;
+    using citer = DGVertex::ArcSetType::const_iterator;
     for (citer i = v->entry_arcs().begin();
          i != v->entry_arcs().end() && !member_of_shellset; ++i) {
       const std::shared_ptr<DGArc>& arc = *i;

@@ -85,7 +85,7 @@ void DGVertex::add_exit_arc(const std::shared_ptr<DGArc>& arc) {
 
     // check if such arc exists already
     if (!children_.empty()) {
-      typedef ArcSetType::const_iterator aciter;
+      using aciter = ArcSetType::const_iterator;
       const aciter abegin = children_.begin();
       const aciter aend = children_.end();
       for (aciter a = abegin; a != aend; ++a) {
@@ -155,7 +155,7 @@ void DGVertex::del_exit_arcs() {
 void DGVertex::replace_exit_arc(const std::shared_ptr<DGArc>& A,
                                 const std::shared_ptr<DGArc>& B) {
   if (can_add_arcs_) {
-    typedef ArcSetType::iterator aiter;
+    using aiter = ArcSetType::iterator;
     if (!children_.empty()) {
       const aiter begin = children_.begin();
       const aiter end = children_.end();
@@ -278,8 +278,8 @@ void DGVertex::reset() {
   dg_ = 0;
   subtree_ = std::shared_ptr<DRTree>();
 
-  typedef ArcSetType::const_iterator citer;
-  typedef ArcSetType::iterator iter;
+  using citer = ArcSetType::const_iterator;
+  using iter = ArcSetType::iterator;
   const citer end = children_.end();
   for (iter a = children_.begin(); a != end; ++a) {
     (*a)->dest()->del_entry_arc(*a);
