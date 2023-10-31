@@ -98,7 +98,7 @@ class ArrayBraket {
 #if COMPUTE_SIZE_DIRECTLY
   mutable unsigned int size_;
 #endif
-};
+}
 
 template <class BFS, unsigned int NP>
 ArrayBraket<BFS, NP>::ArrayBraket() {

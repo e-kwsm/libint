@@ -394,6 +394,6 @@ typedef DefaultQuantumNumbers<int, 0>::Result EmptySet;
 */
 typedef DefaultQuantumNumbers<unsigned int, 1>::Result mType;
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
