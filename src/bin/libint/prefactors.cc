@@ -27,8 +27,8 @@ using namespace libint2;
 
 Prefactors::Prefactors()
     : rho(new rdouble("rho")), one_o_2alphasum(new rdouble("oo2ze")) {
-  using rdptr = SafePtr<rdouble>;
-  using cdptr = SafePtr<rdouble>;
+  using rdptr = std::shared_ptr<rdouble>;
+  using cdptr = std::shared_ptr<rdouble>;
 
   char XY[np][2] = {"P", "Q"};
   char X[np][2][2] = {{"A", "B"}, {"C", "D"}};
@@ -201,7 +201,7 @@ Prefactors::Prefactors()
 Prefactors::~Prefactors() {}
 
 #if CTIMEENTITIES_SINGLETONS
-SafePtr<Prefactors::cdouble> Prefactors::Cdouble(double a) {
+std::shared_ptr<Prefactors::cdouble> Prefactors::Cdouble(double a) {
   return prefactor::Scalar(a);
 }
 #endif

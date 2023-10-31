@@ -39,14 +39,15 @@ using namespace __gnu_cxx;
 MemoryManager::MemoryManager(const Size& maxmem)
     : maxmem_(maxmem),
       blks_(),
-      superblock_(new MemBlock(Address(0), maxmem, true, SafePtr<MemBlock>(),
-                               SafePtr<MemBlock>())),
+      superblock_(new MemBlock(Address(0), maxmem, true,
+                               std::shared_ptr<MemBlock>(),
+                               std::shared_ptr<MemBlock>())),
       max_memory_used_(0) {}
 
 MemoryManager::~MemoryManager() { reset(); }
 
-SafePtr<MemoryManager::MemBlock> MemoryManager::steal_from_block(
-    const SafePtr<MemBlock>& blk, const Size& size) {
+std::shared_ptr<MemoryManager::MemBlock> MemoryManager::steal_from_block(
+    const std::shared_ptr<MemBlock>& blk, const Size& size) {
   if (!blk->free())
     throw std::runtime_error(
         "MemoryManager::steal_from_block() -- block is not free");
@@ -64,8 +65,9 @@ SafePtr<MemoryManager::MemBlock> MemoryManager::steal_from_block(
   Address address = blk->address();
   blk->set_size(new_size);
   blk->set_address(address + size);
-  SafePtr<MemBlock> left = blk->left();
-  SafePtr<MemBlock> newblk(new MemBlock(address, size, false, left, blk));
+  std::shared_ptr<MemBlock> left = blk->left();
+  std::shared_ptr<MemBlock> newblk(
+      new MemBlock(address, size, false, left, blk));
   if (left) left->right(newblk);
   blk->left(newblk);
   blks_.push_back(newblk);
@@ -75,7 +77,7 @@ SafePtr<MemoryManager::MemBlock> MemoryManager::steal_from_block(
   return newblk;
 }
 
-SafePtr<MemoryManager::MemBlock> MemoryManager::find_block(
+std::shared_ptr<MemoryManager::MemBlock> MemoryManager::find_block(
     const Address& address) {
   using iter = memblkset::iterator;
   using std::placeholders::_1;
@@ -89,7 +91,7 @@ SafePtr<MemoryManager::MemBlock> MemoryManager::find_block(
 }
 
 void MemoryManager::free(const Address& address) {
-  SafePtr<MemBlock> blk = find_block(address);
+  std::shared_ptr<MemBlock> blk = find_block(address);
   if (!blk->free())
     blk->set_free(true);
   else
@@ -97,14 +99,14 @@ void MemoryManager::free(const Address& address) {
         "WorstFitMemoryManager::free() tried to free a free block");
 
   // Find blocks adjacent to this one and, if they are free, merge them
-  SafePtr<MemBlock> left = blk->left();
-  SafePtr<MemBlock> right = blk->right();
+  std::shared_ptr<MemBlock> left = blk->left();
+  std::shared_ptr<MemBlock> right = blk->right();
   if (left && left->free()) blk = merge_blocks(left, blk);
   if (right && right->free()) merge_blocks(blk, right);
 }
 
-SafePtr<MemoryManager::MemBlock> MemoryManager::merge_blocks(
-    const SafePtr<MemBlock>& left, const SafePtr<MemBlock>& right) {
+std::shared_ptr<MemoryManager::MemBlock> MemoryManager::merge_blocks(
+    const std::shared_ptr<MemBlock>& left, const SafePtr<MemBlock>& right) {
   if (left->free() != right->free())
     throw std::runtime_error(
         "MemoryManager::merge_block() -- both blocks must be occupied or free");
@@ -123,8 +125,8 @@ SafePtr<MemoryManager::MemBlock> MemoryManager::merge_blocks(
   if (right == superblock())
     return merge_to_superblock(left);
   else {
-    SafePtr<MemBlock> lleft = left->left();
-    SafePtr<MemBlock> rright = right->right();
+    std::shared_ptr<MemBlock> lleft = left->left();
+    std::shared_ptr<MemBlock> rright = right->right();
 
     using iter = memblkset::iterator;
     iter liter = find(blks_.begin(), blks_.end(), left);
@@ -140,7 +142,8 @@ SafePtr<MemoryManager::MemBlock> MemoryManager::merge_blocks(
       throw std::runtime_error(
           "MemoryManager::merge_block() -- right block is not found");
 
-    SafePtr<MemBlock> newblk(new MemBlock(address, size, free, lleft, rright));
+    std::shared_ptr<MemBlock> newblk(
+        new MemBlock(address, size, free, lleft, rright));
     blks_.push_back(newblk);
     if (lleft) {
       lleft->right(newblk);
@@ -153,9 +156,9 @@ SafePtr<MemoryManager::MemBlock> MemoryManager::merge_blocks(
   }
 }
 
-SafePtr<MemoryManager::MemBlock> MemoryManager::merge_to_superblock(
-    const SafePtr<MemBlock>& blk) {
-  SafePtr<MemBlock> sblk = superblock();
+std::shared_ptr<MemoryManager::MemBlock> MemoryManager::merge_to_superblock(
+    const std::shared_ptr<MemBlock>& blk) {
+  std::shared_ptr<MemBlock> sblk = superblock();
   using iter = memblkset::iterator;
   iter biter = find(blks_.begin(), blks_.end(), blk);
   if (biter != blks_.end())
@@ -165,7 +168,7 @@ SafePtr<MemoryManager::MemBlock> MemoryManager::merge_to_superblock(
         "MemoryManager::merge_to_superblock(blk) --  blk is not found");
   sblk->set_address(blk->address());
   sblk->set_size(sblk->size() + blk->size());
-  SafePtr<MemBlock> left = blk->left();
+  std::shared_ptr<MemBlock> left = blk->left();
   if (left) left->right(sblk);
   sblk->left(left);
   return sblk;
@@ -178,18 +181,19 @@ void MemoryManager::update_max_memory() {
 
 void MemoryManager::reset() {
   // for each block reset left and right pointers to break up cyclic
-  // dependencies that prevent automatic destruction of SafePtr-managed MemBlock
-  // objects
-  superblock_->left(SafePtr<MemBlock>());
-  superblock_->right(SafePtr<MemBlock>());
+  // dependencies that prevent automatic destruction of std::shared_ptr-managed
+  // MemBlock objects
+  superblock_->left(std::shared_ptr<MemBlock>());
+  superblock_->right(std::shared_ptr<MemBlock>());
   for (memblkset::iterator b = blks_.begin(); b != blks_.end(); ++b) {
-    (*b)->left(SafePtr<MemBlock>());
-    (*b)->right(SafePtr<MemBlock>());
+    (*b)->left(std::shared_ptr<MemBlock>());
+    (*b)->right(std::shared_ptr<MemBlock>());
   }
   memblkset empty_blks;
   swap(blks_, empty_blks);
-  superblock_ = SafePtr<MemBlock>(new MemBlock(
-      Address(0), maxmem_, true, SafePtr<MemBlock>(), SafePtr<MemBlock>()));
+  superblock_ = std::shared_ptr<MemBlock>(
+      new MemBlock(Address(0), maxmem_, true, std::shared_ptr<MemBlock>(),
+                   SafePtr<MemBlock>()));
 }
 
 ///////////////
@@ -236,7 +240,7 @@ MemoryManager::Address WorstFitMemoryManager::alloc(const Size& size) {
   }
 
   // find all free_blocks
-  std::list<SafePtr<MemBlock> > free_blks;
+  std::list<std::shared_ptr<MemBlock> > free_blks;
   for (iter b = blks.begin(); b != blks.end(); b++) {
     b = find_if(b, blks.end(), &MemBlock::is_free);
     if (b != blks.end())
@@ -247,16 +251,18 @@ MemoryManager::Address WorstFitMemoryManager::alloc(const Size& size) {
 
   // if no exact match found -- find the largest free block and grab memory from
   // it
-  std::list<SafePtr<MemBlock> >::iterator largest_free_block = max_element(
-      free_blks.begin(), free_blks.end(), &MemBlock::size_less_than);
+  std::list<std::shared_ptr<MemBlock> >::iterator largest_free_block =
+      max_element(free_blks.begin(), free_blks.end(),
+                  &MemBlock::size_less_than);
   if (largest_free_block != free_blks.end() &&
       (*largest_free_block)->size() > size) {
-    SafePtr<MemBlock> result = steal_from_block(*largest_free_block, size);
+    std::shared_ptr<MemBlock> result =
+        steal_from_block(*largest_free_block, size);
     return result->address();
   }
 
   // lastly, if all failed -- steal from the super block
-  SafePtr<MemBlock> result = steal_from_block(superblock(), size);
+  std::shared_ptr<MemBlock> result = steal_from_block(superblock(), size);
   return result->address();
 }
 
@@ -307,8 +313,8 @@ MemoryManager::Address BestFitMemoryManager::alloc(const Size& size) {
   }
 
   // find all free_blocks
-  std::list<SafePtr<MemBlock> > free_blks;
-  using fiter = std::list<SafePtr<MemBlock> >::iterator;
+  std::list<std::shared_ptr<MemBlock> > free_blks;
+  using fiter = std::list<std::shared_ptr<MemBlock> >::iterator;
   for (iter b = blks.begin(); b != blks.end(); b++) {
     b = find_if(b, blks.end(), &MemBlock::is_free);
     if (b != blks.end())
@@ -319,7 +325,7 @@ MemoryManager::Address BestFitMemoryManager::alloc(const Size& size) {
 
   // if there are no free blocks left -- steal from the super block
   if (free_blks.empty()) {
-    SafePtr<MemBlock> result = steal_from_block(superblock(), size);
+    std::shared_ptr<MemBlock> result = steal_from_block(superblock(), size);
     return result->address();
   }
 
@@ -329,7 +335,8 @@ MemoryManager::Address BestFitMemoryManager::alloc(const Size& size) {
 
   do {
     if ((*smallest_free_block)->size() > size + tight_fit_) {
-      SafePtr<MemBlock> result = steal_from_block(*smallest_free_block, size);
+      std::shared_ptr<MemBlock> result =
+          steal_from_block(*smallest_free_block, size);
       return result->address();
     } else {
       free_blks.erase(smallest_free_block);
@@ -341,7 +348,7 @@ MemoryManager::Address BestFitMemoryManager::alloc(const Size& size) {
   } while (smallest_free_block != free_blks.end());
 
   // Steal from superblock as a last resort
-  SafePtr<MemBlock> result = steal_from_block(superblock(), size);
+  std::shared_ptr<MemBlock> result = steal_from_block(superblock(), size);
   return result->address();
 }
 
@@ -396,7 +403,7 @@ MemoryManager::Address FirstFitMemoryManager::alloc(const Size& size) {
       compose2(logical_and<bool>(), bind2nd(ptr_fun(MemBlock::size_geq), size),
                &MemBlock::is_free));
   if (blk != blks.end()) {
-    SafePtr<MemBlock> result = steal_from_block(*blk, size);
+    std::shared_ptr<MemBlock> result = steal_from_block(*blk, size);
     return result->address();
   }
 #else
@@ -404,14 +411,14 @@ MemoryManager::Address FirstFitMemoryManager::alloc(const Size& size) {
   iter end = blks.end();
   for (iter b = begin; b != end; b++) {
     if ((*b)->size() >= size && (*b)->free()) {
-      SafePtr<MemBlock> result = steal_from_block(*b, size);
+      std::shared_ptr<MemBlock> result = steal_from_block(*b, size);
       return result->address();
     }
   }
 #endif
 
   // Steal from superblock as a last resort
-  SafePtr<MemBlock> result = steal_from_block(superblock(), size);
+  std::shared_ptr<MemBlock> result = steal_from_block(superblock(), size);
   return result->address();
 }
 
@@ -468,57 +475,58 @@ MemoryManager::Address LastFitMemoryManager::alloc(const Size& size) {
       compose2(logical_and<bool>(), bind2nd(ptr_fun(MemBlock::size_geq), size),
                &MemBlock::is_free));
   if (blk != rend) {
-    SafePtr<MemBlock> result = steal_from_block(*blk, size);
+    std::shared_ptr<MemBlock> result = steal_from_block(*blk, size);
     return result->address();
   }
 #else
   for (riter b = rbegin; b != rend; b++) {
     if ((*b)->size() >= size && (*b)->free()) {
-      SafePtr<MemBlock> result = steal_from_block(*b, size);
+      std::shared_ptr<MemBlock> result = steal_from_block(*b, size);
       return result->address();
     }
   }
 #endif
 
   // Steal from superblock as a last resort
-  SafePtr<MemBlock> result = steal_from_block(superblock(), size);
+  std::shared_ptr<MemBlock> result = steal_from_block(superblock(), size);
   return result->address();
 }
 
 //////////////
 
-SafePtr<MemoryManager> MemoryManagerFactory::memman(unsigned int type) const {
+std::shared_ptr<MemoryManager> MemoryManagerFactory::memman(
+    unsigned int type) const {
   switch (type) {
     case 0: {
-      SafePtr<MemoryManager> result(new WorstFitMemoryManager(true));
+      std::shared_ptr<MemoryManager> result(new WorstFitMemoryManager(true));
       return result;
     }
     case 1: {
-      SafePtr<MemoryManager> result(new WorstFitMemoryManager(false));
+      std::shared_ptr<MemoryManager> result(new WorstFitMemoryManager(false));
       return result;
     }
     case 2: {
-      SafePtr<MemoryManager> result(new BestFitMemoryManager(true));
+      std::shared_ptr<MemoryManager> result(new BestFitMemoryManager(true));
       return result;
     }
     case 3: {
-      SafePtr<MemoryManager> result(new BestFitMemoryManager(false));
+      std::shared_ptr<MemoryManager> result(new BestFitMemoryManager(false));
       return result;
     }
     case 4: {
-      SafePtr<MemoryManager> result(new FirstFitMemoryManager(true));
+      std::shared_ptr<MemoryManager> result(new FirstFitMemoryManager(true));
       return result;
     }
     case 5: {
-      SafePtr<MemoryManager> result(new FirstFitMemoryManager(false));
+      std::shared_ptr<MemoryManager> result(new FirstFitMemoryManager(false));
       return result;
     }
     case 6: {
-      SafePtr<MemoryManager> result(new LastFitMemoryManager(true));
+      std::shared_ptr<MemoryManager> result(new LastFitMemoryManager(true));
       return result;
     }
     case 7: {
-      SafePtr<MemoryManager> result(new LastFitMemoryManager(false));
+      std::shared_ptr<MemoryManager> result(new LastFitMemoryManager(false));
       return result;
     }
     default:

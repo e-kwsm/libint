@@ -48,8 +48,9 @@ inline void header_guard_close(std::ostream& os) {
 
 };  // namespace
 
-Libint2Iface::Libint2Iface(const SafePtr<CompilationParameters>& cparams,
-                           const SafePtr<CodeContext>& ctext)
+Libint2Iface::Libint2Iface(
+    const std::shared_ptr<CompilationParameters>& cparams,
+    const std::shared_ptr<CodeContext>& ctext)
     : null_str_(""),
       oss_(),
       cparams_(cparams),
@@ -215,7 +216,7 @@ Libint2Iface::~Libint2Iface() {
   LibraryTaskManager& taskmgr = LibraryTaskManager::Instance();
   using tciter = LibraryTaskManager::TasksCIter;
   for (tciter t = taskmgr.first(); t != taskmgr.plast(); ++t) {
-    SafePtr<TaskParameters> tparams = t->params();
+    std::shared_ptr<TaskParameters> tparams = t->params();
     const std::string& tlabel = t->label();
     ph_ << macro_define(tlabel, "NUM_TARGETS", tparams->max_ntarget());
     const unsigned int max_am = tparams->max_am();
@@ -492,7 +493,7 @@ void Libint2Iface::generate_inteval_type(std::ostream& os) {
   const tciter tend =
       cparams_->single_evaltype() ? taskmgr.first() + 1 : taskmgr.plast();
   for (tciter t = taskmgr.first(); t != tend; ++t) {
-    const SafePtr<TaskExternSymbols> tsymbols = t->symbols();
+    const std::shared_ptr<TaskExternSymbols> tsymbols = t->symbols();
 
     // Prologue
     os << "typedef struct {" << std::endl;
@@ -507,7 +508,7 @@ void Libint2Iface::generate_inteval_type(std::ostream& os) {
       TaskExternSymbols composite_symbols;
       const tciter tend = taskmgr.plast();
       for (tciter t = taskmgr.first(); t != tend; ++t) {
-        const SafePtr<TaskExternSymbols> tsymbols = t->symbols();
+        const std::shared_ptr<TaskExternSymbols> tsymbols = t->symbols();
         composite_symbols.add(tsymbols->symbols());
       }
       symbols = composite_symbols.symbols();
@@ -598,7 +599,7 @@ void Libint2Iface::generate_inteval_type(std::ostream& os) {
       unsigned int max_ntargets = 0;
       const tciter tend = taskmgr.plast();
       for (tciter t = taskmgr.first(); t != tend; ++t) {
-        SafePtr<TaskParameters> tparams = t->params();
+        std::shared_ptr<TaskParameters> tparams = t->params();
         max_ntargets = std::max(max_ntargets, tparams->max_ntarget());
       }
       ostringstream oss;
