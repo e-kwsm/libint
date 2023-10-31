@@ -45,7 +45,7 @@ int bool_test = 0;
 #include <libint2/util/memory.h>
 #include <libint2/util/timer.h>
 #include <libint2/util/vector.h>
-typedef struct {
+struct Libint_t {
   LIBINT2_REALTYPE AB_x[LIBINT2_MAX_VECLEN];
   LIBINT2_REALTYPE AB_y[LIBINT2_MAX_VECLEN];
   LIBINT2_REALTYPE AB_z[LIBINT2_MAX_VECLEN];
@@ -72,7 +72,7 @@ typedef struct {
   mutable LIBINT2_UINT_LEAST64* nflops;
 #endif
   int contrdepth;
-} Libint_t;
+};
 #endif
 
 #include <VRR_GTG_1d_xx_xx.h>
@@ -183,7 +183,7 @@ struct Tensor {
 };
 };  // namespace libint2
 
-typedef unsigned int uint;
+using uint = unsigned int;
 
 libint2::FmEval_Chebyshev7<double> fmeval_chebyshev(28);
 libint2::FmEval_Taylor<double, 7> fmeval_taylor(28, 1e-15);
@@ -239,7 +239,7 @@ int main(int argc, char** argv) {
   LIBINT2_REF_REALTYPE Dref[4];
   for (int i = 0; i < 4; ++i) Dref[i] = D[i];
 
-  typedef SubIteratorBase<CGShell> iter;
+  using iter = SubIteratorBase<CGShell>;
   std::shared_ptr<iter> sh0_iter(new iter(sh0));
   std::shared_ptr<iter> sh1_iter(new iter(sh1));
   std::shared_ptr<iter> sh2_iter(new iter(sh2));
@@ -372,7 +372,7 @@ int main(int argc, char** argv) {
 #endif
 
   // prepare to compute 2-dimensional ints
-  typedef LIBINT2_REALTYPE real_t;
+  using real_t = LIBINT2_REALTYPE;
   Tensor<real_t> gtg_x{npts, am[0] + 1, am[1] + 1, am[2] + 1, am[3] + 1};
   Tensor<real_t> gtg_y{npts, am[0] + 1, am[1] + 1, am[2] + 1, am[3] + 1};
   Tensor<real_t> gtg_z{npts, am[0] + 1, am[1] + 1, am[2] + 1, am[3] + 1};
@@ -398,12 +398,12 @@ int main(int argc, char** argv) {
                         FOR_CART(x2,y2,z2,am2)
                                 unsigned int x3,y3,z3;
                                 FOR_CART(x3,y3,z3,am3)
-                                //LIBINT2_REALTYPE new_eri = 0;
-                                //for(uint pt=0; pt!=npts; ++pt) {
+                                //	LIBINT2_REALTYPE new_eri = 0;
+                                //	for(uint pt=0; pt!=npts; ++pt) {
   //I think I want to time this... ?
-                                //new_eri += gtg_x(pt,x0,x1,x2,x3)
+                                //		new_eri += gtg_x(pt,x0,x1,x2,x3)
   * gtg_y(pt,y0,y1,y2,y3) * gtg_z(pt,z0,z1,z2,z3);
-                                //}
+                                //	}
                                         std::cout<<x0<<x1<<x2<<x3<<"
   "<<y0<<y1<<y2<<y3<<" "<<z0<<z1<<z2<<z3<<std::endl; END_FOR_CART END_FOR_CART
                 END_FOR_CART
@@ -574,7 +574,7 @@ int main(int argc, char** argv) {
       FOR_CART(x2, y2, z2, am2)
       int x3, y3, z3;
       FOR_CART(x3, y3, z3, am3)
-      // std::cout<<x0<<y1<<z1<<" "<<x1<<y1<<z1<<" "<<x2<<y2<<z2<<"
+      //	std::cout<<x0<<y1<<z1<<" "<<x1<<y1<<z1<<" "<<x2<<y2<<z2<<"
       //"<<x3<<y3<<z3<<std::endl;
       for (uint pt = 0; pt != npts; ++pt) {
         auto l0 = static_cast<unsigned int>(x0);

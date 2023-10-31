@@ -48,7 +48,8 @@ int main(int argc, char* argv[]) {
 
 namespace {
 
-typedef TwoPRep_11_11_sq ERIQtet;
+unsigned int am[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+using ERIQtet = TwoPRep_11_11_sq;
 
 int try_main(int argc, char* argv[]) {
 #if LIBINT_CONTRACTED_INTS

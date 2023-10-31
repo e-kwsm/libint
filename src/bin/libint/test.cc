@@ -182,7 +182,7 @@ void test0() {
   std::shared_ptr<TwoPRep_11_11_sq> pppp_quartet =
       TwoPRep_11_11_sq::Instance(sh_p, sh_p, sh_p, sh_p, 0u);
   std::shared_ptr<DGVertex> pppp_ptr =
-      std::dynamic_pointer_cast<DGVertex, TwoPRep_11_11_sq>(pppp_quartet);
+      dynamic_pointer_cast<DGVertex, TwoPRep_11_11_sq>(pppp_quartet);
 
   // test CGShell iterator
   test_cgshell_iter(sh_s);
@@ -210,7 +210,7 @@ void test1() {
       TwoPRep_11_11_sq::Instance(sh_f, sh_f, sh_f, sh_f, 0u);
   cout << "Building " << xsxs_quartet->description() << endl;
   std::shared_ptr<DGVertex> xsxs_ptr =
-      std::dynamic_pointer_cast<DGVertex, TwoPRep_11_11_sq>(xsxs_quartet);
+      dynamic_pointer_cast<DGVertex, TwoPRep_11_11_sq>(xsxs_quartet);
 
   std::shared_ptr<MemoryManagerFactory> mmfactory(new MemoryManagerFactory);
 
@@ -301,7 +301,7 @@ void RunBuildTest(const typename Integral::BasisFunctionType& f1,
                   const typename Integral::OperType::Descriptor& descr,
                   unsigned int size_to_unroll) {
   std::string descr_label("build ");
-  typedef typename Integral::OperType::Descriptor Descriptor;
+  using Descriptor = typename Integral::OperType::Descriptor;
   GenOper<Descriptor> oper(descr);
   std::shared_ptr<Integral> i = Integral::Instance(f1, f2, f3, f4, m, oper);
   descr_label += i->label();
@@ -330,6 +330,7 @@ void test_cgshell_iter(const CGShell& sh) {
 
 void test2() {
   CGShell::set_contracted_default_value(true);
+  const bool contracted_targets_old_value = cparams->contracted_targets();
   cparams->contracted_targets(true);
   CGShell csh_s(0u);
   CGShell csh_p(1u);
@@ -341,41 +342,41 @@ void test2() {
   CGShell csh_q(12u);
 
   {
-    typedef TwoPRep_11_11_sq IType;
+    using IType = TwoPRep_11_11_sq;
     std::shared_ptr<IType> iset = IType::Instance(sh_p, sh_p, sh_p, sh_p, 0u);
     std::cout << "Created integral set " << iset->label()
               << " key = " << iset->key() << std::endl;
   }
   {
-    typedef R12kG12_11_11_sq IType;
+    using IType = R12kG12_11_11_sq;
     std::shared_ptr<IType> iset =
         IType::Instance(sh_p, sh_p, sh_p, sh_p, 0u, IType::OperType(-1));
     std::cout << "Created integral set " << iset->label()
               << " key = " << iset->key() << std::endl;
   }
   {
-    typedef TwoPRep_11_11_sq IType;
+    using IType = TwoPRep_11_11_sq;
     std::shared_ptr<IType> iset =
         IType::Instance(csh_s, csh_q, csh_s, csh_s, 0u);
     std::cout << "Created integral set " << iset->label()
               << " key = " << iset->key() << std::endl;
   }
   {
-    typedef TwoPRep_11_11_sq IType;
+    using IType = TwoPRep_11_11_sq;
     std::shared_ptr<IType> iset =
         IType::Instance(csh_s, csh_d_dx, csh_s, csh_s, 0u);
     std::cout << "Created integral set " << iset->label()
               << " key = " << iset->key() << std::endl;
   }
   {
-    typedef TwoPRep_11_11_sq IType;
+    using IType = TwoPRep_11_11_sq;
     std::shared_ptr<IType> iset =
         IType::Instance(csh_s, csh_f_dx, csh_s, csh_s, 0u);
     std::cout << "Created integral set " << iset->label()
               << " key = " << iset->key() << std::endl;
   }
   {
-    typedef TwoPRep_11_11_sq IType;
+    using IType = TwoPRep_11_11_sq;
     std::shared_ptr<IType> iset =
         IType::Instance(csh_q, csh_q, csh_q, csh_q, 0u);
     std::cout << "Created integral set " << iset->label()
@@ -385,22 +386,22 @@ void test2() {
 
 void test3() {
   {
-    typedef TwoPRep_11_11_sq IType;
-    typedef VRR_a_11_TwoPRep_11_sh RRType;
+    using IType = TwoPRep_11_11_sq;
+    using RRType = VRR_a_11_TwoPRep_11_sh;
     std::shared_ptr<IType> iset = IType::Instance(sh_p, sh_p, sh_p, sh_p, 0u);
     std::shared_ptr<RRType> rr = RRType::Instance(iset, 0);
     std::cout << "Created recurrence relation " << rr->label() << std::endl;
   }
   {
-    typedef TwoPRep_11_11_sq IType;
-    typedef VRR_c_11_TwoPRep_11_sh RRType;
+    using IType = TwoPRep_11_11_sq;
+    using RRType = VRR_c_11_TwoPRep_11_sh;
     std::shared_ptr<IType> iset = IType::Instance(sh_p, sh_p, sh_p, sh_p, 0u);
     std::shared_ptr<RRType> rr = RRType::Instance(iset, 0);
     std::cout << "Created recurrence relation " << rr->label() << std::endl;
   }
   {
-    typedef DivG12prime_xTx_11_11_sq IType;
-    typedef CR_11_DivG12prime_xTx_11_sh RRType;
+    using IType = DivG12prime_xTx_11_11_sq;
+    using RRType = CR_11_DivG12prime_xTx_11_sh;
     std::shared_ptr<IType> iset =
         IType::Instance(sh_p, sh_p, sh_p, sh_p, 0u, DivG12prime_xTx_Descr(0));
     std::shared_ptr<RRType> rr = RRType::Instance(iset, 0);

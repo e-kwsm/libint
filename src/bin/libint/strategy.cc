@@ -422,7 +422,7 @@ class apply_strategy {
  public:
   struct Impl {
     Impl(const std::shared_ptr<DirectedGraph>& dg,
-         const SafePtr<IntType>& integral,
+         const std::shared_ptr<IntType>& integral,
          const std::shared_ptr<Tactic>& tactic)
         : dg_(dg), integral_(integral), tactic_(tactic), done_(false) {}
 
@@ -569,7 +569,7 @@ class match_first_inttype {
  public:
   struct Impl {
     Impl(const std::shared_ptr<DirectedGraph>& dg,
-         const SafePtr<DGVertex>& integral,
+         const std::shared_ptr<DGVertex>& integral,
          const std::shared_ptr<Tactic>& tactic)
         : dg_(dg),
           integral_(integral),
@@ -609,7 +609,8 @@ class match_first_inttype {
 
 std::shared_ptr<RecurrenceRelation> Strategy::optimal_rr(
     const std::shared_ptr<DirectedGraph>& graph,
-    const SafePtr<DGVertex>& integral, const std::shared_ptr<Tactic>& tactic) {
+    const std::shared_ptr<DGVertex>& integral,
+    const std::shared_ptr<Tactic>& tactic) {
 #if 0
   {
     std::cout << "Strategy::optimal_rr() -- integral:" << std::endl;
