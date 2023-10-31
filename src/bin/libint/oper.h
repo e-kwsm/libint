@@ -598,6 +598,6 @@ struct DivG12prime_xTx_Descr : public Contractable<DivG12prime_xTx_Descr> {
 };
 typedef GenOper<DivG12prime_xTx_Descr> DivG12prime_xTx;
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
