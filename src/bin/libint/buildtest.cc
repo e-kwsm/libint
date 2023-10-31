@@ -95,4 +95,4 @@ void generate_rr_code(std::ostream& os,
   }
 }
 
-};  // namespace libint2
+}  // namespace libint2

@@ -542,7 +542,7 @@ static const char labels_[MemoryManagerFactory::ntypes][80] = {
     "FirstFitMemoryManager(true)", "FirstFitMemoryManager(false)",
     "LastFitMemoryManager(true)",  "LastFitMemoryManager(false)"};
 
-};
+}
 
 std::string MemoryManagerFactory::label(unsigned int type) const {
   return MMTypes::labels_[type];
