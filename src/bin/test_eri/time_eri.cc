@@ -40,7 +40,7 @@
 using namespace std;
 using namespace libint2;
 
-typedef unsigned int uint;
+using uint = unsigned int;
 
 libint2::FmEval_Chebyshev7<double> fmeval_chebyshev(28);
 libint2::FmEval_Taylor<double, 6> fmeval_taylor(28, 1e-15);
@@ -52,7 +52,7 @@ unsigned int am2nbf(unsigned int);
 };  // namespace
 
 int main(int argc, char** argv) {
-  typedef unsigned int uint;
+  using uint = unsigned int;
 
   if (argc != 2) {
     cerr << usage() << endl;
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
   const double* C = &(rsqset.R[2][0]);
   const double* D = &(rsqset.R[3][0]);
 
-  typedef SubIteratorBase<CGShell> iter;
+  using iter = SubIteratorBase<CGShell>;
   std::shared_ptr<iter> sh0_iter(new iter(sh0));
   std::shared_ptr<iter> sh1_iter(new iter(sh1));
   std::shared_ptr<iter> sh2_iter(new iter(sh2));

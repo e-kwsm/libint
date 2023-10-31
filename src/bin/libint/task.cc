@@ -82,7 +82,7 @@ LibraryTask& LibraryTaskManager::current() {
 ////
 
 void TaskExternSymbols::add(const SymbolList& symbols) {
-  typedef SymbolList::const_iterator citer;
+  using citer = SymbolList::const_iterator;
   citer end = symbols.end();
   for (citer s = symbols.begin(); s != end; ++s) {
     symbols_[*s] = true;
@@ -90,7 +90,7 @@ void TaskExternSymbols::add(const SymbolList& symbols) {
 }
 
 void TaskExternSymbols::add(const RRList& rrlist) {
-  typedef RRList::const_iterator citer;
+  using citer = RRList::const_iterator;
   citer end = rrlist.end();
   for (citer rr = rrlist.begin(); rr != end; ++rr) {
     rrmap_[*rr] = true;
@@ -99,7 +99,7 @@ void TaskExternSymbols::add(const RRList& rrlist) {
 
 const TaskExternSymbols::SymbolList& TaskExternSymbols::symbols() const {
   symbollist_.clear();
-  typedef Symbols::const_iterator citer;
+  using citer = Symbols::const_iterator;
   citer end = symbols_.end();
 
   for (citer s = symbols_.begin(); s != end; ++s) {
@@ -109,14 +109,14 @@ const TaskExternSymbols::SymbolList& TaskExternSymbols::symbols() const {
 }
 
 bool TaskExternSymbols::find(const RRid& rrid) const {
-  typedef RRmap::const_iterator citer;
+  using citer = RRmap::const_iterator;
   citer found = rrmap_.find(rrid);
   return (found != rrmap_.end());
 }
 
 TaskExternSymbols::RRList TaskExternSymbols::rrlist() const {
   RRList result;
-  typedef RRmap::const_iterator citer;
+  using citer = RRmap::const_iterator;
   citer end = rrmap_.end();
   for (citer rr = rrmap_.begin(); rr != end; ++rr) {
     result.push_back(rr->first);

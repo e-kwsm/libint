@@ -77,7 +77,7 @@ inline float cast<float, Vec4f>(Vec4f i) {
 
 };  // namespace libint2
 
-typedef unsigned int uint;
+using uint = unsigned int;
 
 libint2::FmEval_Chebyshev7<double> fmeval_chebyshev(28);
 libint2::FmEval_Taylor<double, 6> fmeval_taylor(28, 1e-15);
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
   LIBINT2_REF_REALTYPE Dref[4];
   for (int i = 0; i < 4; ++i) Dref[i] = D[i];
 
-  typedef SubIteratorBase<CGShell> iter;
+  using iter = SubIteratorBase<CGShell>;
   std::shared_ptr<iter> sh0_iter(new iter(sh0));
   std::shared_ptr<iter> sh1_iter(new iter(sh1));
   std::shared_ptr<iter> sh2_iter(new iter(sh2));
