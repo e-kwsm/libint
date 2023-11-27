@@ -26,16 +26,20 @@
 
 namespace libint2 {
 
-  /**
-     RidotRjG12_11_11 --
-     integral over RidotRj_G12 operator with one bfs for each particle in bra and ket.
-  */
-  typedef GenIntegralSet_11_11<CGShell,R1dotR1_G12,EmptySet> R1dotR1G12_11_11_sq;
-  typedef GenIntegralSet_11_11<CGF,R1dotR1_G12,EmptySet> R1dotR1G12_11_11_int;
-  typedef GenIntegralSet_11_11<CGShell,R2dotR2_G12,EmptySet> R2dotR2G12_11_11_sq;
-  typedef GenIntegralSet_11_11<CGF,R2dotR2_G12,EmptySet> R2dotR2G12_11_11_int;
-  typedef GenIntegralSet_11_11<CGShell,R1dotR2_G12,EmptySet> R1dotR2G12_11_11_sq;
-  typedef GenIntegralSet_11_11<CGF,R1dotR2_G12,EmptySet> R1dotR2G12_11_11_int;
+/**
+   RidotRjG12_11_11 --
+   integral over RidotRj_G12 operator with one bfs for each particle in bra and
+   ket.
+*/
+typedef GenIntegralSet_11_11<CGShell, R1dotR1_G12, EmptySet>
+    R1dotR1G12_11_11_sq;
+typedef GenIntegralSet_11_11<CGF, R1dotR1_G12, EmptySet> R1dotR1G12_11_11_int;
+typedef GenIntegralSet_11_11<CGShell, R2dotR2_G12, EmptySet>
+    R2dotR2G12_11_11_sq;
+typedef GenIntegralSet_11_11<CGF, R2dotR2_G12, EmptySet> R2dotR2G12_11_11_int;
+typedef GenIntegralSet_11_11<CGShell, R1dotR2_G12, EmptySet>
+    R1dotR2G12_11_11_sq;
+typedef GenIntegralSet_11_11<CGF, R1dotR2_G12, EmptySet> R1dotR2G12_11_11_int;
 
 #if 0
   template <class BFS> class R1dotR2G12_11_11 :
@@ -95,7 +99,7 @@ namespace libint2 {
     typename R1dotR2G12_11_11<BFS>::SingletonManagerType
     R1dotR2G12_11_11<BFS>::singl_manager_(&R1dotR2G12_11_11<BFS>::key);
 #else
-#  error "USE_INT_KEY_TO_HASH must be set"
+#error "USE_INT_KEY_TO_HASH must be set"
 #endif
 
   template <class BFS>
@@ -206,7 +210,6 @@ namespace libint2 {
   typedef R1dotR2G12_11_11<CGF> R1dotR2G12_11_11_int;
 #endif
 
-};
+};  // namespace libint2
 
 #endif
-

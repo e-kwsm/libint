@@ -87,7 +87,7 @@ namespace libint2 {
     typename R1dotR1G12_11_11<BFS>::SingletonManagerType
     R1dotR1G12_11_11<BFS>::singl_manager_(&R1dotR1G12_11_11<BFS>::key);
 #else
-#  error "USE_INT_KEY_TO_HASH must be set"
+#error "USE_INT_KEY_TO_HASH must be set"
 #endif
 
   template <class BFS>
@@ -197,7 +197,6 @@ namespace libint2 {
   typedef R1dotR1G12_11_11<CGShell> R1dotR1G12_11_11_sq;
   typedef R1dotR1G12_11_11<CGF> R1dotR1G12_11_11_int;
 #endif
-};
+};  // namespace libint2
 
 #endif
-

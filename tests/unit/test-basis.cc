@@ -7,12 +7,11 @@ TEST_CASE("Basis", "[basis]") {
   auto atoms = libint2::read_dotxyz(sstr);
   auto test = [&atoms](const char* name) {
     libint2::BasisSet bs;
-    REQUIRE_NOTHROW(bs = libint2::BasisSet(
-        name, atoms));
+    REQUIRE_NOTHROW(bs = libint2::BasisSet(name, atoms));
     std::cout << "name=" << name << std::endl;
     REQUIRE(bs.nbf() > 0);
   };
-  for(auto&& bs_name : {"3-21g",
+  for (auto&& bs_name : {"3-21g",
                          "6-311g**",
                          "6-311gss",
                          "6-31g",
