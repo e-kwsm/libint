@@ -78,7 +78,7 @@ using Matrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowM
 usinig DiagonalMatrix = Eigen::DiagonalMatrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
 #ifdef LIBINT2_HAVE_BTAS
-typedef btas::Tensor<double> tensor;
+using tensor = btas::Tensor<double>;
 #endif
 
 using libint2::Atom;
@@ -171,7 +171,7 @@ struct DFFockEngine {
   const BasisSet& dfbs;
   DFFockEngine(const BasisSet& _obs, const BasisSet& _dfbs)
       : obs(_obs), dfbs(_dfbs) {}
-  typedef btas::Tensor<double> Tensor;
+  using Tensor = btas::Tensor<double>;
   Tensor xyK;
 
   // a DF-based builder, using coefficients of occupied MOs
@@ -961,8 +961,8 @@ std::array<Matrix, libint2::operator_traits<obtype>::nopers> compute_1body_ints(
   const auto n = obs.nbf();
   const auto nshells = obs.size();
   using libint2::nthreads;
-  typedef std::array<Matrix, libint2::operator_traits<obtype>::nopers>
-      result_type;
+  using result_type =
+      std::array<Matrix, libint2::operator_traits<obtype>::nopers>;
   const unsigned int nopers = libint2::operator_traits<obtype>::nopers;
   result_type result;
   for (auto& r : result) r = Matrix::Zero(n, n);
@@ -1033,7 +1033,7 @@ std::vector<Matrix> compute_1body_ints_deriv(unsigned deriv_order,
   constexpr auto nopers = libint2::operator_traits<obtype>::nopers;
   const auto nresults =
       nopers * libint2::num_geometrical_derivatives(atoms.size(), deriv_order);
-  typedef std::vector<Matrix> result_type;
+  using result_type = std::vector<Matrix>;
   result_type result(nresults);
   for (auto& r : result) r = Matrix::Zero(n, n);
 
