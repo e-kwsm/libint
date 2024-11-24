@@ -197,7 +197,7 @@ class AlgebraicOperator : public DGVertex {
   bool this_precomputed() const override { return false; }
 
   std::string label_;
-}
+};
 
 /*
 template <>
@@ -289,6 +289,6 @@ typename LinearCombination<C, algebra::Wedge<Tl, Tr> >::data_t* operator^(
   return result;
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
