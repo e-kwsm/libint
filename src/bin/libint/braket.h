@@ -293,7 +293,7 @@ template <class F>
 BraketPair<F, CKet> _cket(const F& f1, const F& f2) {
   return BraketPair<F, CKet>(f1, f2);
 }
-};  // namespace braket
+}  // namespace braket
 
 template <class BFS, BraketType BKTypeL, BraketType BKTypeR>
 algebra::Wedge<BraketPair<BFS, BKTypeL>, BraketPair<BFS, BKTypeR> > operator^(
@@ -301,6 +301,6 @@ algebra::Wedge<BraketPair<BFS, BKTypeL>, BraketPair<BFS, BKTypeR> > operator^(
   return algebra::make_wedge(L, R);
 }
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif
