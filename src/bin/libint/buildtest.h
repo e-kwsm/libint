@@ -404,10 +404,9 @@ void BuildTest(const std::vector<std::shared_ptr<Integral> >& targets,
   // use 4-center OS if the target is a 4-center integral
   std::shared_ptr<Tactic> tactic;
   {
-    typedef GenIntegralSet_11_11<typename Integral::BasisFunctionType,
+    using genint_11_11_t = GenIntegralSet_11_11<typename Integral::BasisFunctionType,
                                  typename Integral::OperatorType,
-                                 typename Integral::AuxIndexType>
-        genint_11_11_t;
+                                 typename Integral::AuxIndexType>;
     std::shared_ptr<genint_11_11_t> cast_ptr =
         std::dynamic_pointer_cast<genint_11_11_t>(targets.front());
     if (cast_ptr) {

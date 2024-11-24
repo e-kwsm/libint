@@ -266,8 +266,8 @@ class CGShell : public IncableBFSet,
 
  public:
   /// As far as SetIterator is concerned, CGShell is a set of CGFs
-  typedef CGF iter_type;
-  typedef IncableBFSet parent_type;
+  using iter_type = CGF;
+  using parent_type = IncableBFSet;
 
   /// Default constructor creates an s-type shell
   CGShell();
@@ -354,8 +354,8 @@ class CGF : public IncableBFSet,
 
  public:
   /// As far as SetIterator is concerned, CGF is a set of one CGF
-  typedef CGF iter_type;
-  typedef IncableBFSet parent_type;
+  using iter_type = CGF;
+  using parent_type = IncableBFSet;
   /// How to return key
   // typedef typename Hashable<unsigned,ComputeKey>::KeyReturnType
   // KeyReturnType;
@@ -463,8 +463,8 @@ class CGF1d : public IncableBFSet,
   static constexpr auto axis = Axis;
 
   /// As far as SetIterator is concerned, CGF1d is a set of one CGF1d
-  typedef CGF1d iter_type;
-  typedef IncableBFSet parent_type;
+  using iter_type = CGF1d;
+  using parent_type = IncableBFSet;
 
   /// Default constructor makes an qn=0 Gaussian
   CGF1d() : unit_(false) { qn_[0] = 0; }
@@ -653,8 +653,8 @@ class CGShell1d : public IncableBFSet,
   static constexpr auto axis = Axis;
 
   /// CGShell1d is a set CGF1d's
-  typedef CGF1d<Axis> iter_type;
-  typedef IncableBFSet parent_type;
+  using iter_type = CGF1d<Axis>;
+  using parent_type = IncableBFSet;
 
   /// Default constructor makes a qn=0 shell
   CGShell1d() : unit_(false) { qn_[0] = 0; }
@@ -783,8 +783,8 @@ class CGShell1d : public IncableBFSet,
 
   public:
     /// As far as SetIterator is concerned, SHGShell is a set of SHGFs
-    typedef SHGF iter_type;
-    typedef IncableBFSet parent_type;
+    using iter_type = SHGF;
+    using parent_type = IncableBFSet;
 
     /// Default constructor creates an s-type shell
     SHGShell();
@@ -840,8 +840,8 @@ class CGShell1d : public IncableBFSet,
 
   public:
     /// As far as SetIterator is concerned, SHGF is a set of one SHGF
-    typedef SHGF iter_type;
-    typedef IncableBFSet parent_type;
+    using iter_type = SHGF;
+    using parent_type = IncableBFSet;
     /// How to return key
     //typedef typename Hashable<unsigned,ComputeKey>::KeyReturnType KeyReturnType;
 

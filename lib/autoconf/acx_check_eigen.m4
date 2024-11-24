@@ -11,7 +11,7 @@ AC_DEFUN([ACX_CHECK_EIGEN], [
         #include <Eigen/Eigenvalues>
       ]],
       [[
-       typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Matrix;
+       using Matrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
        Matrix h; h << 2.0, 1.0, 1.0, 2.0;
        Matrix s; s << 1.0, 0.0, 0.0, 1.0;
        Eigen::GeneralizedSelfAdjointEigenSolver<Matrix> gen_eig_solver(h, s);

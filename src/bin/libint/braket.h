@@ -39,20 +39,19 @@ template <class BFS, unsigned int NP>
 class ArrayBraket {
  public:
   /// This type
-  typedef ArrayBraket<BFS, NP> this_type;
+  using this_type = ArrayBraket<BFS, NP>;
   /// There's no parent
-  typedef struct {
-  } parent_type;
+  struct parent_type {};
   /// The iterator through ArrayBraket
-  typedef ArrayBraket<typename BFS::iter_type, NP> iter_type;
+  using iter_type = ArrayBraket<typename BFS::iter_type, NP>;
   /// The total # of particles
   static constexpr auto num_particles = NP;
   /// The total # of basis functions = # of particles (since 1 bf / particle)
   static constexpr auto num_bf = NP;
 
-  typedef BFS bfs_type;
-  typedef bfs_type& bfs_ref;
-  typedef const BFS& bfs_cref;
+  using bfs_type = BFS;
+  using bfs_ref = bfs_type&;
+  using bfs_cref = const BFS&;
 
   /** This one is a very dangerous constructor -- do not to use it if at all
      possible. Provided only for compatibility for generic subiterator
@@ -221,7 +220,7 @@ void ArrayBraket<BFS, NP>::reset_cache() {
 template <typename BFS>
 struct DefaultOnePBraket {
   /// This defines which Braket implementation to use
-  typedef ArrayBraket<BFS, 1> Result;
+  using Result = ArrayBraket<BFS, 1>;
 };
 
 /// This is the implementation of the Braket concept used by
@@ -230,7 +229,7 @@ struct DefaultOnePBraket {
 template <typename BFS>
 struct DefaultTwoPBraket {
   /// This defines which Braket implementation to use
-  typedef ArrayBraket<BFS, 2> Result;
+  using Result = ArrayBraket<BFS, 2>;
 };
 
 ///////////
@@ -247,8 +246,8 @@ template <class BFS, BraketType BKType>
 class BraketPair {
  public:
   /// This type
-  typedef BraketPair<BFS, BKType> this_type;
-  typedef BFS bfs_type;
+  using this_type = BraketPair<BFS, BKType>;
+  using bfs_type = BFS;
 
   /** This one is a very dangerous constructor -- do not to use it if at all
      possible. Provided only for compatibility for generic subiterator
