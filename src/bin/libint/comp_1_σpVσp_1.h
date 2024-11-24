@@ -151,6 +151,6 @@ CR_1_σpVσp_1<F>::CR_1_σpVσp_1(const std::shared_ptr<TargetType> &Tint,
 
 }  // CR_1_σpVσp_1<F>::CR_1_σpVσp_1
 
-};  // namespace libint2
+}  // namespace libint2
 
 #endif  // LIBINT_COMP_1_ΣPVΣP_1_H

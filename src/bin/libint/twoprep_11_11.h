@@ -39,7 +39,7 @@ bool is_nonderiv_ss_product(Bra&& bra) {
   return bra.member(0, 0).zero() && bra.member(1, 0).zero() &&
          !bra.member(0, 0).contracted() && !bra.member(1, 0).contracted() &&
          bra.member(0, 0).deriv().zero() && bra.member(1, 0).deriv().zero();
-};
+}
 }  // namespace detail
 /// uncontracted (ss|ss)^{(m)} integral is precomputed (but not shell quartet)
 template <>
