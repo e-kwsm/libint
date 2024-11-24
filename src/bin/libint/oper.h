@@ -64,7 +64,7 @@ class OperatorProperties {
 class OperSet : public ConstructablePolymorphically {
  public:
   typedef DummyIterator iter_type;
-  virtual ~OperSet(){};
+  ~OperSet() override {}
 
   /// Returns full human-readable description of the operator
   virtual std::string description() const = 0;
@@ -91,7 +91,7 @@ template <class Props>
 class Oper : public OperSet {
  public:
   typedef Props Properties;
-  virtual ~Oper() {}
+  ~Oper() override {}
 
   /// Implementation of OperSet::psymm()
   int psymm(int i, int j) const override;
@@ -193,7 +193,7 @@ class GenOper : public Oper<typename Descr::Properties>,
   explicit GenOper(const ConstructablePolymorphically& o)
       : descr_(require_dynamic_cast<GenOper, ConstructablePolymorphically>(&o)
                    ->descr_) {}
-  virtual ~GenOper() {}
+  ~GenOper() override {}
 
  private:
   Descr descr_;
