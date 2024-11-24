@@ -106,10 +106,10 @@ template <class ArcRel>
 DGArcRel<ArcRel>::DGArcRel(const std::shared_ptr<DGVertex>& orig,
                            const std::shared_ptr<DGVertex>& dest,
                            const std::shared_ptr<ArcRel>& rel)
-    : DGArcRR(orig, dest), rel_(rel){};
+    : DGArcRR(orig, dest), rel_(rel){}
 
 template <class ArcRel>
-DGArcRel<ArcRel>::~DGArcRel(){};
+DGArcRel<ArcRel>::~DGArcRel(){}
 
 }  // namespace libint2
 

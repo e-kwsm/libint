@@ -144,13 +144,13 @@ Uncontract_Integral<I>::Uncontract_Integral(const std::shared_ptr<I>& Tint)
         ChildType::Instance(bra_unc, ket_unc, target_->aux(), oper_unc);
     children_.push_back(c);
   }
-};
+}
 
 template <class I>
 std::shared_ptr<typename Uncontract_Integral<I>::ChildType>
 Uncontract_Integral<I>::child(unsigned int i) const {
   return children_.at(i);
-};
+}
 
 template <class I>
 std::string Uncontract_Integral<I>::spfunction_call(
