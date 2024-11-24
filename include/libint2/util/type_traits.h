@@ -32,7 +32,7 @@ struct is_vector {
 
 template <typename T>
 struct vector_traits {
-  typedef T scalar_type;
+  using scalar_type = T;
   static const std::size_t extent = 1;
 };
 

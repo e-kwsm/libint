@@ -969,7 +969,7 @@ class Engine {
                           // to hold all target ints
   // scratch2_ points to second such block. It could point into scratch_ or at
   // primdata_[0].stack
-  typedef void (*buildfnptr_t)(const Libint_t*);
+  using buildfnptr_t = void (*)(const Libint_t*);
   buildfnptr_t* buildfnptrs_;
 
   /// reports the number of shell sets that each call to compute() produces.

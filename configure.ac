@@ -1372,7 +1372,7 @@ AC_COMPILE_IFELSE(
       };
     ]],
     [[
-      typedef boost::mpl::list<int,double,char> tlist;
+      using tlist = boost::mpl::list<int,double,char>;
       boost::mpl::for_each<tlist>(P());
     ]]
    )
