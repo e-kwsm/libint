@@ -51,7 +51,7 @@ std::array<T, N> make_std_array(const std::initializer_list<T>& data) {
   std::copy(data.begin(), data.begin() + N, result.begin());
   return result;
 }
-};  // namespace
+}  // namespace
 
 template <>
 std::array<LIBINT2_UINT_LEAST64, CartesianMultipoleQuanta<1u>::max_qn + 1>
