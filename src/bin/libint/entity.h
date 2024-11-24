@@ -46,7 +46,7 @@ typedef EntityType<fp> FP;
 typedef EntityType<integer> Int;
 
 static const unsigned int ntypes = 2;
-};  // namespace EntityTypes
+}  // namespace EntityTypes
 
 /// Product of 2 types
 template <typename T, typename U>

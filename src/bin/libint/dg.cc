@@ -785,7 +785,7 @@ inline std::string to_vector_symbol(const std::shared_ptr<DGVertex>& v) {
   }  // end of while
   return symb;
 }
-};  // namespace
+}  // namespace
 
 //
 // Handles "trivial" nodes. A node is trivial is it satisfies the following
@@ -1049,7 +1049,7 @@ std::shared_ptr<MemBlockSet> to_memoryblks(Container& vertices) {
   }
   return result;
 }
-};  // namespace
+}  // namespace
 
 //
 //
@@ -2376,7 +2376,7 @@ struct __NotUnrolledIntegralSet {
   bool operator()(const value_type& v) { return NotUnrolledIntegralSet()(v); }
 };
 #endif
-};  // namespace
+}  // namespace
 
 bool nonunrolled_targets(const DirectedGraph::targets& targets) {
   typedef DirectedGraph::target_citer citer;

@@ -123,13 +123,13 @@ IntegralSet_to_Integrals<I>::IntegralSet_to_Integrals(
 
   // Set children pointers
   for (siter.init(); siter; ++siter) children_.push_back(siter.elem());
-};
+}
 
 template <class I>
 std::shared_ptr<typename I::iter_type> IntegralSet_to_Integrals<I>::child(
     unsigned int i) const {
   return children_.at(i);
-};
+}
 
 }  // namespace libint2
 

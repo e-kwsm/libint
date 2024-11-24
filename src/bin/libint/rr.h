@@ -280,7 +280,7 @@ template <typename T>
 std::shared_ptr<RecurrenceRelation::ExprType> operator*(
     const std::shared_ptr<CTimeEntity<T> >& A,
     const std::shared_ptr<DGVertex>& B);
-};  // namespace algebra
+}  // namespace algebra
 
 // Instantiate the RRStack
 typedef RRStackBase<RecurrenceRelation> RRStack;
