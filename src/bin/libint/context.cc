@@ -149,7 +149,7 @@ std::string CppCodeContext::code_prefix() const {
 
 std::string CppCodeContext::code_postfix() const {
   if (cparams()->use_C_linking()) {
-    return "#ifdef __cplusplus\n};\nLIBINT_PRAGMA_CLANG(diagnostic "
+    return "#ifdef __cplusplus\n}\nLIBINT_PRAGMA_CLANG(diagnostic "
            "pop)\nLIBINT_PRAGMA_GCC(diagnostic pop)\n#endif\n";
   }
   return "";
