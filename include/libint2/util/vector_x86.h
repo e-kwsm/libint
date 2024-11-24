@@ -320,7 +320,7 @@ struct is_vector<simd::VectorSSEDouble> {
 
 template <>
 struct vector_traits<simd::VectorSSEDouble> {
-  typedef double scalar_type;
+  using scalar_type = double;
   static const size_t extent = 2;
 };
 
