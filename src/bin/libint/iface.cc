@@ -45,7 +45,7 @@ inline void header_guard_close(std::ostream& os) {
   os << "#endif" << endl << endl;
 }
 
-};  // namespace
+}  // namespace
 
 Libint2Iface::Libint2Iface(
     const std::shared_ptr<CompilationParameters>& cparams,
