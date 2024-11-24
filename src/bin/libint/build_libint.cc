@@ -303,7 +303,7 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
   taskmgr.current(task);
   iface->to_params(iface->macro_define(std::string("MAX_AM_") + task, lmax));
 
-  const auto nullaux = typename Onebody_sh_1_1::AuxIndexType(0u);
+  const auto nullaux = typename Onebody_sh_1_1::AuxIndexType(nullptr);
 
   // optionally skip derivative property ints
 #ifdef DISABLE_ONEBODY_PROPERTY_DERIVS
