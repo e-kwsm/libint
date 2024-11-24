@@ -35,10 +35,10 @@ class CR_11_G12TiG12_11 : public GenericRecurrenceRelation<
                               CR_11_G12TiG12_11<BFSet>, BFSet,
                               GenIntegralSet_11_11<BFSet, G12TiG12, mType> > {
  public:
-  typedef CR_11_G12TiG12_11 ThisType;
-  typedef BFSet BasisFunctionType;
-  typedef GenIntegralSet_11_11<BFSet, G12TiG12, mType> TargetType;
-  typedef GenericRecurrenceRelation<ThisType, BFSet, TargetType> ParentType;
+  using ThisType = CR_11_G12TiG12_11;
+  using BasisFunctionType = BFSet;
+  using TargetType = GenIntegralSet_11_11<BFSet, G12TiG12, mType>;
+  using ParentType = GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   friend class GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   static const unsigned int max_nchildren = 1;
 
@@ -92,7 +92,7 @@ CR_11_G12TiG12_11<F>::CR_11_G12TiG12_11(const std::shared_ptr<TargetType>& Tint,
 
   // [G12,[T1,G12]] = [G12,[T2,G12]]
   {
-    typedef GenIntegralSet_11_11<BasisFunctionType, R12kG12, mType> ChildType;
+    using ChildType = GenIntegralSet_11_11<BasisFunctionType, R12kG12, mType>;
     ChildFactory<ThisType, ChildType> factory(this);
     auto ab_G2_cd = factory.make_child(a, b, c, d, 0u, G2);
     if (is_simple()) {

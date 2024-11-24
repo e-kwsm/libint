@@ -32,7 +32,7 @@ namespace libint2 {
 
 namespace algebra {
 struct OperatorTypes {
-  typedef enum { Plus, Minus, Times, Divide } OperatorType;
+  enum OperatorType { Plus, Minus, Times, Divide };
 };
 static const char OperatorSymbol[][2] = {"+", "-", "*", "/"};
 };  // namespace algebra
@@ -46,8 +46,8 @@ static const char OperatorSymbol[][2] = {"+", "-", "*", "/"};
 template <class T>
 class AlgebraicOperator : public DGVertex {
  public:
-  typedef algebra::OperatorTypes OperatorTypes;
-  typedef algebra::OperatorTypes::OperatorType OperatorType;
+  using OperatorTypes = algebra::OperatorTypes;
+  using OperatorType = algebra::OperatorTypes::OperatorType;
 
   AlgebraicOperator(OperatorType OT, const std::shared_ptr<T>& left,
                     const std::shared_ptr<T>& right)
@@ -73,7 +73,7 @@ class AlgebraicOperator : public DGVertex {
                    "children != 2"
                 << std::endl;
     else {
-      typedef DGVertex::ArcSetType::const_iterator aciter;
+      using aciter = DGVertex::ArcSetType::const_iterator;
       aciter a = this->first_exit_arc();
       auto left_arg = (*a)->dest();
       ++a;
@@ -221,8 +221,8 @@ trying to add an arc to a vertex not equivalent to either argument.");
 template <class C, class T>
 class LinearCombination {
  public:
-  typedef std::pair<C, T> term_t;
-  typedef std::vector<term_t> data_t;
+  using term_t = std::pair<C, T>;
+  using data_t = std::vector<term_t>;
 
   LinearCombination() {}
   // shallow copy constructor -- used by operator^
@@ -266,7 +266,7 @@ typename LinearCombination<C, Wedge<Tl, Tr> >::term_t wedge(
 template <class C, class Tl, class Tr>
 typename LinearCombination<C, algebra::Wedge<Tl, Tr> >::data_t* operator^(
     const LinearCombination<C, Tl>& L, const LinearCombination<C, Tr>& R) {
-  typedef typename LinearCombination<C, algebra::Wedge<Tl, Tr> >::data_t data_t;
+  using data_t = typename LinearCombination<C, algebra::Wedge<Tl, Tr> >::data_t;
   data_t* result = new data_t;
   const size_t nL = L.size();
   const size_t nR = R.size();
@@ -280,7 +280,7 @@ typename LinearCombination<C, algebra::Wedge<Tl, Tr> >::data_t* operator^(
 template <class C, class Tl, class Tr>
 typename LinearCombination<C, algebra::Wedge<Tl, Tr> >::data_t* operator^(
     const Tl& L, const LinearCombination<C, Tr>& R) {
-  typedef typename LinearCombination<C, algebra::Wedge<Tl, Tr> >::data_t data_t;
+  using data_t = typename LinearCombination<C, algebra::Wedge<Tl, Tr> >::data_t;
   data_t* result = new data_t;
   const size_t nR = R.size();
   for (unsigned int r = 0; r < nR; ++r) {
