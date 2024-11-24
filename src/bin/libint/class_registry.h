@@ -28,7 +28,7 @@ namespace libint2 {
 /** This is a unique registry of classes. */
 class ClassRegistry {
  public:
-  typedef KeyTypes::ClassID ClassID;
+  using ClassID = KeyTypes::ClassID;
   static ClassRegistry& Instance();
   ClassID next_id() { return nclasses_++; }
 
@@ -45,7 +45,7 @@ class ClassRegistry {
 template <typename T>
 class ClassInfo {
  public:
-  typedef ClassRegistry::ClassID ClassID;
+  using ClassID = ClassRegistry::ClassID;
 
   static ClassInfo& Instance() {
     if (!info_) info_ = new ClassInfo;
