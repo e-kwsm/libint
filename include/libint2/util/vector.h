@@ -159,7 +159,7 @@ struct is_vector<simd::Vector<N, T> > {
 
 template <std::size_t N, typename T>
 struct vector_traits<simd::Vector<N, T> > {
-  typedef T value_type;
+  using value_type = T;
   static const std::size_t extent = N;
 };
 

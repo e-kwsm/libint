@@ -38,9 +38,9 @@ namespace libint2 {
 template <size_t N>
 class Timers {
  public:
-  typedef std::chrono::duration<double> dur_t;
-  typedef std::chrono::high_resolution_clock clock_t;
-  typedef std::chrono::time_point<clock_t> time_point_t;
+  using dur_t = std::chrono::duration<double>;
+  using clock_t = std::chrono::high_resolution_clock;
+  using time_point_t = std::chrono::time_point<clock_t>;
 
   Timers() {
     clear();

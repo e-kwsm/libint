@@ -39,7 +39,7 @@ namespace simd {
  * Blue Gene/Q.
  */
 struct VectorQPXDouble {
-  typedef double T;
+  using T = double;
   vector4double d;
 
   /**
@@ -182,7 +182,7 @@ struct is_vector<simd::VectorQPXDouble> {
 
 template <>
 struct vector_traits<simd::VectorQPXDouble> {
-  typedef double scalar_type;
+  using scalar_type = double;
   static const size_t extent = 4;
 };
 
@@ -213,7 +213,7 @@ namespace simd {
  * hardware, e.g. Blue Gene/L and Blue Gene/P.
  */
 struct VectorFP2Double {
-  typedef double T;
+  using T = double;
   double _Complex d;  //< represents 2 doubles
 
   /**
@@ -358,7 +358,7 @@ struct is_vector<simd::VectorFP2Double> {
 
 template <>
 struct vector_traits<simd::VectorFP2Double> {
-  typedef double scalar_type;
+  using scalar_type = double;
   static const size_t extent = 2;
 };
 
