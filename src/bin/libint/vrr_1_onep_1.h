@@ -36,10 +36,10 @@ class VRR_1_Overlap_1 : public GenericRecurrenceRelation<
                             VRR_1_Overlap_1<BFSet, where>, BFSet,
                             GenIntegralSet_1_1<BFSet, OverlapOper, EmptySet> > {
  public:
-  typedef VRR_1_Overlap_1 ThisType;
-  typedef BFSet BasisFunctionType;
-  typedef GenIntegralSet_1_1<BFSet, OverlapOper, EmptySet> TargetType;
-  typedef GenericRecurrenceRelation<ThisType, BFSet, TargetType> ParentType;
+  using ThisType = VRR_1_Overlap_1;
+  using BasisFunctionType = BFSet;
+  using TargetType = GenIntegralSet_1_1<BFSet, OverlapOper, EmptySet>;
+  using ParentType = GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   friend class GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   static const unsigned int max_nchildren = 9;
 
@@ -82,7 +82,7 @@ VRR_1_Overlap_1<F, where>::VRR_1_Overlap_1(
   const OriginDerivative<3u> dB = Tint->ket(0, 0).deriv();
   const bool deriv = !dA.zero() || !dB.zero();
 
-  typedef TargetType ChildType;
+  using ChildType = TargetType;
   ChildFactory<ThisType, ChildType> factory(this);
 
   // Build on A or B
@@ -194,12 +194,12 @@ class VRR_1_Overlap_1_1d
           VRR_1_Overlap_1_1d<Axis, where>, CGF1d<Axis>,
           GenIntegralSet_1_1<CGF1d<Axis>, OverlapOper, EmptySet> > {
  public:
-  typedef VRR_1_Overlap_1_1d ThisType;
-  typedef CGF1d<Axis> BasisFunctionType;
-  typedef GenIntegralSet_1_1<BasisFunctionType, OverlapOper, EmptySet>
-      TargetType;
-  typedef GenericRecurrenceRelation<ThisType, BasisFunctionType, TargetType>
-      ParentType;
+  using ThisType = VRR_1_Overlap_1_1d;
+  using BasisFunctionType = CGF1d<Axis>;
+  using TargetType =
+      GenIntegralSet_1_1<BasisFunctionType, OverlapOper, EmptySet>;
+  using ParentType =
+      GenericRecurrenceRelation<ThisType, BasisFunctionType, TargetType>;
   friend class GenericRecurrenceRelation<ThisType, BasisFunctionType,
                                          TargetType>;
   static const unsigned int max_nchildren = 9;
@@ -234,7 +234,7 @@ VRR_1_Overlap_1_1d<Axis, where>::VRR_1_Overlap_1_1d(
   using namespace libint2::algebra;
   using namespace libint2::prefactor;
   using namespace libint2::braket;
-  typedef CGF1d<Axis> F;
+  using F = CGF1d<Axis>;
   const F& _1 = unit<F>(dir);
 
   {  // can't apply to contracted basis functions
@@ -249,7 +249,7 @@ VRR_1_Overlap_1_1d<Axis, where>::VRR_1_Overlap_1_1d(
   const OriginDerivative<1u> dB = Tint->ket(0, 0).deriv();
   const bool deriv = !dA.zero() || !dB.zero();
 
-  typedef TargetType ChildType;
+  using ChildType = TargetType;
   ChildFactory<ThisType, ChildType> factory(this);
 
   // handle the special case of (0|0) integral
@@ -364,10 +364,10 @@ class VRR_1_Kinetic_1 : public GenericRecurrenceRelation<
                             VRR_1_Kinetic_1<BFSet, where>, BFSet,
                             GenIntegralSet_1_1<BFSet, KineticOper, EmptySet> > {
  public:
-  typedef VRR_1_Kinetic_1 ThisType;
-  typedef BFSet BasisFunctionType;
-  typedef GenIntegralSet_1_1<BFSet, KineticOper, EmptySet> TargetType;
-  typedef GenericRecurrenceRelation<ThisType, BFSet, TargetType> ParentType;
+  using ThisType = VRR_1_Kinetic_1;
+  using BasisFunctionType = BFSet;
+  using TargetType = GenIntegralSet_1_1<BFSet, KineticOper, EmptySet>;
+  using ParentType = GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   friend class GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   static const unsigned int max_nchildren = 9;
 
@@ -410,9 +410,9 @@ VRR_1_Kinetic_1<F, where>::VRR_1_Kinetic_1(
   const OriginDerivative<3u> dB = Tint->ket(0, 0).deriv();
   const bool deriv = !dA.zero() || !dB.zero();
 
-  typedef TargetType Child1Type;
+  using Child1Type = TargetType;
   ChildFactory<ThisType, Child1Type> factory(this);
-  typedef GenIntegralSet_1_1<F, OverlapOper, EmptySet> Child2Type;
+  using Child2Type = GenIntegralSet_1_1<F, OverlapOper, EmptySet>;
   ChildFactory<ThisType, Child2Type> overlap_factory(this);
 
   // Build on A or B
@@ -547,10 +547,10 @@ class VRR_1_ElecPot_1 : public GenericRecurrenceRelation<
                             VRR_1_ElecPot_1<BFSet, where>, BFSet,
                             GenIntegralSet_1_1<BFSet, ElecPotOper, mType> > {
  public:
-  typedef VRR_1_ElecPot_1 ThisType;
-  typedef BFSet BasisFunctionType;
-  typedef GenIntegralSet_1_1<BFSet, ElecPotOper, mType> TargetType;
-  typedef GenericRecurrenceRelation<ThisType, BFSet, TargetType> ParentType;
+  using ThisType = VRR_1_ElecPot_1;
+  using BasisFunctionType = BFSet;
+  using TargetType = GenIntegralSet_1_1<BFSet, ElecPotOper, mType>;
+  using ParentType = GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   friend class GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   static const unsigned int max_nchildren = 9;
 
@@ -575,7 +575,7 @@ class VRR_1_ElecPot_1 : public GenericRecurrenceRelation<
       to avoid generating identical code make sure that the (unique) label has
      m=0. */
   std::string generate_label() const override {
-    typedef typename TargetType::AuxIndexType mType;
+    using mType = typename TargetType::AuxIndexType;
     static std::shared_ptr<mType> aux0(new mType(0u));
     std::ostringstream os;
     os << descr() << to_string(where)
@@ -607,7 +607,7 @@ VRR_1_ElecPot_1<F, where>::VRR_1_ElecPot_1(
   const OriginDerivative<3u> dB = Tint->ket(0, 0).deriv();
   const bool deriv = !dA.zero() || !dB.zero();
 
-  typedef TargetType ChildType;
+  using ChildType = TargetType;
   ChildFactory<ThisType, ChildType> factory(this);
 
   // Build on A or B
@@ -733,12 +733,12 @@ class VRR_1_SMultipole_1
           VRR_1_SMultipole_1<BFSet, where>, BFSet,
           GenIntegralSet_1_1<BFSet, SphericalMultipoleOper, EmptySet> > {
  public:
-  typedef VRR_1_SMultipole_1 ThisType;
-  typedef BFSet BasisFunctionType;
-  typedef SphericalMultipoleOper OperType;
-  typedef GenIntegralSet_1_1<BFSet, SphericalMultipoleOper, EmptySet>
-      TargetType;
-  typedef GenericRecurrenceRelation<ThisType, BFSet, TargetType> ParentType;
+  using ThisType = VRR_1_SMultipole_1;
+  using BasisFunctionType = BFSet;
+  using OperType = SphericalMultipoleOper;
+  using TargetType =
+      GenIntegralSet_1_1<BFSet, SphericalMultipoleOper, EmptySet>;
+  using ParentType = GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   friend class GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   static const unsigned int max_nchildren = 8;
 
@@ -787,7 +787,7 @@ class VRR_1_SMultipole_1
     const auto m = O_l_m.m();
     const auto sign = O_l_m.sign();
 
-    typedef TargetType ChildType;
+    using ChildType = TargetType;
     ChildFactory<ThisType, ChildType> factory(this);
 
     auto make_child =
@@ -906,9 +906,8 @@ class VRR_1_SMultipole_1
           assert(sign == Sign::plus);  // Eq. (24) should not be needed
                                        // since N^-_{0,0} should just be
                                        // omitted above
-          typedef GenIntegralSet_1_1<BFSet, CartesianMultipoleOper<3u>,
-                                     EmptySet>
-              OverlapType;
+          using OverlapType =
+              GenIntegralSet_1_1<BFSet, CartesianMultipoleOper<3u>, EmptySet>;
           ChildFactory<ThisType, OverlapType> overlap_factory(this);
           auto S00 = overlap_factory.make_child(a, b);
           if (is_simple()) {
