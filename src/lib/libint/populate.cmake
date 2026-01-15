@@ -134,7 +134,6 @@ file(
     "${PROJECT_SOURCE_DIR}/cmake/modules/int_userreal.cmake"
     "${PROJECT_SOURCE_DIR}/cmake/modules/int_checkboost.cmake"
     "${PROJECT_SOURCE_DIR}/cmake/modules/FindMultiprecision.cmake"
-    "${PROJECT_SOURCE_DIR}/cmake/modules/FindEigen3.cmake"
     "${PROJECT_SOURCE_DIR}/cmake/modules/AddCustomTargetSubproject.cmake"
   DESTINATION "${EXPORT_STAGE_DIR}/cmake/modules"
   )
