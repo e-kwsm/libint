@@ -34,7 +34,7 @@
 #include <test_eri/eri.h>
 #endif
 
-using uint = unsigned int;
+typedef unsigned int uint;
 
 TEST_CASE("Slater/Yukawa integrals", "[engine][2-body]") {
 #if defined(LIBINT2_SUPPORT_ERI)

@@ -37,10 +37,10 @@ class CR_11_DivG12prime_xTx_11
           CR_11_DivG12prime_xTx_11<BFSet>, BFSet,
           GenIntegralSet_11_11<BFSet, DivG12prime_xTx, mType> > {
  public:
-  using ThisType = CR_11_DivG12prime_xTx_11;
-  using BasisFunctionType = BFSet;
-  using TargetType = GenIntegralSet_11_11<BFSet, DivG12prime_xTx, mType>;
-  using ParentType = GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
+  typedef CR_11_DivG12prime_xTx_11 ThisType;
+  typedef BFSet BasisFunctionType;
+  typedef GenIntegralSet_11_11<BFSet, DivG12prime_xTx, mType> TargetType;
+  typedef GenericRecurrenceRelation<ThisType, BFSet, TargetType> ParentType;
   friend class GenericRecurrenceRelation<ThisType, BFSet, TargetType>;
   static const unsigned int max_nchildren = 36;
 
@@ -86,8 +86,8 @@ CR_11_DivG12prime_xTx_11<F>::CR_11_DivG12prime_xTx_11(
 
 #if USE_R12kR12lG12
   if (i == 0) {
-    using ChildType =
-        GenIntegralSet_11_11<BasisFunctionType, R12kR12lG12, EmptySet>;
+    typedef GenIntegralSet_11_11<BasisFunctionType, R12kR12lG12, EmptySet>
+        ChildType;
     ChildFactory<ThisType, ChildType> factory(this);
     for (int bxyz = 0; bxyz < 3; ++bxyz) {
       for (int kxyz = 0; kxyz < 3; ++kxyz) {
@@ -98,8 +98,8 @@ CR_11_DivG12prime_xTx_11<F>::CR_11_DivG12prime_xTx_11(
     }
   }
   if (i == 1) {
-    using ChildType =
-        GenIntegralSet_11_11<BasisFunctionType, R12kR12lG12, EmptySet>;
+    typedef GenIntegralSet_11_11<BasisFunctionType, R12kR12lG12, EmptySet>
+        ChildType;
     ChildFactory<ThisType, ChildType> factory(this);
     for (int bxyz = 0; bxyz < 3; ++bxyz) {
       for (int kxyz = 0; kxyz < 3; ++kxyz) {
@@ -112,14 +112,14 @@ CR_11_DivG12prime_xTx_11<F>::CR_11_DivG12prime_xTx_11(
 #else
   // |Nabla1.G12' ac ) ^ |Nabla1.G12' bd )
   if (i == 0) {
-    using ChildType = GenIntegralSet_11_11<BasisFunctionType, R12kG12, mType>;
+    typedef GenIntegralSet_11_11<BasisFunctionType, R12kG12, mType> ChildType;
     ChildFactory<ThisType, ChildType> factory(this);
     factory.wedge(R12vec_dot_Nabla1(_pbra(a, c)),
                   R12vec_dot_Nabla1(_pket(b, d)), mType(0u), R12kG12(0));
   }
   // |Nabla2.G12' ac ) ^ |Nabla2.G12' bd )
   if (i == 1) {
-    using ChildType = GenIntegralSet_11_11<BasisFunctionType, R12kG12, mType>;
+    typedef GenIntegralSet_11_11<BasisFunctionType, R12kG12, mType> ChildType;
     ChildFactory<ThisType, ChildType> factory(this);
     factory.wedge(R12vec_dot_Nabla2(_pbra(a, c)),
                   R12vec_dot_Nabla2(_pket(b, d)), mType(0u), R12kG12(0));
