@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 namespace {
 
 unsigned int am[][1] = {{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}};
-using IntegralSet = TiG12_11_11<CGShell, 0>;
+typedef TiG12_11_11<CGShell, 0> IntegralSet;
 
 int try_main(int argc, char* argv[]) {
   TesterCmdLine<4> cmdline(argc, argv);

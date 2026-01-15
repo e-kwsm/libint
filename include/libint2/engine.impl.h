@@ -2017,8 +2017,9 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute2(
           sizeof(value_type) == sizeof(scalar_type);
       static_assert(using_scalar_real,
                     "Libint2 C++11 API only supports scalar real types");
-      using Matrix = Eigen::Matrix<scalar_type, Eigen::Dynamic, Eigen::Dynamic,
-                                   Eigen::RowMajor>;
+      typedef Eigen::Matrix<scalar_type, Eigen::Dynamic, Eigen::Dynamic,
+                            Eigen::RowMajor>
+          Matrix;
 
       // a 2-d view of the 4-d source tensor
       const auto nr1_cart = bra1.cartesian_size();
@@ -2118,11 +2119,11 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute2(
 
           for (auto r1 = 0; r1 != nr1; ++r1) {
             for (auto r2 = 0; r2 != nr2; ++r2, src_row_ptr += ncol) {
-              using ConstMap = Eigen::Map<const Matrix>;
-              using Map = Eigen::Map<Matrix>;
-              using StridedMap =
-                  Eigen::Map<Matrix, Eigen::Unaligned,
-                             Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic>>;
+              typedef Eigen::Map<const Matrix> ConstMap;
+              typedef Eigen::Map<Matrix> Map;
+              typedef Eigen::Map<Matrix, Eigen::Unaligned,
+                                 Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic>>
+                  StridedMap;
 
               // represent this source row as a matrix
               ConstMap src_blk_mat(src_row_ptr, nc1, nc2);

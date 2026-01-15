@@ -62,7 +62,6 @@ void generate_rr_code(std::ostream& os,
   std::set<TaskExternSymbols::RRList::value_type> aggregate_rrlist;
   for (tciter t = taskmgr.first(); t != tend; ++t) {
     const std::shared_ptr<TaskExternSymbols> tsymbols = t->symbols();
-    using SymbolList = TaskExternSymbols::SymbolList;
     auto rrlist = tsymbols->rrlist();
     aggregate_rrlist.insert(rrlist.begin(), rrlist.end());
   }

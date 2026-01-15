@@ -72,17 +72,16 @@ constexpr auto screening_method = libint2::ScreeningMethod::SchwarzInf;
 // N.B. integral engine timings are controled in engine.h
 #define REPORT_INTEGRAL_TIMINGS
 
-// import dense, dynamically sized Matrix type from Eigen;
-// this is a matrix with row-major storage
-// (http://en.wikipedia.org/wiki/Row-major_order)
-using Matrix =
-    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
+    Matrix;  // import dense, dynamically sized Matrix type from Eigen;
+             // this is a matrix with row-major storage
+             // (http://en.wikipedia.org/wiki/Row-major_order)
 // to meet the layout of the integrals returned by the Libint integral library
-usinig DiagonalMatrix =
-    Eigen::DiagonalMatrix<double, Eigen::Dynamic, Eigen::Dynamic>;
+typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic, Eigen::Dynamic>
+    DiagonalMatrix;
 
 #ifdef LIBINT2_HAVE_BTAS
-using tensor = btas::Tensor<double>;
+typedef btas::Tensor<double> tensor;
 #endif
 
 using libint2::Atom;
@@ -176,7 +175,7 @@ struct DFFockEngine {
   const BasisSet& dfbs;
   DFFockEngine(const BasisSet& _obs, const BasisSet& _dfbs)
       : obs(_obs), dfbs(_dfbs) {}
-  using Tensor = btas::Tensor<double>;
+  typedef btas::Tensor<double> Tensor;
   Tensor xyK;
 
   // a DF-based builder, using coefficients of occupied MOs
@@ -1016,8 +1015,8 @@ std::array<Matrix, libint2::operator_traits<obtype>::nopers> compute_1body_ints(
   const auto n = obs.nbf();
   const auto nshells = obs.size();
   using libint2::nthreads;
-  using result_type =
-      std::array<Matrix, libint2::operator_traits<obtype>::nopers>;
+  typedef std::array<Matrix, libint2::operator_traits<obtype>::nopers>
+      result_type;
   const unsigned int nopers = libint2::operator_traits<obtype>::nopers;
   result_type result;
   for (auto& r : result) r = Matrix::Zero(n, n);
@@ -1088,7 +1087,7 @@ std::vector<Matrix> compute_1body_ints_deriv(unsigned deriv_order,
   constexpr auto nopers = libint2::operator_traits<obtype>::nopers;
   const auto nresults =
       nopers * libint2::num_geometrical_derivatives(atoms.size(), deriv_order);
-  using result_type = std::vector<Matrix>;
+  typedef std::vector<Matrix> result_type;
   result_type result(nresults);
   for (auto& r : result) r = Matrix::Zero(n, n);
 

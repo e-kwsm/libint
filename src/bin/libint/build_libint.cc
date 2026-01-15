@@ -242,11 +242,11 @@ template <typename OperType>
 struct AuxQuantaType;
 template <>
 struct AuxQuantaType<ElecPotOper> {
-  using type = mType;
+  typedef mType type;
 };
 template <typename OperType>
 struct AuxQuantaType {
-  using type = EmptySet;
+  typedef EmptySet type;
 };
 
 template <typename OperDescrType>
@@ -286,11 +286,11 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
       typename std::conditional<std::is_same<_OperType, OverlapOper>::value,
                                 CartesianMultipoleOper<3u>, _OperType>::type;
   const std::string task = task_label(label, deriv_level);
-  using BFType = CGShell;
-  using OperDescrType = typename OperType::Descriptor;
-  using Onebody_sh_1_1 =
-      GenIntegralSet_1_1<CGShell, OperType,
-                         typename AuxQuantaType<OperType>::type>;
+  typedef CGShell BFType;
+  typedef typename OperType::Descriptor OperDescrType;
+  typedef GenIntegralSet_1_1<CGShell, OperType,
+                             typename AuxQuantaType<OperType>::type>
+      Onebody_sh_1_1;
 
   vector<BFType*> shells;
   unsigned int lmax = cparams->max_am(task);
@@ -919,15 +919,15 @@ void try_main(int argc, char* argv[]) {
 
 #if DEBUG
   // print out the external symbols found for each task
-  using tciter = LibraryTaskManager::TasksCIter;
+  typedef LibraryTaskManager::TasksCIter tciter;
   const tciter tend = taskmgr.plast();
   for (tciter t = taskmgr.first(); t != tend; ++t) {
     const std::shared_ptr<TaskExternSymbols> tsymbols = t->symbols();
-    using SymbolList = TaskExternSymbols::SymbolList;
+    typedef TaskExternSymbols::SymbolList SymbolList;
     const SymbolList& symbols = tsymbols->symbols();
     // print out the labels
     std::cout << "Recovered labels for task " << t->label() << std::endl;
-    using citer = SymbolList::const_iterator;
+    typedef SymbolList::const_iterator citer;
     citer end = symbols.end();
     for (citer s = symbols.begin(); s != end; ++s) std::cout << *s << std::endl;
   }
@@ -993,7 +993,7 @@ void build_TwoPRep_2b_2k(std::ostream& os,
                          std::shared_ptr<Libint2Iface>& iface,
                          unsigned int deriv_level) {
   const std::string task = task_label("eri", deriv_level);
-  using TwoPRep_sh_11_11 = TwoPRep_11_11_sq;
+  typedef TwoPRep_11_11_sq TwoPRep_sh_11_11;
   vector<CGShell*> shells;
   unsigned int lmax = cparams->max_am(task);
   for (unsigned int l = 0; l <= lmax; l++) {
@@ -1183,7 +1183,7 @@ void build_TwoPRep_1b_2k(std::ostream& os,
                          std::shared_ptr<Libint2Iface>& iface,
                          unsigned int deriv_level) {
   const std::string task = task_label("3eri", deriv_level);
-  using TwoPRep_sh_11_11 = TwoPRep_11_11_sq;
+  typedef TwoPRep_11_11_sq TwoPRep_sh_11_11;
   vector<CGShell*> shells;
   const unsigned int lmax = cparams->max_am(task);
   const unsigned int lmax_default =
@@ -1389,7 +1389,7 @@ void build_TwoPRep_1b_1k(std::ostream& os,
                          std::shared_ptr<Libint2Iface>& iface,
                          unsigned int deriv_level) {
   const std::string task = task_label("2eri", deriv_level);
-  using TwoPRep_sh_11_11 = TwoPRep_11_11_sq;
+  typedef TwoPRep_11_11_sq TwoPRep_sh_11_11;
   vector<CGShell*> shells;
   unsigned int lmax = cparams->max_am(task);
   for (unsigned int l = 0; l <= lmax; l++) {
@@ -1641,11 +1641,11 @@ void build_R12kG12_2b_2k(std::ostream& os,
           dg_xxxx->registry()->accumulate_targets(
               cparams->accumulate_targets());
 
-          using int_type = R12kG12_11_11_sq;
-          using oper_type = R12kG12;
+          typedef R12kG12_11_11_sq int_type;
+          typedef R12kG12 oper_type;
           // k=0
           if (!ssss) {
-            using oper_descr = oper_type::Descriptor;
+            typedef oper_type::Descriptor oper_descr;
             oper_type oper(oper_descr(0));
 #if LIBINT_CONTRACTED_INTS
             oper.descr().contract();
@@ -1660,7 +1660,7 @@ void build_R12kG12_2b_2k(std::ostream& os,
 
           // k=-1
           if (!ssss) {
-            using oper_descr = oper_type::Descriptor;
+            typedef oper_type::Descriptor oper_descr;
             oper_type oper(oper_descr(-1));
 #if LIBINT_CONTRACTED_INTS
             oper.descr().contract();
@@ -1676,9 +1676,9 @@ void build_R12kG12_2b_2k(std::ostream& os,
 #if LIBINT_SUPPORT_T1G12
           // [T_1,G12]
           if (true) {
-            using int_type = TiG12_11_11_sq;
-            using oper_type = int_type::OperType;
-            using oper_descr = oper_type::Descriptor;
+            typedef TiG12_11_11_sq int_type;
+            typedef int_type::OperType oper_type;
+            typedef oper_type::Descriptor oper_descr;
             oper_type oper(oper_descr(0));
 #if LIBINT_CONTRACTED_INTS
             oper.descr().contract();
@@ -1693,9 +1693,9 @@ void build_R12kG12_2b_2k(std::ostream& os,
 
           // [T_2,G12]
           if (true) {
-            using int_type = TiG12_11_11_sq;
-            using oper_type = int_type::OperType;
-            using oper_descr = oper_type::Descriptor;
+            typedef TiG12_11_11_sq int_type;
+            typedef int_type::OperType oper_type;
+            typedef oper_type::Descriptor oper_descr;
             oper_type oper(oper_descr(1));
 #if LIBINT_CONTRACTED_INTS
             oper.descr().contract();
@@ -1711,9 +1711,9 @@ void build_R12kG12_2b_2k(std::ostream& os,
 
           // [G12,[T1,G12]]
           if (!ssss) {
-            using int_type = G12TiG12_11_11_sq;
-            using oper_type = int_type::OperType;
-            using oper_descr = oper_type::Descriptor;
+            typedef G12TiG12_11_11_sq int_type;
+            typedef int_type::OperType oper_type;
+            typedef oper_type::Descriptor oper_descr;
             oper_type oper(
                 oper_descr(0));  // doesn't matter whether T1 or T2 here
 #if LIBINT_CONTRACTED_INTS
@@ -1845,9 +1845,9 @@ void build_R12kG12_2b_2k_separate(
             std::string _label;
             // k=0
             if (task == 0) {
-              using int_type = R12kG12_11_11_sq;
-              using oper_type = R12kG12;
-              using oper_descr = oper_type::Descriptor;
+              typedef R12kG12_11_11_sq int_type;
+              typedef R12kG12 oper_type;
+              typedef oper_type::Descriptor oper_descr;
               oper_type oper(oper_descr(0));
 #if LIBINT_CONTRACTED_INTS
               oper.descr().contract();
@@ -1863,9 +1863,9 @@ void build_R12kG12_2b_2k_separate(
 
             // [G12,[T1,G12]]
             if (task == 1) {
-              using int_type = G12TiG12_11_11_sq;
-              using oper_type = int_type::OperType;
-              using oper_descr = oper_type::Descriptor;
+              typedef G12TiG12_11_11_sq int_type;
+              typedef int_type::OperType oper_type;
+              typedef oper_type::Descriptor oper_descr;
               oper_type oper(
                   oper_descr(0));  // doesn't matter whether T1 or T2 here
 #if LIBINT_CONTRACTED_INTS
@@ -1984,9 +1984,9 @@ void build_G12DKH_2b_2k(std::ostream& os,
 
           // k=0
           if (!ssss) {
-            using int_type = R12kG12_11_11_sq;
-            using oper_type = R12kG12;
-            using oper_descr = oper_type::Descriptor;
+            typedef R12kG12_11_11_sq int_type;
+            typedef R12kG12 oper_type;
+            typedef oper_type::Descriptor oper_descr;
             std::shared_ptr<int_type> abcd =
                 int_type::Instance(*shells[la], *shells[lb], *shells[lc],
                                    *shells[ld], 0u, oper_type(oper_descr(0)));
@@ -1997,9 +1997,9 @@ void build_G12DKH_2b_2k(std::ostream& os,
           }
           // k=2
           if (!ssss) {
-            using int_type = R12kG12_11_11_sq;
-            using oper_type = R12kG12;
-            using oper_descr = oper_type::Descriptor;
+            typedef R12kG12_11_11_sq int_type;
+            typedef R12kG12 oper_type;
+            typedef oper_type::Descriptor oper_descr;
             std::shared_ptr<int_type> abcd =
                 int_type::Instance(*shells[la], *shells[lb], *shells[lc],
                                    *shells[ld], 0u, oper_type(oper_descr(2)));
@@ -2010,9 +2010,9 @@ void build_G12DKH_2b_2k(std::ostream& os,
           }
           // k=4
           if (!ssss) {
-            using int_type = R12kG12_11_11_sq;
-            using oper_type = R12kG12;
-            using oper_descr = oper_type::Descriptor;
+            typedef R12kG12_11_11_sq int_type;
+            typedef R12kG12 oper_type;
+            typedef oper_type::Descriptor oper_descr;
             std::shared_ptr<int_type> abcd =
                 int_type::Instance(*shells[la], *shells[lb], *shells[lc],
                                    *shells[ld], 0u, oper_type(oper_descr(4)));
@@ -2023,9 +2023,9 @@ void build_G12DKH_2b_2k(std::ostream& os,
           }
           // (G12prime.Div1)^2
           if (true) {
-            using int_type = DivG12prime_xTx_11_11_sq;
-            using oper_type = int_type::OperType;
-            using oper_descr = oper_type::Descriptor;
+            typedef DivG12prime_xTx_11_11_sq int_type;
+            typedef int_type::OperType oper_type;
+            typedef oper_type::Descriptor oper_descr;
             std::shared_ptr<int_type> abcd =
                 int_type::Instance(*shells[la], *shells[lb], *shells[lc],
                                    *shells[ld], 0u, oper_type(oper_descr(0)));
@@ -2036,9 +2036,9 @@ void build_G12DKH_2b_2k(std::ostream& os,
           }
           // (G12prime.Div2)^2
           if (true) {
-            using int_type = DivG12prime_xTx_11_11_sq;
-            using oper_type = int_type::OperType;
-            using oper_descr = oper_type::Descriptor;
+            typedef DivG12prime_xTx_11_11_sq int_type;
+            typedef int_type::OperType oper_type;
+            typedef oper_type::Descriptor oper_descr;
             std::shared_ptr<int_type> abcd =
                 int_type::Instance(*shells[la], *shells[lb], *shells[lc],
                                    *shells[ld], 0u, oper_type(oper_descr(1)));
