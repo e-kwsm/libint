@@ -167,7 +167,7 @@ if (LIBINT2_REQUIRE_CXX_API)
     endif()
 endif()
 
-find_package(Eigen3 MODULE)
+find_package(Eigen3 CONFIG)
 
 set(LIBINT2_CXX_STANDARD 11)
 if (TARGET Eigen3::Eigen)
@@ -893,12 +893,12 @@ install(
   DESTINATION "${LIBINT2_INSTALL_CMAKEDIR}"
   )
 
-# Install cmake modules needed by the config file (FindEigen3, etc.)
-install(
-  FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/FindEigen3.cmake"
-  DESTINATION "${LIBINT2_INSTALL_CMAKEDIR}"
-  )
+# # Install cmake modules needed by the config file (FindEigen3, etc.)
+# install(
+#   FILES
+#     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/FindEigen3.cmake"
+#   DESTINATION "${LIBINT2_INSTALL_CMAKEDIR}"
+#   )
 
 # Make Libint consumable from the build directory without installation
 export(
