@@ -242,11 +242,11 @@ template <typename OperType>
 struct AuxQuantaType;
 template <>
 struct AuxQuantaType<ElecPotOper> {
-  typedef mType type;
+  using type = mType;
 };
 template <typename OperType>
 struct AuxQuantaType {
-  typedef EmptySet type;
+  using type = EmptySet;
 };
 
 template <typename OperDescrType>
@@ -286,11 +286,11 @@ void build_onebody_1b_1k(std::ostream& os, std::string label,
       typename std::conditional<std::is_same<_OperType, OverlapOper>::value,
                                 CartesianMultipoleOper<3u>, _OperType>::type;
   const std::string task = task_label(label, deriv_level);
-  typedef CGShell BFType;
-  typedef typename OperType::Descriptor OperDescrType;
-  typedef GenIntegralSet_1_1<CGShell, OperType,
-                             typename AuxQuantaType<OperType>::type>
-      Onebody_sh_1_1;
+  using BFType = CGShell;
+  using OperDescrType = typename OperType::Descriptor;
+  using Onebody_sh_1_1 =
+      GenIntegralSet_1_1<CGShell, OperType,
+                         typename AuxQuantaType<OperType>::type>;
 
   vector<BFType*> shells;
   unsigned int lmax = cparams->max_am(task);
@@ -993,7 +993,7 @@ void build_TwoPRep_2b_2k(std::ostream& os,
                          std::shared_ptr<Libint2Iface>& iface,
                          unsigned int deriv_level) {
   const std::string task = task_label("eri", deriv_level);
-  typedef TwoPRep_11_11_sq TwoPRep_sh_11_11;
+  using TwoPRep_sh_11_11 = TwoPRep_11_11_sq;
   vector<CGShell*> shells;
   unsigned int lmax = cparams->max_am(task);
   for (unsigned int l = 0; l <= lmax; l++) {
