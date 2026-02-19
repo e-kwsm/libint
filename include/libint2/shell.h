@@ -766,7 +766,7 @@ struct Shell {
   /// @p _contr as given
   Shell(svector<real_t> _alpha, svector<Contraction> _contr,
         std::array<real_t, 3> _O,
-        bool embed_normalization_into_coefficients = true)
+        bool embed_normalization_into_coefficients = Shell::do_enforce_unit_normalization())
       : alpha(std::move(_alpha)), contr(std::move(_contr)), O(std::move(_O)) {
     // embed normalization factors into contraction coefficients
     if (embed_normalization_into_coefficients)
