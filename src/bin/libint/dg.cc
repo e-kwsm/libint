@@ -1006,7 +1006,8 @@ std::string declare_function(const std::shared_ptr<CodeContext>& context,
   decl << context->code_prefix();
   std::string func_decl;
   std::ostringstream oss;
-  oss << context->type_name<void>() << " " << function_name << "("
+  oss << context->type_name<void>() << " " 
+      << context->cparams()->api_prefix() + function_name << "("
       << context->const_modifier() << context->inteval_type_name(tlabel)
       << "* inteval";
   const unsigned int nargs = args->n();
@@ -1104,8 +1105,7 @@ void DirectedGraph::generate_code(
        fn != func_names_.end(); fn++) {
     string function_name = (*fn).first;
     def << "#include <"
-        << context->label_to_name(context->cparams()->api_prefix() +
-                                  function_name)
+        << context->label_to_name(function_name)
         << ".h>" << endl;
   }
   def << endl;
@@ -1184,7 +1184,8 @@ void DirectedGraph::generate_code(
 
     def << context->decldef("const int", "contrdepth", "inteval->contrdepth");
     def << contr_loop->open();
-    def << func_prereq_name << "(inteval+c, " << registry()->stack_name() << ")"
+    def << context->cparams()->api_prefix() 
+        << func_prereq_name << "(inteval+c, " << registry()->stack_name() << ")"
         << context->end_of_stat() << endl;
     def << contr_loop->close() << endl;
 
