@@ -272,8 +272,8 @@ option_with_print(LIBINT2_GENERATE_FMA
   "Generate FMA (fused multiply-add) instructions (to benefit must have FMA-capable hardware and compiler)" OFF)
 option_with_print(LIBINT2_ENABLE_GENERIC_CODE
   "Use manually-written generic code" OFF)
-option_with_print(LIBINT2_API_PREFIX
-  "Prepend this string to every name in the library API (except for the types)." OFF)
+option_with_default(LIBINT2_API_PREFIX
+  "Prepend this string to every name in the library API (except for the types)." "")
 option_with_print(LIBINT2_VECTOR_LENGTH
   "Compute integrals in vectors of length N." OFF)
 option_with_default(LIBINT2_VECTOR_METHOD
