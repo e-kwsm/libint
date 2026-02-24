@@ -234,7 +234,7 @@ void __BuildTest(const std::vector<std::shared_ptr<Integral> >& targets,
               std::ostream_iterator<std::string>(std::cout, " "));
     std::cout << std::endl
               << "Top compute function: "
-              << context->label_to_name(label_to_funcname(complabel)) << std::endl;
+              << context->label_to_function_name(complabel) << std::endl;
   }
 }
 
