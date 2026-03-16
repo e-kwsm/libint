@@ -18,6 +18,9 @@
  *
  */
 
+#include <fstream>
+#include <sstream>
+
 #include "catch.hpp"
 #include "fixture.h"
 
@@ -241,6 +244,179 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "W correctness",
       }
     }
   }
+#endif  // LIBINT2_SUPPORT_ONEBODY
+}
+
+TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
+                 "[engine][1-body]") {
+#if defined(LIBINT2_SUPPORT_ONEBODY)
+  const auto lmax = LIBINT2_MAX_AM_elecpot;
+
+  // atoms from fixture: O(0,0,0), O(0,0,2), H(0,-1,-1), H(0,1,3) in Bohr
+  BasisSet orbital_basis("sto-3g", atoms);
+
+  // Load sap_helfem_large basis with raw coefficients (no normalization).
+  // BasisSet always normalizes, so we parse the .g94 file directly and
+  // construct shells with embed_normalization_into_coefficients = false.
+  auto read_sap_basis =
+      [](const std::string& filepath) -> std::map<int, Shell> {
+    std::map<int, Shell> result;
+    std::ifstream is(filepath);
+    if (!is.good())
+      throw std::runtime_error("cannot open SAP basis file: " + filepath);
+
+    std::string line;
+    while (std::getline(is, line)) {
+      if (line.empty() || line[0] == '!' || line[0] == '*') continue;
+      // element line: "H     0" or "O     0"
+      std::istringstream iss(line);
+      std::string sym;
+      int dummy;
+      iss >> sym >> dummy;
+
+      // find Z from symbol
+      int Z = -1;
+      for (const auto& e : libint2::chemistry::get_element_info()) {
+        if (e.symbol == sym) {
+          Z = e.Z;
+          break;
+        }
+      }
+      if (Z < 0) continue;
+
+      // next line: "S    N   1.00"
+      std::getline(is, line);
+      std::istringstream iss2(line);
+      std::string shell_type;
+      size_t nprim;
+      iss2 >> shell_type >> nprim;
+
+      Shell::Contraction contr;
+      contr.l = 0;
+      contr.pure = false;
+
+      libint2::svector<double> alphas;
+      for (size_t p = 0; p < nprim; ++p) {
+        std::getline(is, line);
+        // replace Fortran 'D' exponent with 'E'
+        for (auto& c : line) {
+          if (c == 'D' || c == 'd') c = 'E';
+        }
+        std::istringstream pss(line);
+        double exp, coeff;
+        pss >> exp >> coeff;
+        alphas.push_back(exp);
+        contr.coeff.push_back(coeff);
+      }
+
+      // embed_normalization_into_coefficients = false
+      result[Z] = Shell{std::move(alphas), {contr}, {{0, 0, 0}}, false};
+    }
+    return result;
+  };
+
+  std::string sap_path =
+      std::string(LIBINT_SRCDATADIR) + "/sap_helfem_large.g94";
+  auto sap_basis_by_Z = read_sap_basis(sap_path);
+
+  // Build one SAP shell per atom with correct origin
+  std::vector<Shell> sap_shells;
+  size_t sap_max_nprim = 0;
+  for (const auto& atom : atoms) {
+    auto it = sap_basis_by_Z.find(atom.atomic_number);
+    if (it == sap_basis_by_Z.end())
+      throw std::runtime_error("no SAP basis for Z=" +
+                               std::to_string(atom.atomic_number));
+    Shell s = it->second;
+    s.O = {{atom.x, atom.y, atom.z}};
+    sap_max_nprim = std::max(sap_max_nprim, s.alpha.size());
+    sap_shells.push_back(std::move(s));
+  }
+
+  auto point_charges = make_point_charges(atoms);
+  const auto n = libint2::nbf(orbital_basis);
+  const auto nshells = orbital_basis.size();
+  auto shell2bf = orbital_basis.shell2bf();
+  const auto max_nprim = std::max(orbital_basis.max_nprim(), sap_max_nprim);
+
+  // Compute V_SAP into an Eigen matrix
+  auto sap_engine = Engine(Operator::sap, max_nprim, lmax);
+  sap_engine.set_params(std::make_tuple(sap_shells, point_charges));
+  const auto& buf = sap_engine.results();
+
+  Eigen::MatrixXd V_sap = Eigen::MatrixXd::Zero(n, n);
+
+  for (size_t s1 = 0; s1 < nshells; ++s1) {
+    auto bf1 = shell2bf[s1];
+    auto n1 = orbital_basis[s1].size();
+    for (size_t s2 = 0; s2 <= s1; ++s2) {
+      auto bf2 = shell2bf[s2];
+      auto n2 = orbital_basis[s2].size();
+
+      sap_engine.compute(orbital_basis[s1], orbital_basis[s2]);
+
+      Eigen::Map<const Eigen::MatrixXd> buf_mat(buf[0], n1, n2);
+      V_sap.block(bf1, bf2, n1, n2) = buf_mat;
+      if (s1 != s2) V_sap.block(bf2, bf1, n2, n1) = buf_mat.transpose();
+    }
+  }
+
+  // Reference SAP matrix is computed with naive implementation using 3-center
+  // two-electron integrals for SAP correction.
+  Eigen::MatrixXd V_sap_ref(12, 12);
+  V_sap_ref << -48.161626712664187, -4.7836856246433683, 0, 0.01291742670184828,
+      -0.010967831892154056, -2.0033821099010749e-06, -0.77175616234889999, 0,
+      0.00034296744926888052, 1.2810294579879118, -1.8612853433654168,
+      -0.21984583270685035, -4.7836856246433701, -3.5844048783736095, 0,
+      0.13411995427355725, -0.23517850034936583, -0.7717561623489001,
+      -1.2542321767214544, 0, -0.006322500460863429, 1.3781503757190121,
+      -1.712186900027918, -0.40830320535018161, 0, 0, -3.3343483508728493, 0, 0,
+      0, 0, -0.48800756489751196, 0, 0, 0, 0, 0.012917426701848284,
+      0.13411995427355725, 0, -3.4287357703538213, -0.096970266316132495,
+      -0.00034296744926888063, 0.006322500460863429, 0, -0.49670368376476004,
+      -0.021135249090997676, 0.79173492433793236, -0.07641961261019653,
+      -0.010967831892154056, -0.23517850034936605, 0, -0.096970266316132495,
+      -3.7771303420092082, -1.2810294579879122, -1.3781503757190121, 0,
+      -0.02113524909099767, 1.1856000889763432, 0.66883426856379868,
+      -0.43074554813761545, -2.0033821099010749e-06, -0.77175616234890021, 0,
+      -0.00034296744926888052, -1.2810294579879118, -48.161626712664173,
+      -4.7836856246433683, 0, -0.01291742670184828, 0.010967831892154431,
+      -0.21984583270685026, -1.8612853433654166, -0.77175616234890032,
+      -1.2542321767214553, 0, 0.0063225004608634238, -1.378150375719013,
+      -4.7836856246433701, -3.5844048783736095, 0, -0.13411995427355725,
+      0.2351785003493656, -0.40830320535018139, -1.7121869000279171, 0, 0,
+      -0.48800756489751196, 0, 0, 0, 0, -3.3343483508728493, 0, 0, 0, 0,
+      0.00034296744926888063, -0.0063225004608634264, 0, -0.49670368376476004,
+      -0.02113524909099768, -0.012917426701848284, -0.13411995427355725, 0,
+      -3.4287357703538213, -0.096970266316132495, 0.07641961261019653,
+      -0.79173492433793236, 1.2810294579879122, 1.3781503757190121, 0,
+      -0.021135249090997673, 1.1856000889763396, 0.010967831892154431,
+      0.23517850034936605, 0, -0.096970266316132495, -3.7771303420092082,
+      0.43074554813761545, -0.66883426856379868, -1.8612853433654166,
+      -1.7121869000279206, 0, 0.79173492433793191, 0.66883426856379913,
+      -0.21984583270685026, -0.40830320535018161, 0, 0.076419612610196419,
+      0.43074554813761501, -1.8237300358596116, -0.14206535846913848,
+      -0.21984583270685035, -0.40830320535018183, 0, -0.07641961261019653,
+      -0.43074554813761523, -1.8612853433654166, -1.7121869000279188, 0,
+      -0.79173492433793236, -0.66883426856379957, -0.14206535846913848,
+      -1.8237300358596116;
+
+  // Check symmetry
+  REQUIRE((V_sap - V_sap.transpose()).norm() < 1e-10);
+
+  // Element-wise comparison against reference
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < n; ++j) {
+      INFO("V_sap(" << i << "," << j << ") = " << V_sap(i, j)
+                    << " ref = " << V_sap_ref(i, j));
+      if (std::abs(V_sap_ref(i, j)) > 1e-12) {
+        REQUIRE(V_sap(i, j) == Approx(V_sap_ref(i, j)).epsilon(1e-10));
+      } else {
+        REQUIRE(std::abs(V_sap(i, j)) < 1e-10);
+      }
+    }
+  }
+
 #endif  // LIBINT2_SUPPORT_ONEBODY
 }
 
