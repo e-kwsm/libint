@@ -764,7 +764,7 @@ struct Shell {
   /// @param embed_normalization_into_coefficients is used to control whether
   /// or not Shell should treat the coefficients as already normalized. If
   /// embed_normalization_into_coefficients is true Shell will normalize the
-  /// primitives and update the coefficients to include the normalization, else 
+  /// primitives and update the coefficients to include the normalization, else
   /// Shell will use the coefficients in @p _contr as given
   Shell(svector<real_t> _alpha, svector<Contraction> _contr,
         std::array<real_t, 3> _O,
@@ -1328,6 +1328,15 @@ struct ShellPair {
     this->ln_prec = ln_prec;
     this->screening_method_ = screening_method;
   }
+};
+
+/// Lightweight container for SAP (Superposition of Atomic Potentials) basis
+/// data. Each SAPAtomData represents one atom's SAP potential as a contracted
+/// s-type Gaussian expansion. Unlike Shell, no normalization is applied.
+struct SAPAtomData {
+  std::vector<double> alpha;  ///< exponents
+  std::vector<double> coeff;  ///< contraction coefficients (raw, unnormalized)
+  size_t nprim() const { return alpha.size(); }
 };
 
 }  // namespace libint2

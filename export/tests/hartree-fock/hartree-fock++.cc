@@ -933,18 +933,20 @@ std::vector<Atom> read_geometry(const std::string& filename) {
 // in minimal basis; occupies subshells by smearing electrons evenly over the
 // orbitals
 Matrix compute_sap_matrix(const BasisSet& obs, const std::vector<Atom>& atoms) {
-  // Load SAP basis with raw coefficients (no normalization)
-  BasisSet sap_basis("sap_helfem_large", atoms, false, false);
-  std::vector<Shell> sap_shells(sap_basis.begin(), sap_basis.end());
+  // Load SAP atom data (one per atom, raw coefficients)
+  auto sap_atom_data = libint2::make_sap_atom_data("sap_helfem_large", atoms);
 
   auto point_charges = libint2::make_point_charges(atoms);
   const auto n = libint2::nbf(obs);
   const auto nshells = obs.size();
   auto shell2bf = obs.shell2bf();
-  const auto max_nprim = std::max(obs.max_nprim(), sap_basis.max_nprim());
+  size_t sap_max_nprim = 0;
+  for (const auto& s : sap_atom_data)
+    sap_max_nprim = std::max(sap_max_nprim, s.nprim());
+  const auto max_nprim = std::max(obs.max_nprim(), sap_max_nprim);
 
   libint2::Engine engine(Operator::sap, max_nprim, obs.max_l());
-  engine.set_params(std::make_tuple(sap_shells, point_charges));
+  engine.set_params(std::make_tuple(sap_atom_data, point_charges));
   const auto& buf = engine.results();
 
   Matrix V_sap = Matrix::Zero(n, n);

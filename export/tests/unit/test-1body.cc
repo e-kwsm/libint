@@ -252,22 +252,21 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
   // atoms from fixture: O(0,0,0), O(0,0,2), H(0,-1,-1), H(0,1,3) in Bohr
   BasisSet orbital_basis("sto-3g", atoms);
 
-  // Load SAP basis with raw coefficients (embed_normalization = false)
-  BasisSet sap_basis("sap_helfem_large", atoms, false, false);
-
-  // Extract one shell per atom for the SAP engine params
-  std::vector<Shell> sap_shells(sap_basis.begin(), sap_basis.end());
+  // Load SAP atom data (one per atom, raw coefficients)
+  auto sap_atom_data = libint2::make_sap_atom_data("sap_helfem_large", atoms);
 
   auto point_charges = make_point_charges(atoms);
   const auto n = libint2::nbf(orbital_basis);
   const auto nshells = orbital_basis.size();
   auto shell2bf = orbital_basis.shell2bf();
-  const auto max_nprim =
-      std::max(orbital_basis.max_nprim(), sap_basis.max_nprim());
+  size_t sap_max_nprim = 0;
+  for (const auto& s : sap_atom_data)
+    sap_max_nprim = std::max(sap_max_nprim, s.nprim());
+  const auto max_nprim = std::max(orbital_basis.max_nprim(), sap_max_nprim);
 
   // Compute V_SAP into an Eigen matrix
   auto sap_engine = Engine(Operator::sap, max_nprim, lmax);
-  sap_engine.set_params(std::make_tuple(sap_shells, point_charges));
+  sap_engine.set_params(std::make_tuple(sap_atom_data, point_charges));
   const auto& buf = sap_engine.results();
 
   Eigen::MatrixXd V_sap = Eigen::MatrixXd::Zero(n, n);

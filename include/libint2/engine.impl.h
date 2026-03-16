@@ -1181,13 +1181,13 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
           any_cast<const detail::core_eval_pack_type<Operator::sap>&>(
               core_eval_pack_)
               .first();
-      const auto& sap_shells = std::get<0>(
+      const auto& sap_atom_data = std::get<0>(
           any_cast<
               const typename operator_traits<Operator::sap>::oper_params_type&>(
               core_ints_params_));
-      const auto& shell = sap_shells[oset];
-      core_eval_ptr->eval(fm_ptr, gammap, U, mmax, shell.alpha,
-                          shell.contr[0].coeff, q);
+      const auto& sap_data = sap_atom_data[oset];
+      core_eval_ptr->eval(fm_ptr, gammap, U, mmax, sap_data.alpha,
+                          sap_data.coeff, q);
     }
 
     decltype(U) two_o_sqrt_PI(1.12837916709551257389615890312);
