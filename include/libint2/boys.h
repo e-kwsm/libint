@@ -2175,7 +2175,7 @@ struct sap_gm_eval : private detail::CoreEvalScratch<sap_gm_eval<Real>> {
     fm_eval_ = FmEvalType::instance(mmax, precision);
   }
 
-  /// Evaluates the SAP corrected nuclear attaction core integral.
+  /// Evaluates the SAP corrected nuclear attraction core integral.
   /// G_m is constructed so that when multiplied by the standard prefactor
   /// -q * (2/sqrt(pi)) * sqrt(rho) * (0_A||0_B), the result is
   /// -q*F_m(T) - sum_i c_i * (alpha_i/(alpha_i+rho))^(m+1/2) *

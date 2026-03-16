@@ -112,7 +112,9 @@ enum class Operator {
   /// \f$ (\lambda \mathrm{erf}(\omega r) + \sigma \mathrm{erfc}(\omega r) )/r
   /// \f$
   erfx_nuclear,
-  /// Superposition of Atomic Potentials (SAP) operator
+  /// Superposition of Atomic Potentials (SAP) operator.
+  /// Uses contracted s-shells (one per nucleus) loaded without normalization.
+  /// \sa operator_traits<Operator::sap>
   sap,
   //! overlap + (Cartesian) electric dipole moment,
   //! \f$ x_O, y_O, z_O \f$, where
