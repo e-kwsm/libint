@@ -18,9 +18,6 @@
  *
  */
 
-#include <fstream>
-#include <sstream>
-
 #include "catch.hpp"
 #include "fixture.h"
 
@@ -255,89 +252,18 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
   // atoms from fixture: O(0,0,0), O(0,0,2), H(0,-1,-1), H(0,1,3) in Bohr
   BasisSet orbital_basis("sto-3g", atoms);
 
-  // Load sap_helfem_large basis with raw coefficients (no normalization).
-  // BasisSet always normalizes, so we parse the .g94 file directly and
-  // construct shells with embed_normalization_into_coefficients = false.
-  auto read_sap_basis =
-      [](const std::string& filepath) -> std::map<int, Shell> {
-    std::map<int, Shell> result;
-    std::ifstream is(filepath);
-    if (!is.good())
-      throw std::runtime_error("cannot open SAP basis file: " + filepath);
+  // Load SAP basis with raw coefficients (embed_normalization = false)
+  BasisSet sap_basis("sap_helfem_large", atoms, false, false);
 
-    std::string line;
-    while (std::getline(is, line)) {
-      if (line.empty() || line[0] == '!' || line[0] == '*') continue;
-      // element line: "H     0" or "O     0"
-      std::istringstream iss(line);
-      std::string sym;
-      int dummy;
-      iss >> sym >> dummy;
-
-      // find Z from symbol
-      int Z = -1;
-      for (const auto& e : libint2::chemistry::get_element_info()) {
-        if (e.symbol == sym) {
-          Z = e.Z;
-          break;
-        }
-      }
-      if (Z < 0) continue;
-
-      // next line: "S    N   1.00"
-      std::getline(is, line);
-      std::istringstream iss2(line);
-      std::string shell_type;
-      size_t nprim;
-      iss2 >> shell_type >> nprim;
-
-      Shell::Contraction contr;
-      contr.l = 0;
-      contr.pure = false;
-
-      libint2::svector<double> alphas;
-      for (size_t p = 0; p < nprim; ++p) {
-        std::getline(is, line);
-        // replace Fortran 'D' exponent with 'E'
-        for (auto& c : line) {
-          if (c == 'D' || c == 'd') c = 'E';
-        }
-        std::istringstream pss(line);
-        double exp, coeff;
-        pss >> exp >> coeff;
-        alphas.push_back(exp);
-        contr.coeff.push_back(coeff);
-      }
-
-      // embed_normalization_into_coefficients = false
-      result[Z] = Shell{std::move(alphas), {contr}, {{0, 0, 0}}, false};
-    }
-    return result;
-  };
-
-  std::string sap_path =
-      std::string(LIBINT_SRCDATADIR) + "/sap_helfem_large.g94";
-  auto sap_basis_by_Z = read_sap_basis(sap_path);
-
-  // Build one SAP shell per atom with correct origin
-  std::vector<Shell> sap_shells;
-  size_t sap_max_nprim = 0;
-  for (const auto& atom : atoms) {
-    auto it = sap_basis_by_Z.find(atom.atomic_number);
-    if (it == sap_basis_by_Z.end())
-      throw std::runtime_error("no SAP basis for Z=" +
-                               std::to_string(atom.atomic_number));
-    Shell s = it->second;
-    s.O = {{atom.x, atom.y, atom.z}};
-    sap_max_nprim = std::max(sap_max_nprim, s.alpha.size());
-    sap_shells.push_back(std::move(s));
-  }
+  // Extract one shell per atom for the SAP engine params
+  std::vector<Shell> sap_shells(sap_basis.begin(), sap_basis.end());
 
   auto point_charges = make_point_charges(atoms);
   const auto n = libint2::nbf(orbital_basis);
   const auto nshells = orbital_basis.size();
   auto shell2bf = orbital_basis.shell2bf();
-  const auto max_nprim = std::max(orbital_basis.max_nprim(), sap_max_nprim);
+  const auto max_nprim =
+      std::max(orbital_basis.max_nprim(), sap_basis.max_nprim());
 
   // Compute V_SAP into an Eigen matrix
   auto sap_engine = Engine(Operator::sap, max_nprim, lmax);
