@@ -34,6 +34,7 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <map>
 #include <type_traits>
 #include <vector>
 
@@ -1330,14 +1331,17 @@ struct ShellPair {
   }
 };
 
-/// Lightweight container for SAP (Superposition of Atomic Potentials) basis
-/// data. Each SAPAtomData represents one atom's SAP potential as a contracted
-/// s-type Gaussian expansion. Unlike Shell, no normalization is applied.
-struct SAPAtomData {
-  std::vector<double> alpha;  ///< exponents
-  std::vector<double> coeff;  ///< contraction coefficients (raw, unnormalized)
-  size_t nprim() const { return alpha.size(); }
+/// A single SAP (Superposition of Atomic Potentials) primitive Gaussian.
+struct SAPPrimitive {
+  double exponent;
+  double coefficient;
 };
+
+/// SAP data for a single element: a contracted s-type Gaussian expansion.
+using SAPElementData = std::vector<SAPPrimitive>;
+
+/// SAP data for all elements, keyed by atomic number.
+using SAPElementsData = std::map<int, SAPElementData>;
 
 }  // namespace libint2
 

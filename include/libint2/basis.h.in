@@ -678,11 +678,11 @@ namespace libint2 {
   /// Only s-type entries are expected; an assertion failure occurs otherwise.
   /// No normalization is applied to the coefficients.
   /// @param[in] file_dot_g94 path to the .g94 file
-  /// @return vector indexed by atomic number Z, each element is a SAPAtomData
-  inline std::vector<SAPAtomData> read_sap_basis_library(
+  /// @return vector indexed by atomic number Z, each element is a SAPElementData
+  inline std::vector<SAPElementData> read_sap_basis_library(
       const std::string& file_dot_g94) {
     std::locale locale("POSIX");
-    std::vector<SAPAtomData> sap_data(119);
+    std::vector<SAPElementData> sap_data(119);
     std::ifstream is(file_dot_g94);
     is.imbue(locale);
 
@@ -741,7 +741,7 @@ namespace libint2 {
 
           assert(amlabel == "S" || amlabel == "s");
 
-          std::vector<double> exps, coeffs;
+          SAPElementData element_data;
           for (decltype(nprim) p = 0; p != nprim; ++p) {
             while (std::getline(is, line) && (line.empty() || line[0] == '!')) {
             }
@@ -749,10 +749,9 @@ namespace libint2 {
             auto iss2 = LINE_TO_SS(line);
             double e, c;
             iss2 >> e >> c;
-            exps.push_back(e);
-            coeffs.push_back(c);
+            element_data.push_back(SAPPrimitive{e, c});
           }
-          sap_data.at(Z) = SAPAtomData{std::move(exps), std::move(coeffs)};
+          sap_data.at(Z) = std::move(element_data);
         }
       } while (std::getline(is, line));
     } else {
@@ -765,11 +764,11 @@ namespace libint2 {
     return sap_data;
   }
 
-  /// Load SAP atom data for the unique elements in a set of atoms.
+  /// Load SAP data for the unique elements in a set of atoms.
   /// @param[in] name the SAP basis set name (e.g. "sap_helfem_large")
   /// @param[in] atoms the atoms
-  /// @return map from atomic number to SAPAtomData
-  inline std::map<int, SAPAtomData> make_sap_atom_data(
+  /// @return SAPElementsData (map from atomic number to SAPElementData)
+  inline SAPElementsData make_sap_elements_data(
       const std::string& name, const std::vector<Atom>& atoms) {
     std::string basis_lib_path = basis_data_path();
     // canonicalize: lowercase + replace '/' with 'I'
@@ -782,7 +781,7 @@ namespace libint2 {
                    });
     auto file = basis_lib_path + PATH_SEPARATOR + canonical_name + ".g94";
     auto by_Z = read_sap_basis_library(file);
-    std::map<int, SAPAtomData> result;
+    SAPElementsData result;
     for (const auto& atom : atoms) {
       const int Z = atom.atomic_number;
       if (result.find(Z) == result.end()) {

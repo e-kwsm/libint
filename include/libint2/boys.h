@@ -2181,10 +2181,11 @@ struct sap_gm_eval : private detail::CoreEvalScratch<sap_gm_eval<Real>> {
   /// -q*F_m(T) - sum_i c_i * (alpha_i/(alpha_i+rho))^(m+1/2) *
   ///             F_m(T * alpha_i/(alpha_i+rho))
   /// i.e.  G_m = F_m(T) + (1/q) * sum_i c_i * (...)^(m+1/2) * F_m(...)
-  template <typename AlphaContainer, typename CoeffContainer>
+  /// @tparam PrimitivesContainer a range of objects with .exponent and
+  ///         .coefficient members
+  template <typename PrimitivesContainer>
   void operator()(Real* Gm, Real rho, Real T, int mmax,
-                  const AlphaContainer& alphas, const CoeffContainer& coeffs,
-                  Real q) {
+                  const PrimitivesContainer& primitives, Real q) {
     // Bare Coulomb: F_m(T)
     fm_eval_->eval(Gm, T, mmax);
 
@@ -2192,13 +2193,12 @@ struct sap_gm_eval : private detail::CoreEvalScratch<sap_gm_eval<Real>> {
 
     // Add correction/q so that -q * G_m = -q*F_m - correction
     const auto oo_q = Real{1} / q;
-    for (size_t i = 0; i < alphas.size(); ++i) {
-      const auto alpha_i = alphas[i];
-      const auto coeff = coeffs[i];
-      const auto alpha_over_alpha_plus_rho = alpha_i / (alpha_i + rho);
+    for (const auto& prim : primitives) {
+      const auto alpha_over_alpha_plus_rho =
+          prim.exponent / (prim.exponent + rho);
       fm_eval_->eval(&base_type::Fm_[0], T * alpha_over_alpha_plus_rho, mmax);
 
-      auto factor = coeff * oo_q * sqrt(alpha_over_alpha_plus_rho);
+      auto factor = prim.coefficient * oo_q * sqrt(alpha_over_alpha_plus_rho);
       for (auto m = 0; m <= mmax; ++m, factor *= alpha_over_alpha_plus_rho) {
         Gm[m] += factor * base_type::Fm_[m];
       }

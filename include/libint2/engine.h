@@ -312,14 +312,14 @@ struct operator_traits<Operator::erfx_nuclear>
 
 template <>
 struct operator_traits<Operator::sap> : public detail::default_operator_traits {
-  /// {SAP atom data (keyed by atomic number), nuclear charges/positions}
+  /// {SAP element data (keyed by atomic number), nuclear charges/positions}
   typedef std::tuple<
-      std::map<int, libint2::SAPAtomData>,
+      libint2::SAPElementsData,
       typename operator_traits<Operator::nuclear>::oper_params_type>
       oper_params_type;
   static oper_params_type default_params() {
     return std::make_tuple(
-        std::map<int, libint2::SAPAtomData>{},
+        libint2::SAPElementsData{},
         operator_traits<Operator::nuclear>::default_params());
   }
   typedef const libint2::GenericGmEval<
