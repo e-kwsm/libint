@@ -1984,6 +1984,8 @@ template <typename Real, int K>
 struct r12_xx_K_gm_eval;
 template <typename Real>
 struct erfx_coulomb_gm_eval;
+template <typename Real>
+struct sap_gm_eval;
 }  // namespace os_core_ints
 
 namespace detail {
@@ -2003,6 +2005,14 @@ struct CoreEvalScratch<os_core_ints::erfx_coulomb_gm_eval<Real>> {
   CoreEvalScratch(const CoreEvalScratch&) = default;
   CoreEvalScratch(CoreEvalScratch&&) = default;
   // need to store Fm(T) for m = 0 .. mmax
+  explicit CoreEvalScratch(int mmax) { Fm_.resize(mmax + 1); }
+};
+/// sap_gm_eval needs extra scratch data
+template <typename Real>
+struct CoreEvalScratch<os_core_ints::sap_gm_eval<Real>> {
+  std::vector<Real> Fm_;
+  CoreEvalScratch(const CoreEvalScratch&) = default;
+  CoreEvalScratch(CoreEvalScratch&&) = default;
   explicit CoreEvalScratch(int mmax) { Fm_.resize(mmax + 1); }
 };
 }  // namespace detail
@@ -2145,6 +2155,58 @@ struct erfx_coulomb_gm_eval
 
  private:
   std::shared_ptr<const FmEvalType> fm_eval_;  // need for odd K
+};
+
+/// core integral evaluator for SAP (Superposition of Atomic Potentials)
+/// nuclear operator. Corrects bare Coulomb with contracted s-shell potential.
+/// @note need extra scratch for Boys function values
+template <typename Real>
+struct sap_gm_eval : private detail::CoreEvalScratch<sap_gm_eval<Real>> {
+  typedef detail::CoreEvalScratch<sap_gm_eval<Real>> base_type;
+  typedef Real value_type;
+
+#ifndef LIBINT_USER_DEFINED_REAL
+  using FmEvalType = libint2::FmEval_Chebyshev7<double>;
+#else
+  using FmEvalType = libint2::FmEval_Reference<scalar_type>;
+#endif
+
+  sap_gm_eval(unsigned int mmax, Real precision) : base_type(mmax) {
+    fm_eval_ = FmEvalType::instance(mmax, precision);
+  }
+
+  /// Evaluates the SAP corrected nuclear attaction core integral.
+  /// G_m is constructed so that when multiplied by the standard prefactor
+  /// -q * (2/sqrt(pi)) * sqrt(rho) * (0_A||0_B), the result is
+  /// -q*F_m(T) - sum_i c_i * (alpha_i/(alpha_i+rho))^(m+1/2) *
+  ///             F_m(T * alpha_i/(alpha_i+rho))
+  /// i.e.  G_m = F_m(T) + (1/q) * sum_i c_i * (...)^(m+1/2) * F_m(...)
+  template <typename AlphaContainer, typename CoeffContainer>
+  void operator()(Real* Gm, Real rho, Real T, int mmax,
+                  const AlphaContainer& alphas, const CoeffContainer& coeffs,
+                  Real q) {
+    // Bare Coulomb: F_m(T)
+    fm_eval_->eval(Gm, T, mmax);
+
+    using std::sqrt;
+
+    // Add correction/q so that -q * G_m = -q*F_m - correction
+    const auto oo_q = Real{1} / q;
+    for (size_t i = 0; i < alphas.size(); ++i) {
+      const auto alpha_i = alphas[i];
+      const auto coeff = coeffs[i];
+      const auto alpha_over_alpha_plus_rho = alpha_i / (alpha_i + rho);
+      fm_eval_->eval(&base_type::Fm_[0], T * alpha_over_alpha_plus_rho, mmax);
+
+      auto factor = coeff * oo_q * sqrt(alpha_over_alpha_plus_rho);
+      for (auto m = 0; m <= mmax; ++m, factor *= alpha_over_alpha_plus_rho) {
+        Gm[m] += factor * base_type::Fm_[m];
+      }
+    }
+  }
+
+ private:
+  std::shared_ptr<const FmEvalType> fm_eval_;
 };
 
 }  // namespace os_core_ints

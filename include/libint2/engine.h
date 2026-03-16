@@ -112,6 +112,8 @@ enum class Operator {
   /// \f$ (\lambda \mathrm{erf}(\omega r) + \sigma \mathrm{erfc}(\omega r) )/r
   /// \f$
   erfx_nuclear,
+  /// Superposition of Atomic Potentials (SAP) operator
+  sap,
   //! overlap + (Cartesian) electric dipole moment,
   //! \f$ x_O, y_O, z_O \f$, where
   //! \f$ x_O \equiv x - O_x \f$ is relative to
@@ -303,6 +305,23 @@ struct operator_traits<Operator::erfx_nuclear>
   }
   typedef const libint2::GenericGmEval<
       libint2::os_core_ints::erfx_coulomb_gm_eval<scalar_type>>
+      core_eval_type;
+};
+
+template <>
+struct operator_traits<Operator::sap> : public detail::default_operator_traits {
+  /// {contracted s-shells (one per nucleus), nuclear charges/positions}
+  typedef std::tuple<
+      std::vector<libint2::Shell>,
+      typename operator_traits<Operator::nuclear>::oper_params_type>
+      oper_params_type;
+  static oper_params_type default_params() {
+    return std::make_tuple(
+        std::vector<libint2::Shell>{},
+        operator_traits<Operator::nuclear>::default_params());
+  }
+  typedef const libint2::GenericGmEval<
+      libint2::os_core_ints::sap_gm_eval<scalar_type>>
       core_eval_type;
 };
 

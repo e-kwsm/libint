@@ -70,37 +70,38 @@ typename std::remove_all_extents<T>::type* to_ptr1(T (&a)[N]) {
 /// These MUST appear in the same order as in Operator.
 /// You must also update BOOST_PP_NBODY_OPERATOR_LAST_ONEBODY_INDEX when you add
 /// one-body ints
-#define BOOST_PP_NBODY_OPERATOR_LIST              \
-  (overlap,                  /* overlap */        \
-   (kinetic,                 /* kinetic */        \
-    (elecpot,                /* nuclear */        \
-     (elecpot,               /* erf_nuclear */    \
-      (elecpot,              /* erfc_nuclear */   \
-       (elecpot,             /* erfx_nuclear */   \
-        (1emultipole,        /* emultipole1 */    \
-         (2emultipole,       /* emultipole2 */    \
-          (3emultipole,      /* emultipole3 */    \
-           (sphemultipole,   /* sphemultipole */  \
-            (opVop,          /* opVop */          \
-             (eri,           /* delta */          \
-              (eri,          /* coulomb */        \
-               (eri,         /* cgtg */           \
-                (eri,        /* cgtg_x_coulomb */ \
-                 (eri,       /* delcgtg2 */       \
-                  (eri,      /* r12 */            \
-                   (eri,     /* erf_coulomb */    \
-                    (eri,    /* erfc_coulomb */   \
-                     (eri,   /* erfx_coulomb */   \
-                      (eri,  /* stg */            \
-                       (eri, /* yukawa */         \
-                        BOOST_PP_NIL))))))))))))))))))))))
+#define BOOST_PP_NBODY_OPERATOR_LIST               \
+  (overlap,                   /* overlap */        \
+   (kinetic,                  /* kinetic */        \
+    (elecpot,                 /* nuclear */        \
+     (elecpot,                /* erf_nuclear */    \
+      (elecpot,               /* erfc_nuclear */   \
+       (elecpot,              /* erfx_nuclear */   \
+        (elecpot,             /* sap */            \
+         (1emultipole,        /* emultipole1 */    \
+          (2emultipole,       /* emultipole2 */    \
+           (3emultipole,      /* emultipole3 */    \
+            (sphemultipole,   /* sphemultipole */  \
+             (opVop,          /* opVop */          \
+              (eri,           /* delta */          \
+               (eri,          /* coulomb */        \
+                (eri,         /* cgtg */           \
+                 (eri,        /* cgtg_x_coulomb */ \
+                  (eri,       /* delcgtg2 */       \
+                   (eri,      /* r12 */            \
+                    (eri,     /* erf_coulomb */    \
+                     (eri,    /* erfc_coulomb */   \
+                      (eri,   /* erfx_coulomb */   \
+                       (eri,  /* stg */            \
+                        (eri, /* yukawa */         \
+                         BOOST_PP_NIL)))))))))))))))))))))))
 
 #define BOOST_PP_NBODY_OPERATOR_INDEX_TUPLE \
   BOOST_PP_MAKE_TUPLE(BOOST_PP_LIST_SIZE(BOOST_PP_NBODY_OPERATOR_LIST))
 #define BOOST_PP_NBODY_OPERATOR_INDEX_LIST \
   BOOST_PP_TUPLE_TO_LIST(BOOST_PP_NBODY_OPERATOR_INDEX_TUPLE)
 #define BOOST_PP_NBODY_OPERATOR_LAST_ONEBODY_INDEX \
-  10  // opVop, the 11th member of BOOST_PP_NBODY_OPERATOR_LIST, is the last
+  11  // opVop, the 12th member of BOOST_PP_NBODY_OPERATOR_LIST, is the last
       // 1-body operator
 
 // make list of braket indices for n-body ints
@@ -193,7 +194,7 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute1(
   const auto oper_is_nuclear =
       (oper_ == Operator::nuclear || oper_ == Operator::erf_nuclear ||
        oper_ == Operator::erfc_nuclear || oper_ == Operator::erfx_nuclear ||
-       oper_ == Operator::opVop);
+       oper_ == Operator::sap || oper_ == Operator::opVop);
 
   const auto l1 = s1.contr[0].l;
   const auto l2 = s2.contr[0].l;
@@ -296,6 +297,7 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute1(
                       primdata_[p12]._0_Overlap_0_z[0];
           break;
         case Operator::nuclear:
+        case Operator::sap:
         case Operator::erf_nuclear:
         case Operator::erfc_nuclear:
         case Operator::erfx_nuclear:
@@ -628,7 +630,8 @@ __libint2_engine_inline void Engine::_initialize() {
     if (lmax_ >= lmax) {                                                       \
       throw Engine::lmax_exceeded(BOOST_PP_STRINGIZE(BOOST_PP_NBODYENGINE_MCR3_TASK(product)), lmax, lmax_);              \
     }                                                                          \
-    if (stack_size_ > 0) LIBINT2_PREFIXED_NAME(libint2_cleanup_default)(&primdata_[0]);               \
+    if (stack_size_ > 0)                                                       \
+      LIBINT2_PREFIXED_NAME(libint2_cleanup_default)(&primdata_[0]);           \
     stack_size_ = LIBINT2_PREFIXED_NAME(BOOST_PP_CAT(                          \
         libint2_need_memory_, BOOST_PP_NBODYENGINE_MCR3_TASK(product)))(       \
         lmax_);                                                                \
@@ -783,6 +786,12 @@ __libint2_engine_inline unsigned int Engine::nparams() const {
       return std::get<1>(
                  any_cast<const operator_traits<
                      Operator::erfx_nuclear>::oper_params_type&>(params_))
+          .size();
+    case Operator::sap:
+      return std::get<1>(
+                 any_cast<
+                     const operator_traits<Operator::sap>::oper_params_type&>(
+                     params_))
           .size();
     default:
       return 1;
@@ -963,7 +972,7 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
   const auto oper_is_nuclear =
       (oper_ == Operator::nuclear || oper_ == Operator::erf_nuclear ||
        oper_ == Operator::erfc_nuclear || oper_ == Operator::erfx_nuclear ||
-       oper_ == Operator::opVop);
+       oper_ == Operator::sap || oper_ == Operator::opVop);
 
   // need to use HRR? see strategy.cc
   const auto l1 = s1.contr[0].l;
@@ -1092,10 +1101,14 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
                          any_cast<const operator_traits<
                              Operator::erfc_nuclear>::oper_params_type&>(
                              params_))
-                   : std::get<1>(
-                         any_cast<const operator_traits<
-                             Operator::erfx_nuclear>::oper_params_type&>(
-                             params_)));
+                   : (oper_ == Operator::sap
+                          ? std::get<1>(
+                                any_cast<const operator_traits<
+                                    Operator::sap>::oper_params_type&>(params_))
+                          : std::get<1>(
+                                any_cast<const operator_traits<
+                                    Operator::erfx_nuclear>::oper_params_type&>(
+                                    params_))));
 
     const auto& C = params[oset].second;
     const auto& q = params[oset].first;
@@ -1163,6 +1176,18 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
               Operator::erfx_nuclear>::oper_params_type&>(core_ints_params_));
       core_eval_ptr->eval(fm_ptr, gammap, U, mmax, core_ints_params[0],
                           core_ints_params[1], core_ints_params[2]);
+    } else if (oper_ == Operator::sap) {
+      const auto& core_eval_ptr =
+          any_cast<const detail::core_eval_pack_type<Operator::sap>&>(
+              core_eval_pack_)
+              .first();
+      const auto& sap_shells = std::get<0>(
+          any_cast<
+              const typename operator_traits<Operator::sap>::oper_params_type&>(
+              core_ints_params_));
+      const auto& shell = sap_shells[oset];
+      core_eval_ptr->eval(fm_ptr, gammap, U, mmax, shell.alpha,
+                          shell.contr[0].coeff, q);
     }
 
     decltype(U) two_o_sqrt_PI(1.12837916709551257389615890312);
