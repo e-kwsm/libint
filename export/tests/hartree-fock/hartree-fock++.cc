@@ -941,8 +941,8 @@ Matrix compute_sap_matrix(const BasisSet& obs, const std::vector<Atom>& atoms) {
   const auto nshells = obs.size();
   auto shell2bf = obs.shell2bf();
   size_t sap_max_nprim = 0;
-  for (const auto& s : sap_atom_data)
-    sap_max_nprim = std::max(sap_max_nprim, s.nprim());
+  for (const auto& kv : sap_atom_data)
+    sap_max_nprim = std::max(sap_max_nprim, kv.second.nprim());
   const auto max_nprim = std::max(obs.max_nprim(), sap_max_nprim);
 
   libint2::Engine engine(Operator::sap, max_nprim, obs.max_l());

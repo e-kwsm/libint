@@ -35,6 +35,7 @@
 #include <iostream>
 #include <fstream>
 #include <locale>
+#include <map>
 #include <vector>
 #include <stdexcept>
 
@@ -764,11 +765,11 @@ namespace libint2 {
     return sap_data;
   }
 
-  /// Load SAP atom data for a set of atoms (one SAPAtomData per atom).
+  /// Load SAP atom data for the unique elements in a set of atoms.
   /// @param[in] name the SAP basis set name (e.g. "sap_helfem_large")
   /// @param[in] atoms the atoms
-  /// @return vector of SAPAtomData, one per atom
-  inline std::vector<SAPAtomData> make_sap_atom_data(
+  /// @return map from atomic number to SAPAtomData
+  inline std::map<int, SAPAtomData> make_sap_atom_data(
       const std::string& name, const std::vector<Atom>& atoms) {
     std::string basis_lib_path = basis_data_path();
     // canonicalize: lowercase + replace '/' with 'I'
@@ -781,10 +782,12 @@ namespace libint2 {
                    });
     auto file = basis_lib_path + PATH_SEPARATOR + canonical_name + ".g94";
     auto by_Z = read_sap_basis_library(file);
-    std::vector<SAPAtomData> result;
-    result.reserve(atoms.size());
+    std::map<int, SAPAtomData> result;
     for (const auto& atom : atoms) {
-      result.push_back(by_Z.at(atom.atomic_number));
+      const int Z = atom.atomic_number;
+      if (result.find(Z) == result.end()) {
+        result.emplace(Z, by_Z.at(Z));
+      }
     }
     return result;
   }

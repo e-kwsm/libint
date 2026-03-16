@@ -1185,7 +1185,7 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
           any_cast<
               const typename operator_traits<Operator::sap>::oper_params_type&>(
               core_ints_params_));
-      const auto& sap_data = sap_atom_data[oset];
+      const auto& sap_data = sap_atom_data.at(static_cast<int>(q));
       core_eval_ptr->eval(fm_ptr, gammap, U, mmax, sap_data.alpha,
                           sap_data.coeff, q);
     }

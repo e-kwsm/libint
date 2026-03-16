@@ -260,8 +260,8 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
   const auto nshells = orbital_basis.size();
   auto shell2bf = orbital_basis.shell2bf();
   size_t sap_max_nprim = 0;
-  for (const auto& s : sap_atom_data)
-    sap_max_nprim = std::max(sap_max_nprim, s.nprim());
+  for (const auto& kv : sap_atom_data)
+    sap_max_nprim = std::max(sap_max_nprim, kv.second.nprim());
   const auto max_nprim = std::max(orbital_basis.max_nprim(), sap_max_nprim);
 
   // Compute V_SAP into an Eigen matrix
