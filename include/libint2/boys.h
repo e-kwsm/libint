@@ -2186,6 +2186,12 @@ struct sap_gm_eval : private detail::CoreEvalScratch<sap_gm_eval<Real>> {
   template <typename PrimitivesContainer>
   void operator()(Real* Gm, Real rho, Real T, int mmax,
                   const PrimitivesContainer& primitives, Real q) {
+    // q == 0 means no nuclear charge; prefactor -q * G_m vanishes
+    if (q == Real{0}) {
+      std::fill(Gm, Gm + mmax + 1, Real{0});
+      return;
+    }
+
     // Bare Coulomb: F_m(T)
     fm_eval_->eval(Gm, T, mmax);
 

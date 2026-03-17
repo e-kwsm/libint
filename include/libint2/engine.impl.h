@@ -1185,7 +1185,10 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
           any_cast<
               const typename operator_traits<Operator::sap>::oper_params_type&>(
               core_ints_params_));
-      const auto& sap_element_data = sap_elements_data.at(static_cast<int>(q));
+      const int Z = static_cast<int>(std::round(q));
+      assert(std::abs(q - Z) < 1e-6 &&
+             "SAP operator requires integer nuclear charges");
+      const auto& sap_element_data = sap_elements_data.at(Z);
       core_eval_ptr->eval(fm_ptr, gammap, U, mmax, sap_element_data, q);
     }
 

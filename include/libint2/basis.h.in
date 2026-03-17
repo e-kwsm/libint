@@ -675,13 +675,17 @@ namespace libint2 {
   }
 
   /// Reads SAP basis from a Gaussian94-format file.
-  /// Only s-type entries are expected; an assertion failure occurs otherwise.
+  /// Only s-type entries are expected; throws std::logic_error otherwise.
   /// No normalization is applied to the coefficients.
   /// @param[in] file_dot_g94 path to the .g94 file
   /// @return vector indexed by atomic number Z, each element is a SAPElementData
   inline std::vector<SAPElementData> read_sap_basis_library(
       const std::string& file_dot_g94) {
+#ifdef _MSC_VER
+    std::locale locale("en-US");
+#else
     std::locale locale("POSIX");
+#endif
     std::vector<SAPElementData> sap_data(119);
     std::ifstream is(file_dot_g94);
     is.imbue(locale);
@@ -739,7 +743,13 @@ namespace libint2 {
           std::size_t nprim;
           iss >> amlabel >> nprim >> rest;
 
-          assert(amlabel == "S" || amlabel == "s");
+          if (amlabel != "S" && amlabel != "s") {
+            std::ostringstream oss;
+            oss << "in file " << file_dot_g94
+                << ": SAP basis must contain only s-type shells, found \""
+                << amlabel << "\"";
+            throw std::logic_error(oss.str());
+          }
 
           SAPElementData element_data;
           for (decltype(nprim) p = 0; p != nprim; ++p) {

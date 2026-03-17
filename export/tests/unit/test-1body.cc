@@ -247,10 +247,9 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "W correctness",
 TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
                  "[engine][1-body]") {
 #if defined(LIBINT2_SUPPORT_ONEBODY)
-  const auto lmax = LIBINT2_MAX_AM_elecpot;
-
   // atoms from fixture: O(0,0,0), O(0,0,2), H(0,-1,-1), H(0,1,3) in Bohr
   BasisSet orbital_basis("sto-3g", atoms);
+  const auto lmax = orbital_basis.max_l();
 
   // Load SAP element data (keyed by atomic number)
   auto sap_prim_data = libint2::make_sap_prim_data("sap_helfem_large", atoms);
