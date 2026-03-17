@@ -100,6 +100,15 @@ namespace libint2 {
     }
   }
 
+  /// @return the default locale name for parsing basis set files
+  inline const char* default_locale_name() {
+#ifdef _MSC_VER
+    return "en-US";
+#else
+    return "POSIX";
+#endif
+  }
+
   /// determines the path to the basis data directory
   /// @sa BasisSet::data_path()
   inline std::string basis_data_path() {
@@ -208,12 +217,7 @@ namespace libint2 {
 
           // use same cartesian_d convention for all components!
           component_basis_sets.emplace_back(read_g94_basis_library(file_dot_g94, force_cartesian_d, throw_if_no_match,
-#ifdef _MSC_VER
-              "en-US"
-#else
-              "POSIX"
-#endif
-              ));
+              default_locale_name()));
         }
 
         // for each atom find the corresponding basis components
@@ -484,11 +488,7 @@ namespace libint2 {
       static std::vector<std::vector<libint2::Shell>> read_g94_basis_library(std::string file_dot_g94,
                                                                              bool force_cartesian_d = false,
                                                                              bool throw_if_missing = true,
-#ifdef _MSC_VER
-                                                                             std::string locale_name = std::string("en-US")
-#else
-                                                                             std::string locale_name = std::string("POSIX")  // "en_US"
-#endif
+                                                                             std::string locale_name = std::string(default_locale_name())
                                                                             ) {
 
         std::locale locale(locale_name.c_str());  // TODO omit c_str() with up-to-date stdlib
@@ -681,11 +681,7 @@ namespace libint2 {
   /// @return vector indexed by atomic number Z, each element is a SAPElementData
   inline std::vector<SAPElementData> read_sap_basis_library(
       const std::string& file_dot_g94) {
-#ifdef _MSC_VER
-    std::locale locale("en-US");
-#else
-    std::locale locale("POSIX");
-#endif
+    std::locale locale(default_locale_name());
     std::vector<SAPElementData> sap_data(119);
     std::ifstream is(file_dot_g94);
     is.imbue(locale);
@@ -751,7 +747,7 @@ namespace libint2 {
             throw std::logic_error(oss.str());
           }
 
-          SAPElementData element_data;
+          auto& element_data = sap_data.at(Z);
           for (decltype(nprim) p = 0; p != nprim; ++p) {
             while (std::getline(is, line) && (line.empty() || line[0] == '!')) {
             }
@@ -761,7 +757,6 @@ namespace libint2 {
             iss2 >> e >> c;
             element_data.push_back(SAPPrimitive{e, c});
           }
-          sap_data.at(Z) = std::move(element_data);
         }
       } while (std::getline(is, line));
     } else {
@@ -795,6 +790,13 @@ namespace libint2 {
     for (const auto& atom : atoms) {
       const int Z = atom.atomic_number;
       if (result.find(Z) == result.end()) {
+        if (Z < 0 || static_cast<size_t>(Z) >= by_Z.size() ||
+            by_Z.at(Z).empty()) {
+          std::ostringstream oss;
+          oss << "make_sap_prim_data(): SAP basis \"" << name
+              << "\" has no data for element Z=" << Z;
+          throw std::logic_error(oss.str());
+        }
         result.emplace(Z, by_Z.at(Z));
       }
     }

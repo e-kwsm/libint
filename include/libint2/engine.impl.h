@@ -1090,25 +1090,25 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
   }
 
   if (oper_is_nuclear) {
-    const auto& params =
-        (oper_ == Operator::nuclear || oper_ == Operator::opVop)
-            ? any_cast<
-                  const operator_traits<Operator::nuclear>::oper_params_type&>(
-                  params_)
-            : ((oper_ == Operator::erf_nuclear ||
-                oper_ == Operator::erfc_nuclear)
-                   ? std::get<1>(
-                         any_cast<const operator_traits<
-                             Operator::erfc_nuclear>::oper_params_type&>(
-                             params_))
-                   : (oper_ == Operator::sap
-                          ? std::get<1>(
-                                any_cast<const operator_traits<
-                                    Operator::sap>::oper_params_type&>(params_))
-                          : std::get<1>(
-                                any_cast<const operator_traits<
-                                    Operator::erfx_nuclear>::oper_params_type&>(
-                                    params_))));
+    using nuclear_params_type =
+        operator_traits<Operator::nuclear>::oper_params_type;
+    const auto& params = [&]() -> const nuclear_params_type& {
+      if (oper_ == Operator::nuclear || oper_ == Operator::opVop)
+        return any_cast<const nuclear_params_type&>(params_);
+      else if (oper_ == Operator::erf_nuclear ||
+               oper_ == Operator::erfc_nuclear)
+        return std::get<1>(
+            any_cast<const operator_traits<
+                Operator::erfc_nuclear>::oper_params_type&>(params_));
+      else if (oper_ == Operator::sap)
+        return std::get<1>(
+            any_cast<const operator_traits<Operator::sap>::oper_params_type&>(
+                params_));
+      else
+        return std::get<1>(
+            any_cast<const operator_traits<
+                Operator::erfx_nuclear>::oper_params_type&>(params_));
+    }();
 
     const auto& C = params[oset].second;
     const auto& q = params[oset].first;
