@@ -264,12 +264,12 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
     sap_max_nprim = std::max(sap_max_nprim, kv.second.size());
   const auto max_nprim = std::max(orbital_basis.max_nprim(), sap_max_nprim);
 
-  // Compute V_SAP into an Eigen matrix
+  // Compute V_SAP into a flat row-major matrix
   auto sap_engine = Engine(Operator::sap, max_nprim, lmax);
   sap_engine.set_params(std::make_tuple(sap_prim_data, point_charges));
   const auto& buf = sap_engine.results();
 
-  Eigen::MatrixXd V_sap = Eigen::MatrixXd::Zero(n, n);
+  std::vector<double> V_sap(n * n, 0.0);
 
   for (size_t s1 = 0; s1 < nshells; ++s1) {
     auto bf1 = shell2bf[s1];
@@ -280,16 +280,19 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
 
       sap_engine.compute(orbital_basis[s1], orbital_basis[s2]);
 
-      Eigen::Map<const Eigen::MatrixXd> buf_mat(buf[0], n1, n2);
-      V_sap.block(bf1, bf2, n1, n2) = buf_mat;
-      if (s1 != s2) V_sap.block(bf2, bf1, n2, n1) = buf_mat.transpose();
+      for (size_t i = 0; i < n1; ++i)
+        for (size_t j = 0; j < n2; ++j) {
+          V_sap[(bf1 + i) * n + (bf2 + j)] = buf[0][i * n2 + j];
+          if (s1 != s2) V_sap[(bf2 + j) * n + (bf1 + i)] = buf[0][i * n2 + j];
+        }
     }
   }
 
-  // Reference SAP matrix is computed with naive implementation using 3-center
+  // clang-format off
+  // Reference SAP matrix (row-major, 12x12) computed with naive 3-center
   // two-electron integrals for SAP correction.
-  Eigen::MatrixXd V_sap_ref(12, 12);
-  V_sap_ref << -48.161626712664187, -4.7836856246433683, 0, 0.01291742670184828,
+  const double V_sap_ref[] = {
+      -48.161626712664187, -4.7836856246433683, 0, 0.01291742670184828,
       -0.010967831892154056, -2.0033821099010749e-06, -0.77175616234889999, 0,
       0.00034296744926888052, 1.2810294579879118, -1.8612853433654168,
       -0.21984583270685035, -4.7836856246433701, -3.5844048783736095, 0,
@@ -324,20 +327,24 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
       -0.21984583270685035, -0.40830320535018183, 0, -0.07641961261019653,
       -0.43074554813761523, -1.8612853433654166, -1.7121869000279188, 0,
       -0.79173492433793236, -0.66883426856379957, -0.14206535846913848,
-      -1.8237300358596116;
+      -1.8237300358596116};
+  // clang-format on
 
   // Check symmetry
-  REQUIRE((V_sap - V_sap.transpose()).norm() < 1e-10);
+  for (size_t i = 0; i < n; ++i)
+    for (size_t j = 0; j < i; ++j)
+      REQUIRE(std::abs(V_sap[i * n + j] - V_sap[j * n + i]) < 1e-10);
 
   // Element-wise comparison against reference
   for (size_t i = 0; i < n; ++i) {
     for (size_t j = 0; j < n; ++j) {
-      INFO("V_sap(" << i << "," << j << ") = " << V_sap(i, j)
-                    << " ref = " << V_sap_ref(i, j));
-      if (std::abs(V_sap_ref(i, j)) > 1e-12) {
-        REQUIRE(V_sap(i, j) == Approx(V_sap_ref(i, j)).epsilon(1e-10));
+      INFO("V_sap(" << i << "," << j << ") = " << V_sap[i * n + j]
+                    << " ref = " << V_sap_ref[i * n + j]);
+      if (std::abs(V_sap_ref[i * n + j]) > 1e-12) {
+        REQUIRE(V_sap[i * n + j] ==
+                Approx(V_sap_ref[i * n + j]).epsilon(1e-10));
       } else {
-        REQUIRE(std::abs(V_sap(i, j)) < 1e-10);
+        REQUIRE(std::abs(V_sap[i * n + j]) < 1e-10);
       }
     }
   }

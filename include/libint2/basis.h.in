@@ -768,7 +768,7 @@ namespace libint2 {
   /// @param[in] name the SAP basis set name (e.g. "sap_helfem_large")
   /// @param[in] atoms the atoms
   /// @return SAPElementsData (map from atomic number to SAPElementData)
-  inline SAPElementsData make_sap_elements_data(
+  inline SAPElementsData make_sap_prim_data(
       const std::string& name, const std::vector<Atom>& atoms) {
     std::string basis_lib_path = basis_data_path();
     // canonicalize: lowercase + replace '/' with 'I'

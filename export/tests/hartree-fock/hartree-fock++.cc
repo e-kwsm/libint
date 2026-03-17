@@ -934,8 +934,7 @@ std::vector<Atom> read_geometry(const std::string& filename) {
 // orbitals
 Matrix compute_sap_matrix(const BasisSet& obs, const std::vector<Atom>& atoms) {
   // Load SAP primitive data (keyed by atomic number)
-  auto sap_prim_data =
-      libint2::make_sap_elements_data("sap_helfem_large", atoms);
+  auto sap_prim_data = libint2::make_sap_prim_data("sap_helfem_large", atoms);
 
   auto point_charges = libint2::make_point_charges(atoms);
   const auto n = libint2::nbf(obs);
