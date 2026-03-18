@@ -769,11 +769,13 @@ namespace libint2 {
     return sap_data;
   }
 
-  /// Load SAP data for the unique elements in a set of atoms.
+  /// Load SAP data for each atom center, indexed parallel to @p atoms.
+  /// Same-element atoms share data via shared_ptr (no duplication).
+  /// Centers whose element has no SAP data get nullptr (bare Coulomb).
   /// @param[in] name the SAP basis set name (e.g. "sap_helfem_large")
   /// @param[in] atoms the atoms
-  /// @return SAPElementsData (map from atomic number to SAPElementData)
-  inline SAPElementsData make_sap_prim_data(
+  /// @return SAPCentersData vector parallel to @p atoms
+  inline SAPCentersData make_sap_prim_data(
       const std::string& name, const std::vector<Atom>& atoms) {
     std::string basis_lib_path = basis_data_path();
     // canonicalize: lowercase + replace '/' with 'I'
@@ -786,18 +788,24 @@ namespace libint2 {
                    });
     auto file = basis_lib_path + PATH_SEPARATOR + canonical_name + ".g94";
     auto by_Z = read_sap_basis_library(file);
-    SAPElementsData result;
+    // build shared_ptr cache keyed by Z so same-element atoms share data
+    std::map<int, std::shared_ptr<const SAPElementData>> cache;
+    SAPCentersData result;
+    result.reserve(atoms.size());
     for (const auto& atom : atoms) {
       const int Z = atom.atomic_number;
-      if (result.find(Z) == result.end()) {
-        if (Z < 0 || static_cast<size_t>(Z) >= by_Z.size() ||
-            by_Z.at(Z).empty()) {
-          std::ostringstream oss;
-          oss << "make_sap_prim_data(): SAP basis \"" << name
-              << "\" has no data for element Z=" << Z;
-          throw std::logic_error(oss.str());
+      auto it = cache.find(Z);
+      if (it != cache.end()) {
+        result.push_back(it->second);  // reuse existing shared_ptr (or nullptr)
+      } else {
+        std::shared_ptr<const SAPElementData> ptr;
+        if (Z >= 0 && static_cast<size_t>(Z) < by_Z.size() &&
+            !by_Z[Z].empty()) {
+          ptr = std::make_shared<const SAPElementData>(std::move(by_Z[Z]));
         }
-        result.emplace(Z, by_Z.at(Z));
+        // nullptr for missing elements => bare Coulomb
+        cache.emplace(Z, ptr);
+        result.push_back(std::move(ptr));
       }
     }
     return result;

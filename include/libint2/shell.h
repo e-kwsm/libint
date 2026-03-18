@@ -35,6 +35,7 @@
 #include <cmath>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <type_traits>
 #include <vector>
 
@@ -1342,6 +1343,34 @@ using SAPElementData = std::vector<SAPPrimitive>;
 
 /// SAP data for all elements, keyed by atomic number.
 using SAPElementsData = std::map<int, SAPElementData>;
+
+/// SAP data per center, parallel to the point-charges vector passed to
+/// Engine::set_params(). Each element is a shared_ptr to the SAP primitive
+/// expansion for that center:
+///
+///  - nullptr  => bare Coulomb potential (no SAP correction) for that center.
+///               Use this for classical point charges in QM/MM, ghost atoms,
+///               or any center that should not carry an atomic potential.
+///  - non-null => Coulomb + SAP correction using the referenced primitives.
+///               Multiple centers may (and typically do) share the same
+///               shared_ptr when they use the same element's SAP definition.
+///
+/// The convenience function make_sap_prim_data() builds a SAPCentersData
+/// from a basis set name and a list of atoms, sharing data for same-Z atoms.
+/// For full per-center control (e.g., different SAP definitions for the same
+/// element at different positions), construct the vector manually:
+/// @code
+///   auto by_Z = read_sap_basis_library("sap_helfem_large.g94");
+///   auto qm_oxygen = std::make_shared<const SAPElementData>(by_Z[8]);
+///   auto custom_H  = std::make_shared<const SAPElementData>(
+///       SAPElementData{{0.5, 1.0}, {1.2, -0.3}});  // custom primitives
+///
+///   SAPCentersData centers(point_charges.size());
+///   centers[0] = qm_oxygen;   // QM oxygen — SAP correction
+///   centers[1] = custom_H;    // QM hydrogen — custom SAP
+///   centers[2] = nullptr;     // MM point charge — bare Coulomb
+/// @endcode
+using SAPCentersData = std::vector<std::shared_ptr<const SAPElementData>>;
 
 }  // namespace libint2
 

@@ -251,7 +251,7 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
   BasisSet orbital_basis("sto-3g", atoms);
   const auto lmax = orbital_basis.max_l();
 
-  // Load SAP element data (keyed by atomic number)
+  // Load SAP per-center data (parallel to atoms, shared_ptr based)
   auto sap_prim_data = libint2::make_sap_prim_data("sap_helfem_large", atoms);
 
   auto point_charges = make_point_charges(atoms);
@@ -259,8 +259,8 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
   const auto nshells = orbital_basis.size();
   auto shell2bf = orbital_basis.shell2bf();
   size_t sap_max_nprim = 0;
-  for (const auto& kv : sap_prim_data)
-    sap_max_nprim = std::max(sap_max_nprim, kv.second.size());
+  for (const auto& ptr : sap_prim_data)
+    if (ptr) sap_max_nprim = std::max(sap_max_nprim, ptr->size());
   const auto max_nprim = std::max(orbital_basis.max_nprim(), sap_max_nprim);
 
   // Compute V_SAP lower triangle in packed storage: index i*(i+1)/2 + j
@@ -289,9 +289,10 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
     }
   }
 
-  // clang-format off
   // Reference SAP lower triangle (packed, 78 elements for 12x12 matrix).
-  // See source directory for reference generation details.
+  // Reference data was generated with 3-center 2-electron integrals approach
+  // from :J. Chem. Phys. 152, 144105 (2020)
+  // clang-format off
   const double V_sap_ref[] = {
       -48.161626712664187,
       -4.7836856246433701, -3.5844048783736095,
