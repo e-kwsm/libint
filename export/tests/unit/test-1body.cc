@@ -244,55 +244,231 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "W correctness",
 #endif  // LIBINT2_SUPPORT_ONEBODY
 }
 
-TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
-                 "[engine][1-body]") {
-#if defined(LIBINT2_SUPPORT_ONEBODY)
-  // atoms from fixture: O(0,0,0), O(0,0,2), H(0,-1,-1), H(0,1,3) in Bohr
-  BasisSet orbital_basis("sto-3g", atoms);
-  const auto lmax = orbital_basis.max_l();
-
-  // Load SAP per-center data (parallel to atoms, shared_ptr based)
-  auto sap_prim_data = libint2::make_sap_prim_data("sap_helfem_large", atoms);
-
-  auto point_charges = make_point_charges(atoms);
-  const auto n = libint2::nbf(orbital_basis);
-  const auto nshells = orbital_basis.size();
-  auto shell2bf = orbital_basis.shell2bf();
-  size_t sap_max_nprim = 0;
-  for (const auto& ptr : sap_prim_data)
-    if (ptr) sap_max_nprim = std::max(sap_max_nprim, ptr->size());
-  const auto max_nprim = std::max(orbital_basis.max_nprim(), sap_max_nprim);
-
-  // Compute V_SAP lower triangle in packed storage: index i*(i+1)/2 + j
-  auto sap_engine = Engine(Operator::sap, max_nprim, lmax);
-  sap_engine.set_params(std::make_tuple(sap_prim_data, point_charges));
-  const auto& buf = sap_engine.results();
-
+// Helper: compute lower-triangle (packed) 1-body matrix for a nuclear-type
+// operator using the given engine. Returns n*(n+1)/2 elements.
+static std::vector<double> compute_nuclear_ltri(Engine& engine,
+                                                const BasisSet& obs) {
+  const auto n = libint2::nbf(obs);
+  const auto nshells = obs.size();
+  auto shell2bf = obs.shell2bf();
+  const auto& buf = engine.results();
   const auto ntri = n * (n + 1) / 2;
-  std::vector<double> V_sap(ntri, 0.0);
-
+  std::vector<double> V(ntri, 0.0);
   for (size_t s1 = 0; s1 < nshells; ++s1) {
     auto bf1 = shell2bf[s1];
-    auto n1 = orbital_basis[s1].size();
+    auto n1 = obs[s1].size();
     for (size_t s2 = 0; s2 <= s1; ++s2) {
       auto bf2 = shell2bf[s2];
-      auto n2 = orbital_basis[s2].size();
-
-      sap_engine.compute(orbital_basis[s1], orbital_basis[s2]);
-
+      auto n2 = obs[s2].size();
+      engine.compute(obs[s1], obs[s2]);
       for (size_t i = 0; i < n1; ++i)
         for (size_t j = 0; j < n2; ++j) {
           const auto ii = bf1 + i;
           const auto jj = bf2 + j;
-          if (ii >= jj) V_sap[ii * (ii + 1) / 2 + jj] = buf[0][i * n2 + j];
+          if (ii >= jj) V[ii * (ii + 1) / 2 + jj] = buf[0][i * n2 + j];
         }
     }
   }
+  return V;
+}
 
-  // Reference SAP lower triangle (packed, 78 elements for 12x12 matrix).
-  // Reference data was generated with 3-center 2-electron integrals approach
-  // from :J. Chem. Phys. 152, 144105 (2020)
+// Helper: compare two lower-triangle vectors element-wise.
+static void compare_ltri(const std::vector<double>& V,
+                         const std::vector<double>& V_ref, size_t n, double eps,
+                         const std::string& label) {
+  REQUIRE(V.size() == V_ref.size());
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j <= i; ++j) {
+      const auto idx = i * (i + 1) / 2 + j;
+      INFO(label << "(" << i << "," << j << ") = " << V[idx]
+                 << " ref = " << V_ref[idx]);
+      if (std::abs(V_ref[idx]) > 1e-12) {
+        REQUIRE(V[idx] == Approx(V_ref[idx]).epsilon(eps));
+      } else {
+        REQUIRE(std::abs(V[idx]) < std::max(eps, 1e-14));
+      }
+    }
+  }
+}
+
+TEST_CASE_METHOD(libint2::unit::DefaultFixture,
+                 "q_gau point nuclear matches Operator::nuclear",
+                 "[engine][1-body]") {
+#if defined(LIBINT2_SUPPORT_ONEBODY)
+  BasisSet obs("sto-3g", atoms);
+  auto point_charges = make_point_charges(atoms);
+  const auto n = libint2::nbf(obs);
+
+  // Reference: Operator::nuclear
+  Engine nuc_engine(Operator::nuclear, obs.max_nprim(), obs.max_l());
+  nuc_engine.set_params(point_charges);
+  auto V_nuc = compute_nuclear_ltri(nuc_engine, obs);
+
+  // q_gau with point nuclear model
+  auto q_gau_data =
+      libint2::make_q_gau_data(libint2::NuclearModel::PointCharge, atoms);
+  size_t gau_max_nprim = 0;
+  for (const auto& ptr : q_gau_data)
+    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
+  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+                  obs.max_l());
+  q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
+  auto V_qgau = compute_nuclear_ltri(q_engine, obs);
+
+  compare_ltri(V_qgau, V_nuc, n, 1e-14, "q_gau_pt");
+#endif
+}
+
+TEST_CASE_METHOD(libint2::unit::DefaultFixture,
+                 "q_gau erf matches Operator::erf_nuclear",
+                 "[engine][1-body]") {
+#if defined(LIBINT2_SUPPORT_ONEBODY)
+  BasisSet obs("sto-3g", atoms);
+  auto point_charges = make_point_charges(atoms);
+  const auto n = libint2::nbf(obs);
+  const double omega = 0.5;
+
+  // Reference: Operator::erf_nuclear
+  Engine erf_engine(Operator::erf_nuclear, obs.max_nprim(), obs.max_l());
+  erf_engine.set_params(std::make_tuple(omega, point_charges));
+  auto V_erf = compute_nuclear_ltri(erf_engine, obs);
+
+  // q_gau with erf model
+  auto q_gau_data = libint2::make_q_gau_data_erf(omega, atoms);
+  size_t gau_max_nprim = 0;
+  for (const auto& ptr : q_gau_data)
+    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
+  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+                  obs.max_l());
+  q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
+  auto V_qgau = compute_nuclear_ltri(q_engine, obs);
+
+  compare_ltri(V_qgau, V_erf, n, 1e-14, "q_gau_erf");
+#endif
+}
+
+TEST_CASE_METHOD(libint2::unit::DefaultFixture,
+                 "q_gau erfc matches Operator::erfc_nuclear",
+                 "[engine][1-body]") {
+#if defined(LIBINT2_SUPPORT_ONEBODY)
+  BasisSet obs("sto-3g", atoms);
+  auto point_charges = make_point_charges(atoms);
+  const auto n = libint2::nbf(obs);
+  const double omega = 0.5;
+
+  // Reference: Operator::erfc_nuclear
+  Engine erfc_engine(Operator::erfc_nuclear, obs.max_nprim(), obs.max_l());
+  erfc_engine.set_params(std::make_tuple(omega, point_charges));
+  auto V_erfc = compute_nuclear_ltri(erfc_engine, obs);
+
+  // q_gau with erfc model
+  auto q_gau_data = libint2::make_q_gau_data_erfc(omega, atoms);
+  size_t gau_max_nprim = 0;
+  for (const auto& ptr : q_gau_data)
+    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
+  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+                  obs.max_l());
+  q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
+  auto V_qgau = compute_nuclear_ltri(q_engine, obs);
+
+  compare_ltri(V_qgau, V_erfc, n, 1e-14, "q_gau_erfc");
+#endif
+}
+
+TEST_CASE_METHOD(libint2::unit::DefaultFixture,
+                 "q_gau erfx matches Operator::erfx_nuclear",
+                 "[engine][1-body]") {
+#if defined(LIBINT2_SUPPORT_ONEBODY)
+  BasisSet obs("sto-3g", atoms);
+  auto point_charges = make_point_charges(atoms);
+  const auto n = libint2::nbf(obs);
+  const double omega = 0.5, lambda = 0.3, sigma = 0.7;
+
+  // Reference: Operator::erfx_nuclear
+  Engine erfx_engine(Operator::erfx_nuclear, obs.max_nprim(), obs.max_l());
+  erfx_engine.set_params(std::make_tuple(
+      std::array<double, 3>{omega, lambda, sigma}, point_charges));
+  auto V_erfx = compute_nuclear_ltri(erfx_engine, obs);
+
+  // q_gau with erfx model
+  auto q_gau_data = libint2::make_q_gau_data_erfx(omega, lambda, sigma, atoms);
+  size_t gau_max_nprim = 0;
+  for (const auto& ptr : q_gau_data)
+    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
+  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+                  obs.max_l());
+  q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
+  auto V_qgau = compute_nuclear_ltri(q_engine, obs);
+
+  compare_ltri(V_qgau, V_erfx, n, 1e-14, "q_gau_erfx");
+#endif
+}
+
+TEST_CASE_METHOD(libint2::unit::DefaultFixture,
+                 "q_gau Gaussian nuclear matches per-center erf_nuclear",
+                 "[engine][1-body]") {
+#if defined(LIBINT2_SUPPORT_ONEBODY)
+  // Gaussian nuclear model: V(r) = -(eZ/r)*erf(sqrt(xi)*r)
+  // equivalent to erf_nuclear with omega = sqrt(xi(Z)) per center.
+  // For a heteronuclear system, build reference by accumulating per-center
+  // erf_nuclear contributions, each with omega = sqrt(xi(Z_i)).
+  BasisSet obs("sto-3g", atoms);
+  auto point_charges = make_point_charges(atoms);
+  const auto n = libint2::nbf(obs);
+  const auto ntri = n * (n + 1) / 2;
+
+  // Reference: accumulate per-center erf_nuclear with omega = sqrt(xi(Z))
+  std::vector<double> V_ref(ntri, 0.0);
+  for (size_t a = 0; a < atoms.size(); ++a) {
+    const int Z = atoms[a].atomic_number;
+    if (Z == 0) continue;
+    const double xi = libint2::chemistry::gaussian_nuclear_exponent(Z);
+    const double omega = std::sqrt(xi);
+    // single-center point charge
+    std::vector<std::pair<double, std::array<double, 3>>> single_charge = {
+        point_charges[a]};
+    Engine erf_engine(Operator::erf_nuclear, obs.max_nprim(), obs.max_l());
+    erf_engine.set_params(std::make_tuple(omega, single_charge));
+    auto V_center = compute_nuclear_ltri(erf_engine, obs);
+    for (size_t k = 0; k < ntri; ++k) V_ref[k] += V_center[k];
+  }
+
+  // q_gau with Gaussian nuclear model
+  auto q_gau_data =
+      libint2::make_q_gau_data(libint2::NuclearModel::GaussianCharge, atoms);
+  size_t gau_max_nprim = 0;
+  for (const auto& ptr : q_gau_data)
+    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
+  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+                  obs.max_l());
+  q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
+  auto V_qgau = compute_nuclear_ltri(q_engine, obs);
+
+  compare_ltri(V_qgau, V_ref, n, 1e-14, "q_gau_finite_nuc");
+#endif
+}
+
+TEST_CASE_METHOD(libint2::unit::DefaultFixture, "q_gau SAP correctness",
+                 "[engine][1-body]") {
+#if defined(LIBINT2_SUPPORT_ONEBODY)
+  // atoms from fixture: O(0,0,0), O(0,0,2), H(0,-1,-1), H(0,1,3) in Bohr
+  BasisSet obs("sto-3g", atoms);
+  auto point_charges = make_point_charges(atoms);
+  const auto n = libint2::nbf(obs);
+
+  auto q_gau_data = libint2::make_q_gau_data(libint2::NuclearModel::PointCharge,
+                                             atoms, "sap_helfem_large");
+  size_t gau_max_nprim = 0;
+  for (const auto& ptr : q_gau_data)
+    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
+  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+                  obs.max_l());
+  q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
+  auto V_sap = compute_nuclear_ltri(q_engine, obs);
+
   // clang-format off
+  // Reference SAP lower triangle (packed, 78 elements for 12x12 matrix).
+  // See source directory for reference generation details.
   const double V_sap_ref[] = {
       -48.161626712664187,
       -4.7836856246433701, -3.5844048783736095,
@@ -320,21 +496,10 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "SAP correctness",
       -1.8237300358596116};
   // clang-format on
 
-  // Element-wise comparison of lower triangle against reference
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = 0; j <= i; ++j) {
-      const auto idx = i * (i + 1) / 2 + j;
-      INFO("V_sap(" << i << "," << j << ") = " << V_sap[idx]
-                    << " ref = " << V_sap_ref[idx]);
-      if (std::abs(V_sap_ref[idx]) > 1e-12) {
-        REQUIRE(V_sap[idx] == Approx(V_sap_ref[idx]).epsilon(1e-10));
-      } else {
-        REQUIRE(std::abs(V_sap[idx]) < 1e-10);
-      }
-    }
-  }
-
-#endif  // LIBINT2_SUPPORT_ONEBODY
+  const auto ntri = n * (n + 1) / 2;
+  std::vector<double> V_ref(V_sap_ref, V_sap_ref + ntri);
+  compare_ltri(V_sap, V_ref, n, 1e-10, "q_gau_sap");
+#endif
 }
 
 // verify that python/tests/test_libint2.py:test_integrals is correct

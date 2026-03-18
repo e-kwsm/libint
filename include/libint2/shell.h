@@ -1332,45 +1332,50 @@ struct ShellPair {
   }
 };
 
-/// A single SAP (Superposition of Atomic Potentials) primitive Gaussian.
-struct SAPPrimitive {
-  double exponent;
-  double coefficient;
+/// A single Gaussian primitive contributing to a nuclear potential.
+/// Each primitive represents a term c * (α/(α+ρ))^(m+1/2) * F_m(T·α/(α+ρ))
+/// in the core integral expansion. Use exponent = infinity for point-charge
+/// contributions (recovers bare Coulomb F_m(T)).
+struct GaussianPotentialPrimitive {
+  double exponent;     ///< Gaussian exponent α (infinity for point charge)
+  double coefficient;  ///< coefficient c
 };
 
-/// SAP data for a single element: a contracted s-type Gaussian expansion.
-using SAPElementData = std::vector<SAPPrimitive>;
+/// Gaussian potential data for a single center: a list of primitives defining
+/// the nuclear potential expansion. Used for point/finite nuclear models, SAP
+/// corrections, erf/erfc attenuations, or any combination thereof.
+using GaussianPotentialData = std::vector<GaussianPotentialPrimitive>;
 
-/// SAP data for all elements, keyed by atomic number.
-using SAPElementsData = std::map<int, SAPElementData>;
-
-/// SAP data per center, parallel to the point-charges vector passed to
-/// Engine::set_params(). Each element is a shared_ptr to the SAP primitive
-/// expansion for that center:
+/// Gaussian potential data per center, parallel to the point-charges vector
+/// passed to Engine::set_params(). Each element is a shared_ptr to the
+/// potential primitives for that center:
 ///
-///  - nullptr  => bare Coulomb potential (no SAP correction) for that center.
-///               Use this for classical point charges in QM/MM, ghost atoms,
-///               or any center that should not carry an atomic potential.
-///  - non-null => Coulomb + SAP correction using the referenced primitives.
-///               Multiple centers may (and typically do) share the same
-///               shared_ptr when they use the same element's SAP definition.
+///  - nullptr  => no potential from this center (zero contribution).
+///               Use this for ghost atoms or centers to skip entirely.
+///  - non-null => potential defined by the referenced primitives.
+///               Multiple centers may share the same shared_ptr.
 ///
-/// The convenience function make_sap_prim_data() builds a SAPCentersData
-/// from a basis set name and a list of atoms, sharing data for same-Z atoms.
-/// For full per-center control (e.g., different SAP definitions for the same
-/// element at different positions), construct the vector manually:
+/// The convenience functions make_q_gau_data() build this from a nuclear model
+/// specification and a list of atoms. For full per-center control (e.g.,
+/// different models for QM vs MM atoms), construct the vector manually:
 /// @code
-///   auto by_Z = read_sap_basis_library("sap_helfem_large.g94");
-///   auto qm_oxygen = std::make_shared<const SAPElementData>(by_Z[8]);
-///   auto custom_H  = std::make_shared<const SAPElementData>(
-///       SAPElementData{{0.5, 1.0}, {1.2, -0.3}});  // custom primitives
-///
-///   SAPCentersData centers(point_charges.size());
-///   centers[0] = qm_oxygen;   // QM oxygen — SAP correction
-///   centers[1] = custom_H;    // QM hydrogen — custom SAP
-///   centers[2] = nullptr;     // MM point charge — bare Coulomb
+///   GaussianPotentialCentersData centers(point_charges.size());
+///   // QM atom — point nuclear + SAP correction
+///   centers[0] = std::make_shared<const GaussianPotentialData>(
+///       GaussianPotentialData{{INFINITY, 1.0}, {alpha1, c1}, {alpha2, c2}});
+///   // QM atom — finite (Gaussian) nuclear model
+///   auto xi = chemistry::gaussian_nuclear_exponent(Z);
+///   centers[1] = std::make_shared<const GaussianPotentialData>(
+///       GaussianPotentialData{{xi, 1.0}});
+///   // MM point charge — bare Coulomb (point nuclear)
+///   static auto pt = std::make_shared<const GaussianPotentialData>(
+///       GaussianPotentialData{{INFINITY, 1.0}});
+///   centers[2] = pt;
+///   // Ghost atom — no potential
+///   centers[3] = nullptr;
 /// @endcode
-using SAPCentersData = std::vector<std::shared_ptr<const SAPElementData>>;
+using GaussianPotentialCentersData =
+    std::vector<std::shared_ptr<const GaussianPotentialData>>;
 
 }  // namespace libint2
 

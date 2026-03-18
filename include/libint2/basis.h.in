@@ -32,10 +32,13 @@
 #include <libint2/util/deprecated.h>
 
 #include <cerrno>
+#include <cmath>
 #include <iostream>
 #include <fstream>
+#include <limits>
 #include <locale>
 #include <map>
+#include <memory>
 #include <vector>
 #include <stdexcept>
 
@@ -674,15 +677,15 @@ namespace libint2 {
     return bs1 == bs2.shells();
   }
 
-  /// Reads SAP basis from a Gaussian94-format file.
+  /// Reads Gaussian potential basis from a Gaussian94-format file (e.g. SAP).
   /// Only s-type entries are expected; throws std::logic_error otherwise.
   /// No normalization is applied to the coefficients.
   /// @param[in] file_dot_g94 path to the .g94 file
-  /// @return vector indexed by atomic number Z, each element is a SAPElementData
-  inline std::vector<SAPElementData> read_sap_basis_library(
+  /// @return vector indexed by atomic number Z
+  inline std::vector<GaussianPotentialData> read_sap_basis_library(
       const std::string& file_dot_g94) {
     std::locale locale(default_locale_name());
-    std::vector<SAPElementData> sap_data(119);
+    std::vector<GaussianPotentialData> sap_data(119);
     std::ifstream is(file_dot_g94);
     is.imbue(locale);
 
@@ -755,7 +758,7 @@ namespace libint2 {
             auto iss2 = LINE_TO_SS(line);
             double e, c;
             iss2 >> e >> c;
-            element_data.push_back(SAPPrimitive{e, c});
+            element_data.push_back(GaussianPotentialPrimitive{e, c});
           }
         }
       } while (std::getline(is, line));
@@ -769,47 +772,148 @@ namespace libint2 {
     return sap_data;
   }
 
-  /// Load SAP data for each atom center, indexed parallel to @p atoms.
-  /// Same-element atoms share data via shared_ptr (no duplication).
-  /// Centers whose element has no SAP data get nullptr (bare Coulomb).
-  /// @param[in] name the SAP basis set name (e.g. "sap_helfem_large")
+  /// Nuclear model for make_q_gau_data().
+  enum class NuclearModel {
+    PointCharge,     ///< point nuclear charge: {∞, 1}
+    GaussianCharge,  ///< Gaussian nuclear charge: {ξ(Z), 1}
+  };
+
+  /// @name make_q_gau_data overloads
+  /// Build GaussianPotentialCentersData for use with Operator::q_gau.
+  /// Same-Z atoms share data via shared_ptr (no duplication).
+  ///@{
+
+  /// Nuclear model only (no SAP correction).
+  /// @param[in] model nuclear charge model
   /// @param[in] atoms the atoms
-  /// @return SAPCentersData vector parallel to @p atoms
-  inline SAPCentersData make_sap_prim_data(
-      const std::string& name, const std::vector<Atom>& atoms) {
-    std::string basis_lib_path = basis_data_path();
-    // canonicalize: lowercase + replace '/' with 'I'
-    std::string canonical_name = name;
-    std::transform(name.begin(), name.end(), canonical_name.begin(),
-                   [](char c) {
-                     char cc = ::tolower(c);
-                     if (cc == '/') cc = 'I';
-                     return cc;
-                   });
-    auto file = basis_lib_path + PATH_SEPARATOR + canonical_name + ".g94";
-    auto by_Z = read_sap_basis_library(file);
-    // build shared_ptr cache keyed by Z so same-element atoms share data
-    std::map<int, std::shared_ptr<const SAPElementData>> cache;
-    SAPCentersData result;
+  inline GaussianPotentialCentersData make_q_gau_data(
+      NuclearModel model, const std::vector<Atom>& atoms) {
+    constexpr double inf = std::numeric_limits<double>::infinity();
+    std::map<int, std::shared_ptr<const GaussianPotentialData>> cache;
+    GaussianPotentialCentersData result;
     result.reserve(atoms.size());
     for (const auto& atom : atoms) {
       const int Z = atom.atomic_number;
       auto it = cache.find(Z);
       if (it != cache.end()) {
-        result.push_back(it->second);  // reuse existing shared_ptr (or nullptr)
+        result.push_back(it->second);
       } else {
-        std::shared_ptr<const SAPElementData> ptr;
-        if (Z >= 0 && static_cast<size_t>(Z) < by_Z.size() &&
-            !by_Z[Z].empty()) {
-          ptr = std::make_shared<const SAPElementData>(std::move(by_Z[Z]));
+        std::shared_ptr<const GaussianPotentialData> ptr;
+        if (Z != 0) {
+          GaussianPotentialData data;
+          if (model == NuclearModel::PointCharge) {
+            data.push_back({inf, 1.0});
+          } else {
+            data.push_back(
+                {chemistry::gaussian_nuclear_exponent(Z), 1.0});
+          }
+          ptr = std::make_shared<const GaussianPotentialData>(std::move(data));
         }
-        // nullptr for missing elements => bare Coulomb
         cache.emplace(Z, ptr);
         result.push_back(std::move(ptr));
       }
     }
     return result;
   }
+
+  /// Nuclear model + SAP correction from a named basis set.
+  /// SAP primitive coefficients are scaled by 1/q (q = atomic number).
+  /// @param[in] model nuclear charge model
+  /// @param[in] atoms the atoms
+  /// @param[in] sap_basis_name SAP basis set name (e.g. "sap_helfem_large")
+  inline GaussianPotentialCentersData make_q_gau_data(
+      NuclearModel model, const std::vector<Atom>& atoms,
+      const std::string& sap_basis_name) {
+    constexpr double inf = std::numeric_limits<double>::infinity();
+    std::string basis_lib_path = basis_data_path();
+    std::string canonical_name = sap_basis_name;
+    std::transform(sap_basis_name.begin(), sap_basis_name.end(),
+                   canonical_name.begin(), [](char c) {
+                     char cc = ::tolower(c);
+                     if (cc == '/') cc = 'I';
+                     return cc;
+                   });
+    auto file = basis_lib_path + PATH_SEPARATOR + canonical_name + ".g94";
+    auto sap_by_Z = read_sap_basis_library(file);
+
+    std::map<int, std::shared_ptr<const GaussianPotentialData>> cache;
+    GaussianPotentialCentersData result;
+    result.reserve(atoms.size());
+    for (const auto& atom : atoms) {
+      const int Z = atom.atomic_number;
+      auto it = cache.find(Z);
+      if (it != cache.end()) {
+        result.push_back(it->second);
+      } else {
+        std::shared_ptr<const GaussianPotentialData> ptr;
+        if (Z != 0) {
+          GaussianPotentialData data;
+          // nuclear model term
+          if (model == NuclearModel::PointCharge) {
+            data.push_back({inf, 1.0});
+          } else {
+            data.push_back(
+                {chemistry::gaussian_nuclear_exponent(Z), 1.0});
+          }
+          // SAP correction terms (coefficients scaled by 1/q)
+          if (Z >= 0 && static_cast<size_t>(Z) < sap_by_Z.size() &&
+              !sap_by_Z[Z].empty()) {
+            const double oo_q = 1.0 / static_cast<double>(Z);
+            for (const auto& prim : sap_by_Z[Z]) {
+              data.push_back({prim.exponent, prim.coefficient * oo_q});
+            }
+          }
+          ptr = std::make_shared<const GaussianPotentialData>(std::move(data));
+        }
+        cache.emplace(Z, ptr);
+        result.push_back(std::move(ptr));
+      }
+    }
+    return result;
+  }
+
+  /// Build GaussianPotentialCentersData for erf(ω)/r model.
+  inline GaussianPotentialCentersData make_q_gau_data_erf(
+      double omega, const std::vector<Atom>& atoms) {
+    auto data = std::make_shared<const GaussianPotentialData>(
+        GaussianPotentialData{{omega * omega, 1.0}});
+    GaussianPotentialCentersData result;
+    result.reserve(atoms.size());
+    for (const auto& atom : atoms)
+      result.push_back(atom.atomic_number != 0 ? data : nullptr);
+    return result;
+  }
+
+  /// Build GaussianPotentialCentersData for erfc(ω)/r model.
+  inline GaussianPotentialCentersData make_q_gau_data_erfc(
+      double omega, const std::vector<Atom>& atoms) {
+    constexpr double inf = std::numeric_limits<double>::infinity();
+    auto data = std::make_shared<const GaussianPotentialData>(
+        GaussianPotentialData{{inf, 1.0}, {omega * omega, -1.0}});
+    GaussianPotentialCentersData result;
+    result.reserve(atoms.size());
+    for (const auto& atom : atoms)
+      result.push_back(atom.atomic_number != 0 ? data : nullptr);
+    return result;
+  }
+
+  /// Build GaussianPotentialCentersData for erfx(ω,λ,σ)/r model.
+  /// Computes (λ·erf(ωr) + σ·erfc(ωr))/r = σ/r - (σ-λ)·erf(ωr)/r
+  inline GaussianPotentialCentersData make_q_gau_data_erfx(
+      double omega, double lambda, double sigma,
+      const std::vector<Atom>& atoms) {
+    constexpr double inf = std::numeric_limits<double>::infinity();
+    auto data = std::make_shared<const GaussianPotentialData>(
+        GaussianPotentialData{{inf, sigma},
+                              {omega * omega, -(sigma - lambda)}});
+    GaussianPotentialCentersData result;
+    result.reserve(atoms.size());
+    for (const auto& atom : atoms)
+      result.push_back(atom.atomic_number != 0 ? data : nullptr);
+    return result;
+  }
+
+  ///@}
 
 } // namespace libint2
 

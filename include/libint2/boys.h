@@ -1985,7 +1985,7 @@ struct r12_xx_K_gm_eval;
 template <typename Real>
 struct erfx_coulomb_gm_eval;
 template <typename Real>
-struct sap_gm_eval;
+struct q_gau_gm_eval;
 }  // namespace os_core_ints
 
 namespace detail {
@@ -2007,9 +2007,9 @@ struct CoreEvalScratch<os_core_ints::erfx_coulomb_gm_eval<Real>> {
   // need to store Fm(T) for m = 0 .. mmax
   explicit CoreEvalScratch(int mmax) { Fm_.resize(mmax + 1); }
 };
-/// sap_gm_eval needs extra scratch data
+/// q_gau_gm_eval needs extra scratch data
 template <typename Real>
-struct CoreEvalScratch<os_core_ints::sap_gm_eval<Real>> {
+struct CoreEvalScratch<os_core_ints::q_gau_gm_eval<Real>> {
   std::vector<Real> Fm_;
   CoreEvalScratch(const CoreEvalScratch&) = default;
   CoreEvalScratch(CoreEvalScratch&&) = default;
@@ -2157,12 +2157,17 @@ struct erfx_coulomb_gm_eval
   std::shared_ptr<const FmEvalType> fm_eval_;  // need for odd K
 };
 
-/// core integral evaluator for SAP (Superposition of Atomic Potentials)
-/// nuclear operator. Corrects bare Coulomb with contracted s-shell potential.
-/// @note need extra scratch for Boys function values
+/// Generalized core integral evaluator for Gaussian-type nuclear potentials.
+/// Computes G_m = sum_i c_i * (α_i/(α_i+ρ))^(m+1/2) * F_m(T·α_i/(α_i+ρ))
+/// where each primitive defines one (α_i, c_i) pair.
+/// Special case: α_i = infinity contributes c_i * F_m(T) (point charge).
+/// When multiplied by the standard prefactor -q·(2/√π)·√ρ·(0_A||0_B),
+/// this produces the nuclear attraction integral for an arbitrary Gaussian
+/// potential expansion (point nuclear, finite nuclear, SAP, erf, etc.).
+/// @note needs extra scratch for Boys function values
 template <typename Real>
-struct sap_gm_eval : private detail::CoreEvalScratch<sap_gm_eval<Real>> {
-  typedef detail::CoreEvalScratch<sap_gm_eval<Real>> base_type;
+struct q_gau_gm_eval : private detail::CoreEvalScratch<q_gau_gm_eval<Real>> {
+  typedef detail::CoreEvalScratch<q_gau_gm_eval<Real>> base_type;
   typedef Real value_type;
 
 #ifndef LIBINT_USER_DEFINED_REAL
@@ -2171,42 +2176,38 @@ struct sap_gm_eval : private detail::CoreEvalScratch<sap_gm_eval<Real>> {
   using FmEvalType = libint2::FmEval_Reference<scalar_type>;
 #endif
 
-  sap_gm_eval(unsigned int mmax, Real precision) : base_type(mmax) {
+  q_gau_gm_eval(unsigned int mmax, Real precision) : base_type(mmax) {
     fm_eval_ = FmEvalType::instance(mmax, precision);
   }
 
-  /// Evaluates the SAP corrected nuclear attraction core integral.
-  /// G_m is constructed so that when multiplied by the standard prefactor
-  /// -q * (2/sqrt(pi)) * sqrt(rho) * (0_A||0_B), the result is
-  /// -q*F_m(T) - sum_i c_i * (alpha_i/(alpha_i+rho))^(m+1/2) *
-  ///             F_m(T * alpha_i/(alpha_i+rho))
-  /// i.e.  G_m = F_m(T) + (1/q) * sum_i c_i * (...)^(m+1/2) * F_m(...)
+  /// Evaluates the generalized nuclear potential core integral.
   /// @tparam PrimitivesContainer a range of objects with .exponent and
   ///         .coefficient members
   template <typename PrimitivesContainer>
   void operator()(Real* Gm, Real rho, Real T, int mmax,
-                  const PrimitivesContainer& primitives, Real q) {
-    // q == 0 means no nuclear charge; prefactor -q * G_m vanishes
-    if (q == Real{0}) {
+                  const PrimitivesContainer& primitives) {
+    using std::isinf;
+    using std::sqrt;
+
+    if (primitives.empty()) {
       std::fill(Gm, Gm + mmax + 1, Real{0});
       return;
     }
 
-    // Bare Coulomb: F_m(T)
-    fm_eval_->eval(Gm, T, mmax);
+    std::fill(Gm, Gm + mmax + 1, Real{0});
 
-    using std::sqrt;
-
-    // Add correction/q so that -q * G_m = -q*F_m - correction
-    const auto oo_q = Real{1} / q;
     for (const auto& prim : primitives) {
-      const auto alpha_over_alpha_plus_rho =
-          prim.exponent / (prim.exponent + rho);
-      fm_eval_->eval(&base_type::Fm_[0], T * alpha_over_alpha_plus_rho, mmax);
-
-      auto factor = prim.coefficient * oo_q * sqrt(alpha_over_alpha_plus_rho);
-      for (auto m = 0; m <= mmax; ++m, factor *= alpha_over_alpha_plus_rho) {
-        Gm[m] += factor * base_type::Fm_[m];
+      if (isinf(prim.exponent)) {
+        // α = ∞ => (∞/(∞+ρ)) = 1, contributes c_i * F_m(T)
+        fm_eval_->eval(&base_type::Fm_[0], T, mmax);
+        for (auto m = 0; m <= mmax; ++m)
+          Gm[m] += prim.coefficient * base_type::Fm_[m];
+      } else {
+        const auto r = prim.exponent / (prim.exponent + rho);
+        fm_eval_->eval(&base_type::Fm_[0], T * r, mmax);
+        auto factor = prim.coefficient * sqrt(r);
+        for (auto m = 0; m <= mmax; ++m, factor *= r)
+          Gm[m] += factor * base_type::Fm_[m];
       }
     }
   }

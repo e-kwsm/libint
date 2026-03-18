@@ -77,7 +77,7 @@ typename std::remove_all_extents<T>::type* to_ptr1(T (&a)[N]) {
      (elecpot,                /* erf_nuclear */    \
       (elecpot,               /* erfc_nuclear */   \
        (elecpot,              /* erfx_nuclear */   \
-        (elecpot,             /* sap */            \
+        (elecpot,             /* q_gau */          \
          (1emultipole,        /* emultipole1 */    \
           (2emultipole,       /* emultipole2 */    \
            (3emultipole,      /* emultipole3 */    \
@@ -194,7 +194,7 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute1(
   const auto oper_is_nuclear =
       (oper_ == Operator::nuclear || oper_ == Operator::erf_nuclear ||
        oper_ == Operator::erfc_nuclear || oper_ == Operator::erfx_nuclear ||
-       oper_ == Operator::sap || oper_ == Operator::opVop);
+       oper_ == Operator::q_gau || oper_ == Operator::opVop);
 
   const auto l1 = s1.contr[0].l;
   const auto l2 = s2.contr[0].l;
@@ -297,7 +297,7 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute1(
                       primdata_[p12]._0_Overlap_0_z[0];
           break;
         case Operator::nuclear:
-        case Operator::sap:
+        case Operator::q_gau:
         case Operator::erf_nuclear:
         case Operator::erfc_nuclear:
         case Operator::erfx_nuclear:
@@ -787,10 +787,10 @@ __libint2_engine_inline unsigned int Engine::nparams() const {
                  any_cast<const operator_traits<
                      Operator::erfx_nuclear>::oper_params_type&>(params_))
           .size();
-    case Operator::sap:
+    case Operator::q_gau:
       return std::get<1>(
                  any_cast<
-                     const operator_traits<Operator::sap>::oper_params_type&>(
+                     const operator_traits<Operator::q_gau>::oper_params_type&>(
                      params_))
           .size();
     default:
@@ -933,16 +933,16 @@ __libint2_engine_inline void Engine::init_core_ints_params(const any& params) {
         core_ints_params.push_back(std::make_pair(gexp, gcoeff_rescaled));
       }
     core_ints_params_ = core_ints_params;
-  } else if (oper_ == Operator::sap) {
-    const auto& sap_params =
-        any_cast<const operator_traits<Operator::sap>::oper_params_type&>(
+  } else if (oper_ == Operator::q_gau) {
+    const auto& q_gau_params =
+        any_cast<const operator_traits<Operator::q_gau>::oper_params_type&>(
             params);
-    if (std::get<0>(sap_params).size() != std::get<1>(sap_params).size()) {
+    if (std::get<0>(q_gau_params).size() != std::get<1>(q_gau_params).size()) {
       throw std::logic_error(
-          "Engine::set_params(Operator::sap): SAP per-center data size (" +
-          std::to_string(std::get<0>(sap_params).size()) +
+          "Engine::set_params(Operator::q_gau): per-center data size (" +
+          std::to_string(std::get<0>(q_gau_params).size()) +
           ") != point charges size (" +
-          std::to_string(std::get<1>(sap_params).size()) + ")");
+          std::to_string(std::get<1>(q_gau_params).size()) + ")");
     }
     core_ints_params_ = params;
   } else {
@@ -984,7 +984,7 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
   const auto oper_is_nuclear =
       (oper_ == Operator::nuclear || oper_ == Operator::erf_nuclear ||
        oper_ == Operator::erfc_nuclear || oper_ == Operator::erfx_nuclear ||
-       oper_ == Operator::sap || oper_ == Operator::opVop);
+       oper_ == Operator::q_gau || oper_ == Operator::opVop);
 
   // need to use HRR? see strategy.cc
   const auto l1 = s1.contr[0].l;
@@ -1112,9 +1112,9 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
         return std::get<1>(
             any_cast<const operator_traits<
                 Operator::erfc_nuclear>::oper_params_type&>(params_));
-      else if (oper_ == Operator::sap)
+      else if (oper_ == Operator::q_gau)
         return std::get<1>(
-            any_cast<const operator_traits<Operator::sap>::oper_params_type&>(
+            any_cast<const operator_traits<Operator::q_gau>::oper_params_type&>(
                 params_));
       else
         return std::get<1>(
@@ -1188,21 +1188,20 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
               Operator::erfx_nuclear>::oper_params_type&>(core_ints_params_));
       core_eval_ptr->eval(fm_ptr, gammap, U, mmax, core_ints_params[0],
                           core_ints_params[1], core_ints_params[2]);
-    } else if (oper_ == Operator::sap) {
+    } else if (oper_ == Operator::q_gau) {
       const auto& core_eval_ptr =
-          any_cast<const detail::core_eval_pack_type<Operator::sap>&>(
+          any_cast<const detail::core_eval_pack_type<Operator::q_gau>&>(
               core_eval_pack_)
               .first();
-      const auto& sap_centers_data = std::get<0>(
-          any_cast<
-              const typename operator_traits<Operator::sap>::oper_params_type&>(
-              core_ints_params_));
-      // nullptr => bare Coulomb; non-null => Coulomb + SAP correction
-      // sap_gm_eval handles empty primitives (bare Coulomb) and q==0 (zero)
-      static const SAPElementData empty_sap_data;
-      const auto& sap_center_data =
-          sap_centers_data[oset] ? *sap_centers_data[oset] : empty_sap_data;
-      core_eval_ptr->eval(fm_ptr, gammap, U, mmax, sap_center_data, q);
+      const auto& gau_centers_data = std::get<0>(
+          any_cast<const typename operator_traits<
+              Operator::q_gau>::oper_params_type&>(core_ints_params_));
+      // nullptr => no potential; non-null => Gaussian potential from primitives
+      // q_gau_gm_eval handles empty primitives (zero) gracefully
+      static const GaussianPotentialData empty_gau_data;
+      const auto& center_data =
+          gau_centers_data[oset] ? *gau_centers_data[oset] : empty_gau_data;
+      core_eval_ptr->eval(fm_ptr, gammap, U, mmax, center_data);
     }
 
     decltype(U) two_o_sqrt_PI(1.12837916709551257389615890312);

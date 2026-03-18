@@ -112,10 +112,13 @@ enum class Operator {
   /// \f$ (\lambda \mathrm{erf}(\omega r) + \sigma \mathrm{erfc}(\omega r) )/r
   /// \f$
   erfx_nuclear,
-  /// Superposition of Atomic Potentials (SAP) operator.
-  /// Uses contracted s-shells (one per nucleus) loaded without normalization.
-  /// \sa operator_traits<Operator::sap>
-  sap,
+  /// Generalized Gaussian-charge nuclear potential operator.
+  /// The potential at each center is defined by a sum of Gaussian primitives:
+  /// G_m = sum_i c_i * (α_i/(α_i+ρ))^(m+1/2) * F_m(T*α_i/(α_i+ρ))
+  /// Supports point nuclear ({∞,1}), finite nuclear ({ξ,1}), SAP corrections,
+  /// erf/erfc attenuation, and arbitrary combinations thereof.
+  /// \sa operator_traits<Operator::q_gau>
+  q_gau,
   //! overlap + (Cartesian) electric dipole moment,
   //! \f$ x_O, y_O, z_O \f$, where
   //! \f$ x_O \equiv x - O_x \f$ is relative to
@@ -311,20 +314,20 @@ struct operator_traits<Operator::erfx_nuclear>
 };
 
 template <>
-struct operator_traits<Operator::sap> : public detail::default_operator_traits {
-  /// {SAP per-center data (parallel to point charges), nuclear
-  /// charges/positions}
+struct operator_traits<Operator::q_gau>
+    : public detail::default_operator_traits {
+  /// {Gaussian potential per-center data, nuclear charges/positions}
   typedef std::tuple<
-      libint2::SAPCentersData,
+      libint2::GaussianPotentialCentersData,
       typename operator_traits<Operator::nuclear>::oper_params_type>
       oper_params_type;
   static oper_params_type default_params() {
     return std::make_tuple(
-        libint2::SAPCentersData{},
+        libint2::GaussianPotentialCentersData{},
         operator_traits<Operator::nuclear>::default_params());
   }
   typedef const libint2::GenericGmEval<
-      libint2::os_core_ints::sap_gm_eval<scalar_type>>
+      libint2::os_core_ints::q_gau_gm_eval<scalar_type>>
       core_eval_type;
 };
 

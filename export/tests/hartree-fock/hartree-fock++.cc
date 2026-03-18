@@ -933,20 +933,21 @@ std::vector<Atom> read_geometry(const std::string& filename) {
 // in minimal basis; occupies subshells by smearing electrons evenly over the
 // orbitals
 Matrix compute_sap_matrix(const BasisSet& obs, const std::vector<Atom>& atoms) {
-  // Load SAP per-center data (parallel to atoms, shared_ptr based)
-  auto sap_prim_data = libint2::make_sap_prim_data("sap_helfem_large", atoms);
+  // Load SAP + point nuclear data per center
+  auto q_gau_data = libint2::make_q_gau_data(libint2::NuclearModel::PointCharge,
+                                             atoms, "sap_helfem_large");
 
   auto point_charges = libint2::make_point_charges(atoms);
   const auto n = libint2::nbf(obs);
   const auto nshells = obs.size();
   auto shell2bf = obs.shell2bf();
-  size_t sap_max_nprim = 0;
-  for (const auto& ptr : sap_prim_data)
-    if (ptr) sap_max_nprim = std::max(sap_max_nprim, ptr->size());
-  const auto max_nprim = std::max(obs.max_nprim(), sap_max_nprim);
+  size_t gau_max_nprim = 0;
+  for (const auto& ptr : q_gau_data)
+    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
+  const auto max_nprim = std::max(obs.max_nprim(), gau_max_nprim);
 
-  libint2::Engine engine(Operator::sap, max_nprim, obs.max_l());
-  engine.set_params(std::make_tuple(sap_prim_data, point_charges));
+  libint2::Engine engine(Operator::q_gau, max_nprim, obs.max_l());
+  engine.set_params(std::make_tuple(q_gau_data, point_charges));
   const auto& buf = engine.results();
 
   Matrix V_sap = Matrix::Zero(n, n);
