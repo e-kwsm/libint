@@ -154,6 +154,10 @@ enum class Operator {
   sphemultipole,
   /// The four components of σp . V . σp, where V is the nuclear potential.
   opVop,
+  /// The four components of σp . V . σp, where V is the generalized Gaussian
+  /// potential (same as q_gau but with σp derivatives on both sides).
+  /// \sa operator_traits<Operator::op_q_gau_op>
+  op_q_gau_op,
   /// \f$ \delta(\vec{r}_1 - \vec{r}_2) \f$
   delta,
   /// (2-body) Coulomb operator = \f$ r_{12}^{-1} \f$
@@ -192,7 +196,7 @@ enum class Operator {
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!keep this
   // updated!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   first_1body_oper = overlap,
-  last_1body_oper = opVop,
+  last_1body_oper = op_q_gau_op,
   first_2body_oper = delta,
   last_2body_oper = stg_x_coulomb,
   first_oper = first_1body_oper,
@@ -329,6 +333,13 @@ struct operator_traits<Operator::q_gau>
   typedef const libint2::GenericGmEval<
       libint2::os_core_ints::q_gau_gm_eval<scalar_type>>
       core_eval_type;
+};
+
+template <>
+struct operator_traits<Operator::op_q_gau_op>
+    : public operator_traits<Operator::q_gau> {
+  static constexpr auto nopers = 4;
+  static constexpr auto intrinsic_deriv_order = 2;
 };
 
 template <>

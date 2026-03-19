@@ -70,39 +70,40 @@ typename std::remove_all_extents<T>::type* to_ptr1(T (&a)[N]) {
 /// These MUST appear in the same order as in Operator.
 /// You must also update BOOST_PP_NBODY_OPERATOR_LAST_ONEBODY_INDEX when you add
 /// one-body ints
-#define BOOST_PP_NBODY_OPERATOR_LIST               \
-  (overlap,                   /* overlap */        \
-   (kinetic,                  /* kinetic */        \
-    (elecpot,                 /* nuclear */        \
-     (elecpot,                /* erf_nuclear */    \
-      (elecpot,               /* erfc_nuclear */   \
-       (elecpot,              /* erfx_nuclear */   \
-        (elecpot,             /* q_gau */          \
-         (1emultipole,        /* emultipole1 */    \
-          (2emultipole,       /* emultipole2 */    \
-           (3emultipole,      /* emultipole3 */    \
-            (sphemultipole,   /* sphemultipole */  \
-             (opVop,          /* opVop */          \
-              (eri,           /* delta */          \
-               (eri,          /* coulomb */        \
-                (eri,         /* cgtg */           \
-                 (eri,        /* cgtg_x_coulomb */ \
-                  (eri,       /* delcgtg2 */       \
-                   (eri,      /* r12 */            \
-                    (eri,     /* erf_coulomb */    \
-                     (eri,    /* erfc_coulomb */   \
-                      (eri,   /* erfx_coulomb */   \
-                       (eri,  /* stg */            \
-                        (eri, /* yukawa */         \
-                         BOOST_PP_NIL)))))))))))))))))))))))
+#define BOOST_PP_NBODY_OPERATOR_LIST                \
+  (overlap,                    /* overlap */        \
+   (kinetic,                   /* kinetic */        \
+    (elecpot,                  /* nuclear */        \
+     (elecpot,                 /* erf_nuclear */    \
+      (elecpot,                /* erfc_nuclear */   \
+       (elecpot,               /* erfx_nuclear */   \
+        (elecpot,              /* q_gau */          \
+         (1emultipole,         /* emultipole1 */    \
+          (2emultipole,        /* emultipole2 */    \
+           (3emultipole,       /* emultipole3 */    \
+            (sphemultipole,    /* sphemultipole */  \
+             (opVop,           /* opVop */          \
+              (opVop,          /* op_q_gau_op */    \
+               (eri,           /* delta */          \
+                (eri,          /* coulomb */        \
+                 (eri,         /* cgtg */           \
+                  (eri,        /* cgtg_x_coulomb */ \
+                   (eri,       /* delcgtg2 */       \
+                    (eri,      /* r12 */            \
+                     (eri,     /* erf_coulomb */    \
+                      (eri,    /* erfc_coulomb */   \
+                       (eri,   /* erfx_coulomb */   \
+                        (eri,  /* stg */            \
+                         (eri, /* yukawa */         \
+                          BOOST_PP_NIL))))))))))))))))))))))))
 
 #define BOOST_PP_NBODY_OPERATOR_INDEX_TUPLE \
   BOOST_PP_MAKE_TUPLE(BOOST_PP_LIST_SIZE(BOOST_PP_NBODY_OPERATOR_LIST))
 #define BOOST_PP_NBODY_OPERATOR_INDEX_LIST \
   BOOST_PP_TUPLE_TO_LIST(BOOST_PP_NBODY_OPERATOR_INDEX_TUPLE)
 #define BOOST_PP_NBODY_OPERATOR_LAST_ONEBODY_INDEX \
-  11  // opVop, the 12th member of BOOST_PP_NBODY_OPERATOR_LIST, is the last
-      // 1-body operator
+  12  // op_q_gau_op, the 13th member of BOOST_PP_NBODY_OPERATOR_LIST, is the
+      // last 1-body operator
 
 // make list of braket indices for n-body ints
 #define BOOST_PP_NBODY_BRAKET_INDEX_TUPLE \
@@ -194,7 +195,8 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute1(
   const auto oper_is_nuclear =
       (oper_ == Operator::nuclear || oper_ == Operator::erf_nuclear ||
        oper_ == Operator::erfc_nuclear || oper_ == Operator::erfx_nuclear ||
-       oper_ == Operator::q_gau || oper_ == Operator::opVop);
+       oper_ == Operator::q_gau || oper_ == Operator::opVop ||
+       oper_ == Operator::op_q_gau_op);
 
   const auto l1 = s1.contr[0].l;
   const auto l2 = s2.contr[0].l;
@@ -264,7 +266,7 @@ __libint2_engine_inline const Engine::target_ptr_vec& Engine::compute1(
   const auto compute_directly =
       lmax == 0 && deriv_order_ == 0 &&
       (oper_ == Operator::overlap || oper_is_nuclear) &&
-      oper_ != Operator::opVop;
+      oper_ != Operator::opVop && oper_ != Operator::op_q_gau_op;
   if (compute_directly) {
     primdata_[0].stack[0] = 0;
     targets_[0] = primdata_[0].stack;
@@ -788,6 +790,7 @@ __libint2_engine_inline unsigned int Engine::nparams() const {
                      Operator::erfx_nuclear>::oper_params_type&>(params_))
           .size();
     case Operator::q_gau:
+    case Operator::op_q_gau_op:
       return std::get<1>(
                  any_cast<
                      const operator_traits<Operator::q_gau>::oper_params_type&>(
@@ -933,13 +936,15 @@ __libint2_engine_inline void Engine::init_core_ints_params(const any& params) {
         core_ints_params.push_back(std::make_pair(gexp, gcoeff_rescaled));
       }
     core_ints_params_ = core_ints_params;
-  } else if (oper_ == Operator::q_gau) {
+  } else if (oper_ == Operator::q_gau || oper_ == Operator::op_q_gau_op) {
     const auto& q_gau_params =
         any_cast<const operator_traits<Operator::q_gau>::oper_params_type&>(
             params);
     if (std::get<0>(q_gau_params).size() != std::get<1>(q_gau_params).size()) {
       throw std::logic_error(
-          "Engine::set_params(Operator::q_gau): per-center data size (" +
+          "Engine::set_params(Operator::" +
+          std::string(oper_ == Operator::q_gau ? "q_gau" : "op_q_gau_op") +
+          "): per-center data size (" +
           std::to_string(std::get<0>(q_gau_params).size()) +
           ") != point charges size (" +
           std::to_string(std::get<1>(q_gau_params).size()) + ")");
@@ -984,7 +989,8 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
   const auto oper_is_nuclear =
       (oper_ == Operator::nuclear || oper_ == Operator::erf_nuclear ||
        oper_ == Operator::erfc_nuclear || oper_ == Operator::erfx_nuclear ||
-       oper_ == Operator::q_gau || oper_ == Operator::opVop);
+       oper_ == Operator::q_gau || oper_ == Operator::opVop ||
+       oper_ == Operator::op_q_gau_op);
 
   // need to use HRR? see strategy.cc
   const auto l1 = s1.contr[0].l;
@@ -1092,7 +1098,7 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
   primdata._0_Overlap_0_z[0] = ovlp_ss_z;
 
   if (oper_ == Operator::kinetic || (deriv_order_ > 0) ||
-      oper_ == Operator::opVop) {
+      oper_ == Operator::opVop || oper_ == Operator::op_q_gau_op) {
 #if LIBINT2_DEFINED(eri, two_alpha0_bra)
     primdata.two_alpha0_bra[0] = 2.0 * alpha1;
 #endif
@@ -1112,7 +1118,7 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
         return std::get<1>(
             any_cast<const operator_traits<
                 Operator::erfc_nuclear>::oper_params_type&>(params_));
-      else if (oper_ == Operator::q_gau)
+      else if (oper_ == Operator::q_gau || oper_ == Operator::op_q_gau_op)
         return std::get<1>(
             any_cast<const operator_traits<Operator::q_gau>::oper_params_type&>(
                 params_));
@@ -1188,11 +1194,16 @@ __libint2_engine_inline void Engine::compute_primdata(Libint_t& primdata,
               Operator::erfx_nuclear>::oper_params_type&>(core_ints_params_));
       core_eval_ptr->eval(fm_ptr, gammap, U, mmax, core_ints_params[0],
                           core_ints_params[1], core_ints_params[2]);
-    } else if (oper_ == Operator::q_gau) {
+    } else if (oper_ == Operator::q_gau || oper_ == Operator::op_q_gau_op) {
       const auto& core_eval_ptr =
-          any_cast<const detail::core_eval_pack_type<Operator::q_gau>&>(
-              core_eval_pack_)
-              .first();
+          (oper_ == Operator::q_gau)
+              ? any_cast<const detail::core_eval_pack_type<Operator::q_gau>&>(
+                    core_eval_pack_)
+                    .first()
+              : any_cast<
+                    const detail::core_eval_pack_type<Operator::op_q_gau_op>&>(
+                    core_eval_pack_)
+                    .first();
       const auto& gau_centers_data = std::get<0>(
           any_cast<const typename operator_traits<
               Operator::q_gau>::oper_params_type&>(core_ints_params_));

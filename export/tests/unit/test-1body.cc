@@ -502,6 +502,210 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "q_gau SAP correctness",
 #endif
 }
 
+// Helper: compute full n×n 1-body matrix for a specific component of a
+// multi-component nuclear-type operator, then pack as lower triangle.
+static std::vector<double> compute_nuclear_ltri_comp(Engine& engine,
+                                                     const BasisSet& obs,
+                                                     int comp) {
+  const auto n = libint2::nbf(obs);
+  const auto nshells = obs.size();
+  auto shell2bf = obs.shell2bf();
+  const auto& buf = engine.results();
+  const auto ntri = n * (n + 1) / 2;
+  // Compute full matrix (need all shell pairs for accumulation over centers)
+  std::vector<double> M(n * n, 0.0);
+  for (size_t s1 = 0; s1 < nshells; ++s1) {
+    auto bf1 = shell2bf[s1];
+    auto n1 = obs[s1].size();
+    for (size_t s2 = 0; s2 < nshells; ++s2) {
+      auto bf2 = shell2bf[s2];
+      auto n2 = obs[s2].size();
+      engine.compute(obs[s1], obs[s2]);
+      if (buf[comp] == nullptr) continue;
+      for (size_t i = 0; i < n1; ++i)
+        for (size_t j = 0; j < n2; ++j)
+          M[(bf1 + i) * n + (bf2 + j)] = buf[comp][i * n2 + j];
+    }
+  }
+  // Pack lower triangle
+  std::vector<double> V(ntri, 0.0);
+  for (size_t i = 0; i < n; ++i)
+    for (size_t j = 0; j <= i; ++j) V[i * (i + 1) / 2 + j] = M[i * n + j];
+  return V;
+}
+
+TEST_CASE_METHOD(libint2::unit::DefaultFixture, "op_q_gau_op SAP correctness",
+                 "[engine][1-body]") {
+#if defined(LIBINT2_SUPPORT_ONEBODY)
+  // atoms from fixture: O(0,0,0), O(0,0,2), H(0,-1,-1), H(0,1,3) in Bohr
+  // sto-3g gives n=12 basis functions
+  BasisSet obs("sto-3g", atoms);
+  auto point_charges = make_point_charges(atoms);
+  const auto n = libint2::nbf(obs);
+
+  // Build SAP-only data: replace the point nuclear {inf, 1.0} with {inf, 0.0}
+  // so only the SAP correction primitives contribute (no bare Coulomb).
+  auto q_gau_data = libint2::make_q_gau_data(libint2::NuclearModel::PointCharge,
+                                             atoms, "sap_grasp_large");
+  libint2::GaussianPotentialCentersData sap_only_data;
+  sap_only_data.reserve(q_gau_data.size());
+  for (const auto& ptr : q_gau_data) {
+    if (ptr && !ptr->empty()) {
+      auto data = *ptr;           // copy
+      data[0].coefficient = 0.0;  // zero out the point nuclear coefficient
+      sap_only_data.push_back(
+          std::make_shared<const libint2::GaussianPotentialData>(
+              std::move(data)));
+    } else {
+      sap_only_data.push_back(ptr);
+    }
+  }
+  size_t gau_max_nprim = 0;
+  for (const auto& ptr : sap_only_data)
+    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
+
+  const auto lmax =
+      std::min(static_cast<int>(obs.max_l()), LIBINT2_MAX_AM_elecpot);
+  Engine q_engine(Operator::op_q_gau_op,
+                  std::max(obs.max_nprim(), gau_max_nprim), lmax);
+  q_engine.set_params(std::make_tuple(sap_only_data, point_charges));
+
+  // clang-format off
+  // Reference W_sap lower triangles from external 4c Dirac code (real parts).
+  // These are the SAP correction only (without the bare Coulomb opVop).
+  // Component 0 (scalar), 78 elements
+  const double W_ref_s[] = {
+      1017.1940316588756,
+      -6.7517438914914019, 14.90263333586061,
+      0, 0, 59.231740315770757,
+      0.0067660273198012749, -0.032326959926133783, 0, 59.238689218930077,
+      -0.22936483274329972, 1.6831735948256663, 0, 0.0096263636335646371, 59.881035733738578,
+      -0.00094922461392558217, -0.49401374578031587, 0, -0.0010286720297784421, -0.74258885324890422, 1017.1940316588756,
+      -0.49401374577993529, 1.0557146456752298, 0, -0.0019906557365285044, 5.3008728671145358, -6.7517438914914036, 14.902633335860607,
+      0, 0, 2.972026321615155, 0, 0, 0, 0, 59.231740315770757,
+      0.0010286720297784711, 0.0019906557365284975, 0, 2.9711640731200957, 0.001938293450133753, -0.0067660273198012887, 0.032326959926133783, 0, 59.238689218930077,
+      0.74258885324854762, -5.3008728671145224, 0, 0.0019382934501337695, -12.733566048947557, 0.22936483274331063, -1.6831735948256625, 0, 0.0096263636335646476, 59.881035733738578,
+      0.68020575472394618, 3.8324410553887276, 0, -6.1334779485505644, -5.7614548706357862, -0.098493544021966237, -0.5349072985870249, 0, -0.096640899779031425, -0.025753311617736457, 11.034319903150422,
+      -0.098493544021899443, -0.53490729858702546, 0, 0.096640899779031925, 0.025753311617739822, 0.68020575472423772, 3.8324410553887276, 0, 6.1334779485505653, 5.7614548706357844, -0.30378068899204275, 11.034319903150422};
+  // Component 1 (x), 78 elements
+  const double W_ref_x[] = {
+      0,
+      0, 0,
+      0, 0, 0,
+      -1.5576470863370833, -0.90699161564122788, 0, 0,
+      -0.04151583448537164, -0.018843269537484188, 0, -6.7719625920746838, 0,
+      0, 0.0022578738355661931, 0, -0.057002833209069528, 0.0036697623210374501, 0,
+      -0.0022578738355661949, 0, 0, -0.97547564303023371, 0.0050498697820343993, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      -0.057002833209069965, -0.9754756430302336, 0, 0, -0.83353261538165768, 1.5576470863370886, 0.9069916156412271, 0, 0,
+      0.0036697623210374588, 0.0050498697820344045, 0, 0.83353261538165646, 0, 0.041515834485371626, 0.018843269537484185, 0, -6.7719625920746838, 0,
+      0.10694989397838189, 0.21179524040308861, 0, 1.2532746958054455, -1.1391504297329242, -0.0071399526451828427, -0.14271807794149374, 0, 0.34084650640231423, 0.094452927305536089, 0,
+      -0.0071399526451828427, -0.14271807794149355, 0, -0.34084650640231434, -0.094452927305535311, 0.10694989397838202, 0.21179524040308961, 0, -1.2532746958054461, 1.1391504297329258, 0, 0};
+  // Component 2 (y), 78 elements
+  const double W_ref_y[] = {
+      0,
+      0, 0,
+      1.5576470863370833, 0.90699161564122788, 0,
+      0, 0, -0.013127348731989879, 0,
+      0, 0, 6.7819650765550188, 0, 0,
+      0, 0, 0.057099410762780578, 0, 0, 0,
+      0, 0, 0.97887720985746873, 0, 0, 0, 0,
+      0.057099410762781022, 0.97887720985746862, 0, 0.0033118181997882313, 0.83646315449674191, -1.5576470863370886, -0.9069916156412271, 0,
+      0, 0, -0.0033118181997882305, 0, 0, 0, 0, -0.013127348731989886, 0,
+      0, 0, -0.83646315449674069, 0, 0, 0, 0, 6.7819650765550188, 0, 0,
+      0, 0, -1.4039352021168525, 0, 0, 0, 0, -0.2999647102418202, 0, 0, 0,
+      0, 0, 0.29996471024182048, 0, 0, 0, 0, 1.403935202116853, 0, 0, 0, 0};
+  // Component 3 (z), 78 elements
+  const double W_ref_z[] = {
+      0,
+      0, 0,
+      0.04151583448537164, 0.018843269537484185, 0,
+      0, 0, -7.6393474522098979, 0,
+      0, 0, 0.013127348731989879, 0, 0,
+      0, 0, 0.0011163986474808916, 0, 0, 0,
+      0, 0, -0.00064583414690861773, 0, 0, 0, 0,
+      0.0011163986474808918, -0.00064583414690861859, 0, 1.0367677328022835, -0.0033118181997882339, -0.041515834485371633, -0.018843269537484185, 0,
+      0, 0, -1.0367677328022835, 0, 0, 0, 0, -7.6393474522098979, 0,
+      0, 0, 0.0033118181997882279, 0, 0, 0, 0, 0.013127348731989872, 0, 0,
+      0, 0, 1.1307212934920607, 0, 0, 0, 0, 0.14863087674797437, 0, 0, 0,
+      0, 0, -0.14863087674797437, 0, 0, 0, 0, -1.1307212934920605, 0, 0, 0, 0};
+  // clang-format on
+
+  const auto ntri = n * (n + 1) / 2;
+  const double* W_refs[4] = {W_ref_s, W_ref_x, W_ref_y, W_ref_z};
+  const char* comp_labels[4] = {"s", "x", "y", "z"};
+  for (int comp = 0; comp < 4; ++comp) {
+    auto W_comp = compute_nuclear_ltri_comp(q_engine, obs, comp);
+    std::vector<double> W_ref(W_refs[comp], W_refs[comp] + ntri);
+    compare_ltri(W_comp, W_ref, n, 1e-10,
+                 std::string("op_q_gau_op_sap_") + comp_labels[comp]);
+  }
+#endif
+}
+
+TEST_CASE_METHOD(libint2::unit::DefaultFixture,
+                 "op_q_gau_op point nuclear matches Operator::opVop",
+                 "[engine][1-body]") {
+#if defined(LIBINT2_SUPPORT_ONEBODY)
+  BasisSet obs("sto-3g", atoms);
+  auto point_charges = make_point_charges(atoms);
+  const auto n = libint2::nbf(obs);
+  const auto nshells = obs.size();
+  auto shell2bf = obs.shell2bf();
+
+  const auto lmax =
+      std::min(static_cast<int>(obs.max_l()), LIBINT2_MAX_AM_elecpot);
+
+  // Reference: Operator::opVop
+  Engine ref_engine(Operator::opVop, obs.max_nprim(), lmax);
+  ref_engine.set_params(point_charges);
+
+  // op_q_gau_op with point nuclear model
+  auto q_gau_data =
+      libint2::make_q_gau_data(libint2::NuclearModel::PointCharge, atoms);
+  size_t gau_max_nprim = 0;
+  for (const auto& ptr : q_gau_data)
+    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
+  Engine q_engine(Operator::op_q_gau_op,
+                  std::max(obs.max_nprim(), gau_max_nprim), lmax);
+  q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
+
+  // Compare all 4 Pauli components
+  for (size_t s1 = 0; s1 < nshells; ++s1) {
+    auto bf1 = shell2bf[s1];
+    auto n1 = obs[s1].size();
+    for (size_t s2 = 0; s2 < nshells; ++s2) {
+      auto bf2 = shell2bf[s2];
+      auto n2 = obs[s2].size();
+
+      ref_engine.compute(obs[s1], obs[s2]);
+      const auto& ref_buf = ref_engine.results();
+      q_engine.compute(obs[s1], obs[s2]);
+      const auto& q_buf = q_engine.results();
+
+      for (int comp = 0; comp < 4; ++comp) {
+        if (ref_buf[comp] == nullptr && q_buf[comp] == nullptr) continue;
+        REQUIRE(ref_buf[comp] != nullptr);
+        REQUIRE(q_buf[comp] != nullptr);
+        for (size_t i = 0; i < n1; ++i) {
+          for (size_t j = 0; j < n2; ++j) {
+            const auto idx = i * n2 + j;
+            INFO("shell(" << s1 << "," << s2 << ") comp=" << comp << " bf("
+                          << bf1 + i << "," << bf2 + j << ")");
+            if (std::abs(ref_buf[comp][idx]) > 1e-12) {
+              REQUIRE(q_buf[comp][idx] ==
+                      Approx(ref_buf[comp][idx]).epsilon(1e-14));
+            } else {
+              REQUIRE(std::abs(q_buf[comp][idx]) < 1e-14);
+            }
+          }
+        }
+      }
+    }
+  }
+#endif
+}
+
 // verify that python/tests/test_libint2.py:test_integrals is correct
 TEST_CASE_METHOD(libint2::unit::DefaultFixture, "python correctness",
                  "[engine][1-body]") {

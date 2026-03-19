@@ -867,7 +867,7 @@ std::array<Matrix, libint2::operator_traits<obtype>::nopers> compute_1body_ints(
   // charges
   if (obtype == Operator::nuclear || obtype == Operator::erf_nuclear ||
       obtype == Operator::erfc_nuclear || obtype == Operator::erfx_nuclear ||
-      obtype == Operator::q_gau) {
+      obtype == Operator::q_gau || obtype == Operator::op_q_gau_op) {
     engines[0].set_params(params);
   }
   for (size_t i = 1; i != nthreads; ++i) {
