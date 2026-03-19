@@ -289,23 +289,24 @@ BOOST_PP_LIST_FOR_EACH(BOOST_PP_DECLARE_HERMITIAN_ONEBODY_DESCRIPTOR,
 struct σpVσp_Descr : public Contractable<σpVσp_Descr> {
   typedef MultiplicativeODep1Body_Props Properties;
 
-  σpVσp_Descr() : pauli_index_(0) {}
-  σpVσp_Descr(int pauli_index) : pauli_index_(pauli_index) {
-    assert(pauli_index <= 3);
+  σpVσp_Descr() : quaternionic_index_(0) {}
+  σpVσp_Descr(int quaternionic_index)
+      : quaternionic_index_(quaternionic_index) {
+    assert(quaternionic_index <= 3);
   }
 
   static const unsigned int max_key = 4;
-  unsigned int key() const { return pauli_index(); }
+  unsigned int key() const { return quaternionic_index(); }
   std::string description() const {
     std::string descr("opVop[");
-    if (pauli_index() == 0)
+    if (quaternionic_index() == 0)
       descr += "0";
-    else if (pauli_index() == 1)
-      descr += "Z";
-    else if (pauli_index() == 2)
+    else if (quaternionic_index() == 1)
       descr += "X";
-    else if (pauli_index() == 3)
+    else if (quaternionic_index() == 2)
       descr += "Y";
+    else if (quaternionic_index() == 3)
+      descr += "Z";
     else
       abort();
     return descr + "]";
@@ -314,10 +315,10 @@ struct σpVσp_Descr : public Contractable<σpVσp_Descr> {
   int psymm(int i, int j) const { abort(); }
   int hermitian(int i) const { return +1; }
 
-  int pauli_index() const { return pauli_index_; }
+  int quaternionic_index() const { return quaternionic_index_; }
 
  private:
-  const int pauli_index_ = -1;
+  const int quaternionic_index_ = -1;
 };
 typedef GenOper<σpVσp_Descr> σpVσpOper;
 
