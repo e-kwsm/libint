@@ -153,9 +153,11 @@ enum class Operator {
   //! could be be specified at generator/compiler configure time.
   sphemultipole,
   /// The four components of σp . V . σp, where V is the nuclear potential.
+  /// Component order: 0 = scalar, 1 = x, 2 = y, 3 = z.
   opVop,
   /// The four components of σp . V . σp, where V is the generalized Gaussian
   /// potential (same as q_gau but with σp derivatives on both sides).
+  /// Component order: 0 = scalar, 1 = x, 2 = y, 3 = z.
   /// \sa operator_traits<Operator::op_q_gau_op>
   op_q_gau_op,
   /// \f$ \delta(\vec{r}_1 - \vec{r}_2) \f$
