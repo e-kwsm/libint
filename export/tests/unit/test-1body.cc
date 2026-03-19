@@ -244,6 +244,14 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "W correctness",
 #endif  // LIBINT2_SUPPORT_ONEBODY
 }
 
+// Helper: max number of primitives across all centers in q_gau data.
+static size_t max_nprim(const libint2::GaussianPotentialCentersData& data) {
+  size_t result = 0;
+  for (const auto& ptr : data)
+    if (ptr) result = std::max(result, ptr->size());
+  return result;
+}
+
 // Helper: compute lower-triangle (packed) 1-body matrix for a nuclear-type
 // operator using the given engine. Returns n*(n+1)/2 elements.
 static std::vector<double> compute_nuclear_ltri(Engine& engine,
@@ -307,10 +315,8 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture,
   // q_gau with point nuclear model
   auto q_gau_data =
       libint2::make_q_gau_data(libint2::NuclearModel::PointCharge, atoms);
-  size_t gau_max_nprim = 0;
-  for (const auto& ptr : q_gau_data)
-    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
-  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+  Engine q_engine(Operator::q_gau,
+                  std::max(obs.max_nprim(), max_nprim(q_gau_data)),
                   obs.max_l());
   q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
   auto V_qgau = compute_nuclear_ltri(q_engine, obs);
@@ -335,10 +341,8 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture,
 
   // q_gau with erf model
   auto q_gau_data = libint2::make_q_gau_data_erf(omega, atoms);
-  size_t gau_max_nprim = 0;
-  for (const auto& ptr : q_gau_data)
-    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
-  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+  Engine q_engine(Operator::q_gau,
+                  std::max(obs.max_nprim(), max_nprim(q_gau_data)),
                   obs.max_l());
   q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
   auto V_qgau = compute_nuclear_ltri(q_engine, obs);
@@ -363,10 +367,8 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture,
 
   // q_gau with erfc model
   auto q_gau_data = libint2::make_q_gau_data_erfc(omega, atoms);
-  size_t gau_max_nprim = 0;
-  for (const auto& ptr : q_gau_data)
-    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
-  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+  Engine q_engine(Operator::q_gau,
+                  std::max(obs.max_nprim(), max_nprim(q_gau_data)),
                   obs.max_l());
   q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
   auto V_qgau = compute_nuclear_ltri(q_engine, obs);
@@ -392,10 +394,8 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture,
 
   // q_gau with erfx model
   auto q_gau_data = libint2::make_q_gau_data_erfx(omega, lambda, sigma, atoms);
-  size_t gau_max_nprim = 0;
-  for (const auto& ptr : q_gau_data)
-    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
-  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+  Engine q_engine(Operator::q_gau,
+                  std::max(obs.max_nprim(), max_nprim(q_gau_data)),
                   obs.max_l());
   q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
   auto V_qgau = compute_nuclear_ltri(q_engine, obs);
@@ -436,10 +436,8 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture,
   // q_gau with Gaussian nuclear model
   auto q_gau_data =
       libint2::make_q_gau_data(libint2::NuclearModel::GaussianCharge, atoms);
-  size_t gau_max_nprim = 0;
-  for (const auto& ptr : q_gau_data)
-    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
-  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+  Engine q_engine(Operator::q_gau,
+                  std::max(obs.max_nprim(), max_nprim(q_gau_data)),
                   obs.max_l());
   q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
   auto V_qgau = compute_nuclear_ltri(q_engine, obs);
@@ -458,10 +456,8 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "q_gau SAP correctness",
 
   auto q_gau_data = libint2::make_q_gau_data(libint2::NuclearModel::PointCharge,
                                              atoms, "sap_helfem_large");
-  size_t gau_max_nprim = 0;
-  for (const auto& ptr : q_gau_data)
-    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
-  Engine q_engine(Operator::q_gau, std::max(obs.max_nprim(), gau_max_nprim),
+  Engine q_engine(Operator::q_gau,
+                  std::max(obs.max_nprim(), max_nprim(q_gau_data)),
                   obs.max_l());
   q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
   auto V_sap = compute_nuclear_ltri(q_engine, obs);
@@ -560,14 +556,10 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture, "op_q_gau_op SAP correctness",
       sap_only_data.push_back(ptr);
     }
   }
-  size_t gau_max_nprim = 0;
-  for (const auto& ptr : sap_only_data)
-    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
-
   const auto lmax =
       std::min(static_cast<int>(obs.max_l()), LIBINT2_MAX_AM_elecpot);
   Engine q_engine(Operator::op_q_gau_op,
-                  std::max(obs.max_nprim(), gau_max_nprim), lmax);
+                  std::max(obs.max_nprim(), max_nprim(sap_only_data)), lmax);
   q_engine.set_params(std::make_tuple(sap_only_data, point_charges));
 
   // clang-format off
@@ -663,11 +655,8 @@ TEST_CASE_METHOD(libint2::unit::DefaultFixture,
   // op_q_gau_op with point nuclear model
   auto q_gau_data =
       libint2::make_q_gau_data(libint2::NuclearModel::PointCharge, atoms);
-  size_t gau_max_nprim = 0;
-  for (const auto& ptr : q_gau_data)
-    if (ptr) gau_max_nprim = std::max(gau_max_nprim, ptr->size());
   Engine q_engine(Operator::op_q_gau_op,
-                  std::max(obs.max_nprim(), gau_max_nprim), lmax);
+                  std::max(obs.max_nprim(), max_nprim(q_gau_data)), lmax);
   q_engine.set_params(std::make_tuple(q_gau_data, point_charges));
 
   // Compare all 4 Pauli components

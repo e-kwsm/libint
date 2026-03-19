@@ -121,7 +121,7 @@ static constexpr unsigned short most_abundant_isotope_A[] = {
   /* 53 I  */ 127,  /* 54 Xe */ 132,  /* 55 Cs */ 133,  /* 56 Ba */ 138,
   /* 57 La */ 139,  /* 58 Ce */ 140,  /* 59 Pr */ 141,  /* 60 Nd */ 144,
   /* 61 Pm */ 145,  /* 62 Sm */ 152,  /* 63 Eu */ 153,  /* 64 Gd */ 158,
-  /* 65 Tb */ 159,  /* 66 Dy */ 162,  /* 67 Ho */ 162,  /* 68 Er */ 168,
+  /* 65 Tb */ 159,  /* 66 Dy */ 162,  /* 67 Ho */ 165,  /* 68 Er */ 168,
   /* 69 Tm */ 169,  /* 70 Yb */ 174,  /* 71 Lu */ 175,  /* 72 Hf */ 180,
   /* 73 Ta */ 181,  /* 74 W  */ 184,  /* 75 Re */ 187,  /* 76 Os */ 192,
   /* 77 Ir */ 193,  /* 78 Pt */ 195,  /* 79 Au */ 197,  /* 80 Hg */ 202,
@@ -161,7 +161,13 @@ inline double gaussian_nuclear_exponent(int Z) {
 
 /// Gaussian nuclear model exponent ξ for a given mass number A, in bohr^{-2}.
 /// @sa gaussian_nuclear_exponent(int Z)
+/// @param A mass number (must be positive and finite)
+/// @throw std::invalid_argument if A is not positive or is not finite
 inline double gaussian_nuclear_exponent_from_A(double A) {
+  if (!std::isfinite(A) || A <= 0.0)
+    throw std::invalid_argument(
+        "gaussian_nuclear_exponent_from_A: A=" + std::to_string(A) +
+        " is invalid; must be positive and finite");
   const double rms_fm = 0.836 * std::cbrt(A) + 0.570;
   constexpr double fm_per_bohr = 52917.72109030;
   const double rms_bohr = rms_fm / fm_per_bohr;

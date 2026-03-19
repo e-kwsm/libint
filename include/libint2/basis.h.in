@@ -739,8 +739,14 @@ namespace libint2 {
         if (nextshell) {
           auto iss = LINE_TO_SS(line);
           std::string amlabel;
-          std::size_t nprim;
-          iss >> amlabel >> nprim >> rest;
+          std::size_t nprim = 0;
+          if (!(iss >> amlabel >> nprim >> rest)) {
+            std::ostringstream oss;
+            oss << "in file " << file_dot_g94
+                << ": failed to parse SAP shell header line: \"" << line
+                << "\"";
+            throw std::logic_error(oss.str());
+          }
 
           if (amlabel != "S" && amlabel != "s") {
             std::ostringstream oss;
@@ -756,8 +762,15 @@ namespace libint2 {
             }
             fortran_dfloats_to_efloats(line);
             auto iss2 = LINE_TO_SS(line);
-            double e, c;
-            iss2 >> e >> c;
+            double e = 0.0, c = 0.0;
+            if (!(iss2 >> e >> c)) {
+              std::ostringstream oss;
+              oss << "in file " << file_dot_g94
+                  << ": failed to parse SAP primitive " << (p + 1) << " of "
+                  << nprim << " for element Z=" << Z << " from line: \""
+                  << line << "\"";
+              throw std::logic_error(oss.str());
+            }
             element_data.push_back(GaussianPotentialPrimitive{e, c});
           }
         }
