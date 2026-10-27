@@ -1976,7 +1976,7 @@ struct GaussianGmEval
   template <typename AnyReal>
   void eval(Real* Gm, Real rho, Real T, size_t mmax,
             const std::vector<std::pair<AnyReal, AnyReal>>& geminal,
-            void* scr = 0) {
+            void* scr = nullptr) {
     std::fill(Gm, Gm + mmax + 1, Real(0));
 
     const auto sqrt_rho = sqrt(rho);
@@ -2005,7 +2005,7 @@ struct GaussianGmEval
                                sqrt_rorg * exp(-gorg * T);
 
       if (k == -1) {
-        void* _scr = (scr == 0) ? this : scr;
+        void* _scr = (scr == nullptr) ? this : scr;
         auto& scratch =
             *(reinterpret_cast<
                 detail::CoreEvalScratch<GaussianGmEval<Real, -1>>*>(_scr));
